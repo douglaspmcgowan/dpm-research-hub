@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/slides/(.*)", "dest": "/slides/$1" },
+    { "src": "/(.*)", "dest": "/server.js" }
+  ]
+}
