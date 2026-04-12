@@ -9,6 +9,7 @@ app.use('/figures', express.static(path.join(__dirname, 'public', 'figures')));
 app.get('/', (req, res) => res.send(buildLanding()));
 app.get('/mccomb', (req, res) => res.send(buildMcComb()));
 app.get('/horwitz', (req, res) => res.send(buildHorwitz()));
+app.get('/ahmed', (req, res) => res.send(buildAhmed()));
 
 // ─── Shared CSS ───
 function getSharedCSS() {
@@ -162,9 +163,9 @@ return pageWrapper({ title: 'Research Hub', icon: '\uD83D\uDD2C', body: `
       </div>
     </a>
     <a href="/horwitz" class="report-card">
-      <div style="width:100%;height:200px;background:linear-gradient(135deg,#0f172a,#1e3a5f,#312e81);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Playfair Display',serif;font-size:1.3rem;padding:1.5rem;text-align:center;">Weight Space Learning</div>
+      <div style="width:100%;height:200px;background:linear-gradient(135deg,#0f172a,#1e3a5f,#312e81);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Playfair Display',serif;font-size:1.3rem;padding:1.5rem;text-align:center;">Eliahu Horwitz</div>
       <div class="card-body">
-        <h3>Treating Neural Networks as Data</h3>
+        <h3>Weight Space Learning: Treating Neural Networks as Data</h3>
         <p>Four recent papers by Eliahu Horwitz (Hebrew University) on model genealogy, weight-space probing, model atlas construction, and extreme dataset distillation.</p>
         <div class="tags" style="margin-bottom:0.75rem">
           <span class="tag">Weight Space Learning</span>
@@ -172,6 +173,19 @@ return pageWrapper({ title: 'Research Hub', icon: '\uD83D\uDD2C', body: `
           <span class="tag">Dataset Distillation</span>
         </div>
         <div class="card-meta">NeurIPS 2025 &middot; CVPR 2025 &middot; ICLR 2025 &middot; TMLR 2025</div>
+      </div>
+    </a>
+    <a href="/ahmed" class="report-card">
+      <div style="width:100%;height:200px;background:linear-gradient(135deg,#1a0a2e,#2d1b69,#0f3460);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Playfair Display',serif;font-size:1.3rem;padding:1.5rem;text-align:center;">Faez Ahmed</div>
+      <div class="card-body">
+        <h3>AI-Driven Engineering Design at Scale</h3>
+        <p>Five recent papers from MIT's DeCoDe Lab on topology optimization foundation models, image-to-CAD generation, automotive aerodynamics, video-based CAD learning, and multi-agent design systems.</p>
+        <div class="tags" style="margin-bottom:0.75rem">
+          <span class="tag">Topology Optimization</span>
+          <span class="tag">CAD Generation</span>
+          <span class="tag">Computational Design</span>
+        </div>
+        <div class="card-meta">NeurIPS 2024-2025 &middot; TMLR 2025 &middot; IDETC 2025</div>
       </div>
     </a>
   </div>
@@ -476,11 +490,11 @@ return pageWrapper({ title: 'McComb: AI & the Soul of Design', icon: '\uD83E\uDD
 // HORWITZ PAGE
 // ═══════════════════════════════════════════════════
 function buildHorwitz() {
-return pageWrapper({ title: 'Horwitz: Weight Space Learning', icon: '\uD83E\uDDE0', body: `
+return pageWrapper({ title: 'Eliahu Horwitz: Weight Space Learning', icon: '\uD83E\uDDE0', body: `
 <div class="hero" style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#312e81 100%)">
-  <h1>Treating Neural Networks as Data</h1>
-  <p class="subtitle">Four recent papers by Eliahu Horwitz on weight space learning, model forensics, and dataset distillation</p>
-  <div class="meta"><span>Hebrew University of Jerusalem</span><span>Advisor: Yedid Hoshen</span><span>2025</span></div>
+  <h1>Eliahu Horwitz</h1>
+  <p class="subtitle">Weight space learning, model forensics, and dataset distillation &mdash; four recent papers treating neural networks as data</p>
+  <div class="meta"><span>Hebrew University of Jerusalem</span><span>Google PhD Fellow</span><span>Advisor: Yedid Hoshen</span><span>2025</span></div>
 </div>
 <nav class="nav"><div class="nav-inner">
   <button class="nav-tab active" onclick="showSection('hoverview',this)">Overview</button>
@@ -695,6 +709,281 @@ return pageWrapper({ title: 'Horwitz: Weight Space Learning', icon: '\uD83E\uDDE
 <h3 id="po-significance">Why This Matters</h3>
 <p>PoDD pushes the theoretical and practical limits of dataset distillation by <strong>reframing the problem from counting images to counting pixels</strong>. Practically, this enables extreme compression for scenarios where storage, transmission, or privacy constraints demand the smallest possible training sets. Theoretically, it reveals that the information content of a dataset is more fluid than the rigid class-by-class decomposition suggests &mdash; classes can share representational space without losing distinguishability.</p>
 <p>While thematically adjacent rather than directly connected to the Model Trees/Atlas work, PoDD shares the same intellectual instinct: <strong>the conventional way we organize and represent ML artifacts (datasets, models) may be artificially limiting, and rethinking the representation can unlock surprising efficiency.</strong></p>
+</div>
+
+</div>
+`});
+}
+
+// ═══════════════════════════════════════════════════
+// AHMED PAGE
+// ═══════════════════════════════════════════════════
+function buildAhmed() {
+return pageWrapper({ title: 'Faez Ahmed: AI-Driven Engineering Design', icon: '\uD83D\uDE80', body: `
+<div class="hero" style="background:linear-gradient(135deg,#1a0a2e 0%,#2d1b69 50%,#0f3460 100%)">
+  <h1>Faez Ahmed</h1>
+  <p class="subtitle">AI-driven engineering design at scale &mdash; five recent papers from MIT's DeCoDe Lab on foundation models, CAD generation, and multi-agent design</p>
+  <div class="meta"><span>MIT Mechanical Engineering</span><span>DeCoDe Lab</span><span>2024&ndash;2025</span></div>
+</div>
+<nav class="nav"><div class="nav-inner">
+  <button class="nav-tab active" onclick="showSection('aoverview',this)">Overview</button>
+  <button class="nav-tab" onclick="showSection('oat',this)">OAT</button>
+  <button class="nav-tab" onclick="showSection('videocad',this)">VideoCAD</button>
+  <button class="nav-tab" onclick="showSection('drivaernet',this)">DrivAerNet++</button>
+  <button class="nav-tab" onclick="showSection('gencad',this)">GenCAD</button>
+  <button class="nav-tab" onclick="showSection('designagents',this)">Design Agents</button>
+</div></nav>
+<div class="container">
+<a href="/" class="back-link">&larr; Research Hub</a>
+
+<!-- ===== OVERVIEW ===== -->
+<div class="section active" id="sec-aoverview">
+<h2>The Big Picture</h2>
+<p>Faez Ahmed is an Associate Professor in MIT's Department of Mechanical Engineering, where he leads the <strong>Design Computation and Digital Engineering (DeCoDe) Lab</strong>. His research sits at the intersection of machine learning and engineering design &mdash; not in the abstract sense of "AI for science," but in the concrete, applied sense of building systems that can <strong>design cars, optimize structures, generate CAD models, and run physics simulations</strong> at speeds and scales that would be impossible for human engineers alone.</p>
+<p>What distinguishes Ahmed's work from generic ML research is its deep integration with real engineering constraints. His systems don't just generate pretty outputs; they produce <strong>manufacturable CAD programs</strong>, <strong>physics-validated aerodynamic designs</strong>, and <strong>structurally optimized topologies</strong> that satisfy real-world engineering requirements. The lab's 2024-2025 output has been extraordinary &mdash; over a dozen papers across NeurIPS, CVPR, ICLR, TMLR, and IDETC.</p>
+
+<div class="tags">
+  <span class="tag">Topology Optimization</span><span class="tag">CAD Generation</span><span class="tag">Computational Fluid Dynamics</span><span class="tag">Foundation Models</span><span class="tag">Multi-Agent Design</span><span class="tag">Diffusion Models</span><span class="tag">MIT DeCoDe Lab</span>
+</div>
+
+<h3>Five Papers, One Vision</h3>
+<p>The five papers covered here span the full pipeline of AI-assisted engineering design:</p>
+
+<div class="flow-diagram">
+  <div class="flow-node"><strong>OAT</strong><br>NeurIPS '25<br><em>Optimize structures</em></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-node"><strong>GenCAD</strong><br>TMLR '25<br><em>Generate CAD from images</em></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-node"><strong>VideoCAD</strong><br>NeurIPS '25<br><em>Learn CAD UI from video</em></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-node"><strong>DrivAerNet++</strong><br>NeurIPS '24<br><em>Simulate aerodynamics</em></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-node"><strong>Design Agents</strong><br>IDETC '25<br><em>Orchestrate the full loop</em></div>
+</div>
+
+<p><strong>OAT</strong> provides the structural optimization foundation &mdash; a single model that generalizes across arbitrary design problems. <strong>GenCAD</strong> bridges the gap between images and editable CAD programs. <strong>VideoCAD</strong> teaches AI to operate professional CAD tools by watching video. <strong>DrivAerNet++</strong> supplies the simulation data infrastructure for automotive design. And <strong>Design Agents</strong> orchestrates the entire design pipeline through multi-agent collaboration.</p>
+
+<h3>Key Themes</h3>
+<ul class="findings">
+  <li><strong>Foundation models for engineering.</strong> OAT is arguably the first "foundation model" for topology optimization &mdash; trained on 2.2 million structures, it generalizes across resolutions, aspect ratios, and boundary conditions without retraining. This is the GPT moment for structural design.</li>
+  <li><strong>Parametric, not just geometric.</strong> A recurring emphasis: AI outputs must be <em>editable and manufacturable</em>. GenCAD produces CAD command sequences, not meshes. VideoCAD teaches AI to use real CAD tools. The outputs work in real engineering workflows.</li>
+  <li><strong>Scale through data.</strong> DrivAerNet++ (8,000 car designs, 39 TB, 10 modalities) and OpenTO (2.2M topologies) represent a bet that engineering AI needs datasets comparable to what drove progress in NLP and vision. Ahmed's lab builds these datasets.</li>
+  <li><strong>Multi-agent orchestration.</strong> Design Agents shows that the future isn't a single AI doing everything &mdash; it's specialized AI agents (designer, critic, engineer, coordinator) collaborating, much as human design teams do.</li>
+  <li><strong>Physics-grounded.</strong> Every system is validated against real physics: CFD simulations, compliance analysis, structural mechanics. This isn't "vibes-based" generation &mdash; the designs must work.</li>
+</ul>
+
+<h3>Publication Summary</h3>
+<table class="result-table">
+<tr><th>Paper</th><th>Venue</th><th>Year</th><th>Focus</th></tr>
+<tr><td>OAT</td><td>NeurIPS 2025</td><td>2025</td><td>Topology optimization foundation model</td></tr>
+<tr><td>VideoCAD</td><td>NeurIPS 2025 (D&B)</td><td>2025</td><td>Learning CAD from video</td></tr>
+<tr><td>DrivAerNet++</td><td>NeurIPS 2024 (D&B)</td><td>2024</td><td>Automotive aerodynamic dataset</td></tr>
+<tr><td>GenCAD</td><td>TMLR</td><td>2025</td><td>Image-to-parametric CAD</td></tr>
+<tr><td>Design Agents</td><td>IDETC 2025</td><td>2025</td><td>Multi-agent design framework</td></tr>
+</table>
+</div>
+
+<!-- ===== OAT ===== -->
+<div class="section" id="sec-oat">
+<h2>Optimize Any Topology (OAT) <span class="venue-badge">NeurIPS 2025</span></h2>
+<p><em>Heyrani Nobari, Regenwetter, Picard, Han & Ahmed (2025). A foundation model for shape- and resolution-free structural topology optimization.</em></p>
+
+<div class="toc"><h4>Sections</h4><ul>
+  <li><a href="#oat-problem">The Problem with Current TO</a></li>
+  <li><a href="#oat-method">How OAT Works</a></li>
+  <li><a href="#oat-data">OpenTO: The Dataset</a></li>
+  <li><a href="#oat-results">Results</a></li>
+  <li><a href="#oat-significance">Why This Matters</a></li>
+</ul></div>
+
+<h3 id="oat-problem">The Problem with Current TO</h3>
+<p>Topology optimization (TO) is one of the most computationally expensive problems in engineering design. Given boundary conditions (loads, fixtures, volume constraints), TO finds the optimal material layout that minimizes structural compliance (i.e., maximizes stiffness). Traditional methods like SIMP require hundreds of finite element iterations <em>per problem</em>, taking minutes to hours. Deep learning accelerators exist but suffer from a critical limitation: <strong>they're trained on fixed-resolution square grids with a handful of pre-defined boundary conditions.</strong> Change the resolution, aspect ratio, or load configuration, and you need to retrain from scratch.</p>
+
+<h3 id="oat-method">How OAT Works</h3>
+<p>OAT breaks through these limitations with a three-component architecture:</p>
+<ul class="findings">
+  <li><strong>Neural Field Auto-Encoder (NFAE):</strong> A resolution- and shape-agnostic encoder that maps structures of <em>any</em> size into a unified latent space. Unlike grid-based approaches, the neural field representation treats the structure as a continuous function, not a pixel grid &mdash; so it naturally handles arbitrary resolutions and aspect ratios.</li>
+  <li><strong>Implicit Neural-Field Decoder:</strong> Reconstructs continuous structural representations from latent codes. Because the decoder outputs a continuous field rather than a fixed grid, the same latent code can be rendered at any resolution.</li>
+  <li><strong>Conditional Latent Diffusion Model (LDM):</strong> Generates optimized topology latent codes conditioned on the full specification of the design problem &mdash; loads, fixtures, volume fractions, aspect ratios. This is where the "foundation model" character emerges: a single diffusion model learns to solve the entire family of TO problems.</li>
+</ul>
+
+<h3 id="oat-data">OpenTO: The Dataset</h3>
+<p>OAT is trained on <strong>OpenTO</strong>, a new corpus of <strong>2.2 million optimized structures</strong> covering 2 million unique boundary-condition configurations. This is orders of magnitude larger than any previous TO dataset. Each sample is a fully solved topology optimization problem with its boundary conditions, volume fraction, and optimal material layout. The dataset covers a wide range of aspect ratios (up to 10:1), multiple load and fixture configurations, and various volume fractions &mdash; ensuring the model sees the diversity needed to generalize.</p>
+
+<h3 id="oat-results">Results</h3>
+<table class="result-table">
+<tr><th>Metric</th><th>Result</th></tr>
+<tr><td>Compliance reduction vs. prior DL</td><td>Up to <strong>90% lower</strong> mean compliance</td></tr>
+<tr><td>Inference time</td><td><strong>Sub-1 second</strong> on a single GPU</td></tr>
+<tr><td>Resolution range</td><td>64&times;64 to 256&times;256 (continuous via neural fields)</td></tr>
+<tr><td>Aspect ratio range</td><td>Up to 10:1</td></tr>
+<tr><td>Generalization</td><td>Works on unseen boundary conditions not in training</td></tr>
+</table>
+
+<div class="callout"><div class="label">The Speed Gap</div><p>Traditional SIMP-based topology optimization takes minutes to hours per problem. OAT delivers comparable or better results in under one second. This isn't an incremental speedup &mdash; it's a <strong>three-orders-of-magnitude</strong> reduction that changes what's practically possible. Engineers could interactively explore structural designs in real time rather than submitting batch jobs overnight.</p></div>
+
+<h3 id="oat-significance">Why This Matters</h3>
+<p>OAT is arguably the first genuine <strong>"foundation model" for structural optimization.</strong> Just as GPT showed that a single language model could generalize across tasks, OAT shows that a single topology optimization model can generalize across problem specifications. The implications cascade: real-time interactive design exploration, automated optimization pipelines that don't need retraining for each new project, and a foundation that can be fine-tuned for specific domains (aerospace, automotive, biomedical) without building from scratch.</p>
+<p>The open-source release (code on GitHub, checkpoints on HuggingFace) positions this as community infrastructure, not just a research paper.</p>
+</div>
+
+<!-- ===== VIDEOCAD ===== -->
+<div class="section" id="sec-videocad">
+<h2>VideoCAD <span class="venue-badge">NeurIPS 2025</span></h2>
+<p><em>Man, Nehme, Alam & Ahmed (2025). A dataset and model for learning long-horizon 3D CAD UI interactions from video.</em></p>
+
+<div class="toc"><h4>Sections</h4><ul>
+  <li><a href="#vc-problem">The UI Interaction Gap</a></li>
+  <li><a href="#vc-dataset">The Dataset</a></li>
+  <li><a href="#vc-model">VideoCADFormer</a></li>
+  <li><a href="#vc-significance">Why This Matters</a></li>
+</ul></div>
+
+<h3 id="vc-problem">The UI Interaction Gap</h3>
+<p>There's a growing body of work on AI that can operate software by observing screens and predicting mouse clicks and keystrokes. But existing UI-interaction datasets focus on <strong>short, simple tasks</strong> &mdash; clicking buttons in web forms, navigating menus. Professional engineering CAD tools (SolidWorks, Onshape, Fusion 360) require <strong>long sequences of precise, spatially-grounded actions</strong>: drawing sketch profiles, applying constraints, extruding features, creating chamfers. A single part might require hundreds of sequential actions over minutes of interaction. No existing dataset captured this complexity.</p>
+
+<h3 id="vc-dataset">The Dataset</h3>
+<p>VideoCAD fills this gap with <strong>41,005 annotated video recordings</strong> of CAD operations, generated through an automated pipeline:</p>
+<ul class="findings">
+  <li><strong>Source:</strong> Human-authored parametric CAD models from the DeepCAD dataset are converted into UI instruction sequences.</li>
+  <li><strong>Execution:</strong> A rule-based bot executes these instructions in <strong>Onshape</strong> (a professional browser-based CAD platform) while recording video of the screen.</li>
+  <li><strong>Quality control:</strong> DINOv2-based visual filtering removes failed or corrupted recordings.</li>
+  <li><strong>Annotation:</strong> Keyframes are extracted and actions are temporally aligned to video frames.</li>
+</ul>
+<p>The average sequence length is <strong>186 frames</strong>, up to <strong>20x longer</strong> than existing UI-interaction datasets. This isn't a toy benchmark &mdash; it captures the full complexity of real CAD workflows.</p>
+
+<h3 id="vc-model">VideoCADFormer</h3>
+<p>The paper also introduces <strong>VideoCADFormer</strong>, a causal autoregressive transformer that predicts low-level CAD UI actions directly from images using behavior cloning. The model conditions on both the <strong>target CAD image</strong> (what the part should look like) and a <strong>historical window of frames</strong> (what's happened so far) to predict the next action.</p>
+<p>The paper additionally proposes a <strong>VQA benchmark</strong> that tests multimodal LLMs on spatial reasoning and video comprehension in the CAD domain. Current models (GPT-4V, Gemini, etc.) struggle significantly, revealing that precise action grounding and long-horizon dependencies remain unsolved challenges.</p>
+
+<div class="callout"><div class="label">Scale Comparison</div><p>VideoCAD represents an order-of-magnitude increase in complexity over existing UI datasets. While web-interaction datasets have sequences of 5-10 actions, VideoCAD sequences average 186 actions &mdash; and require precise spatial reasoning about 3D geometry, not just clicking labeled buttons.</p></div>
+
+<h3 id="vc-significance">Why This Matters</h3>
+<p>VideoCAD opens the door to <strong>AI systems that learn to operate professional CAD tools by watching videos</strong>, analogous to how coding assistants learn from code examples. Imagine an AI that watches a tutorial video and then replicates the CAD operations autonomously. This is the infrastructure needed for that vision &mdash; the dataset, the model architecture, and the benchmark to measure progress.</p>
+</div>
+
+<!-- ===== DRIVAERNET ===== -->
+<div class="section" id="sec-drivaernet">
+<h2>DrivAerNet++ <span class="venue-badge">NeurIPS 2024</span></h2>
+<p><em>Elrefaie, Morar, Dai & Ahmed (2024). A large-scale multimodal car dataset with CFD simulations and deep learning benchmarks.</em></p>
+
+<div class="toc"><h4>Sections</h4><ul>
+  <li><a href="#da-problem">The Data Bottleneck</a></li>
+  <li><a href="#da-dataset">What's in the Dataset</a></li>
+  <li><a href="#da-significance">Why This Matters</a></li>
+</ul></div>
+
+<h3 id="da-problem">The Data Bottleneck in Automotive Design</h3>
+<p>Aerodynamic design of vehicles is dominated by CFD (Computational Fluid Dynamics) simulation &mdash; expensive, slow, and requiring specialized expertise. ML-based surrogate models could dramatically accelerate this process, but they need training data. Before DrivAerNet++, <strong>no publicly available dataset provided the scale, diversity, or multimodality</strong> needed to train serious surrogate models for automotive aerodynamics. Existing datasets had a few hundred designs with limited modalities.</p>
+
+<h3 id="da-dataset">What's in the Dataset</h3>
+<p>DrivAerNet++ is the <strong>largest publicly available multimodal dataset for aerodynamic car design</strong>:</p>
+<table class="result-table">
+<tr><th>Attribute</th><th>Value</th></tr>
+<tr><td>Car designs</td><td><strong>8,000+</strong> (fastback, notchback, estateback)</td></tr>
+<tr><td>Design parameters</td><td>26 geometric parameters per design</td></tr>
+<tr><td>Total size</td><td><strong>39 TB</strong> (hosted on Harvard Dataverse)</td></tr>
+<tr><td>Body styles</td><td>ICE and EV configurations</td></tr>
+<tr><td>Semantic labels</td><td>29 component annotations per design</td></tr>
+</table>
+
+<p>Each design comes with <strong>ten data modalities</strong>:</p>
+<ul class="findings">
+  <li><strong>3D meshes</strong> &mdash; full surface geometry</li>
+  <li><strong>Parametric models</strong> &mdash; the 26 parameters that define each shape</li>
+  <li><strong>Aerodynamic coefficients</strong> &mdash; drag, lift, moment</li>
+  <li><strong>3D volumetric CFD fields</strong> &mdash; pressure, velocity, turbulence</li>
+  <li><strong>Surface aerodynamic data</strong> &mdash; wall shear stress, surface pressure</li>
+  <li><strong>Dense and sparse point clouds</strong></li>
+  <li><strong>Semantic part annotations</strong> &mdash; 29 labeled components</li>
+  <li><strong>Photorealistic 2D renderings</strong></li>
+  <li><strong>Hand-drawn sketches</strong> &mdash; enabling sketch-to-aerodynamics workflows</li>
+  <li><strong>Full simulation data</strong> &mdash; OpenFOAM cases</li>
+</ul>
+
+<div class="callout"><div class="label">Scale in Context</div><p>39 TB of engineering simulation data, publicly available. For comparison, ImageNet is ~150 GB. DrivAerNet++ is to automotive design AI what ImageNet was to computer vision &mdash; the dataset that enables a new generation of models by removing the data bottleneck.</p></div>
+
+<h3 id="da-significance">Why This Matters</h3>
+<p>DrivAerNet++ provides the <strong>data infrastructure</strong> for an entire subfield. With 10 modalities per design, researchers can train models that bridge representations &mdash; predicting aerodynamic performance from sketches, generating 3D designs that meet drag targets, or building surrogate models that replace hours of CFD with milliseconds of neural network inference. The dataset has already become a standard benchmark for ML-assisted engineering design, and its multimodality enables research directions (sketch-to-CFD, point-cloud-to-aero) that simply weren't possible before.</p>
+</div>
+
+<!-- ===== GENCAD ===== -->
+<div class="section" id="sec-gencad">
+<h2>GenCAD <span class="venue-badge">TMLR 2025</span></h2>
+<p><em>Alam & Ahmed (2025). Image-conditioned computer-aided design generation with transformer-based contrastive representation and diffusion priors.</em></p>
+
+<div class="toc"><h4>Sections</h4><ul>
+  <li><a href="#gc-problem">The Editability Gap</a></li>
+  <li><a href="#gc-method">The Four-Stage Pipeline</a></li>
+  <li><a href="#gc-results">Key Results</a></li>
+  <li><a href="#gc-significance">Why This Matters</a></li>
+</ul></div>
+
+<h3 id="gc-problem">The Editability Gap</h3>
+<p>Most 3D generative models produce raw geometry &mdash; meshes, point clouds, voxels. These are useful for visualization but <strong>nearly useless for manufacturing.</strong> Engineers need <em>parametric CAD models</em>: sequences of commands (sketch, extrude, chamfer, fillet) that define a part's geometry through its construction history. Parametric CAD is editable (change a dimension and the whole part updates), version-controlled, and directly connected to manufacturing processes. GenCAD bridges this gap: given an image of a part, it produces the <strong>full CAD program</strong> that creates it.</p>
+
+<h3 id="gc-method">The Four-Stage Pipeline</h3>
+<ul class="findings">
+  <li><strong>Stage 1 &mdash; Autoregressive Transformer Encoder:</strong> Learns compact latent representations of CAD command sequences. Each CAD program (a sequence of sketch-extrude operations) is encoded into a fixed-length latent vector.</li>
+  <li><strong>Stage 2 &mdash; Contrastive Learning:</strong> Aligns the latent space of CAD sequences with the latent space of rendered images. After training, a CAD program and its rendering map to nearby points in the shared embedding space.</li>
+  <li><strong>Stage 3 &mdash; Latent Diffusion Model:</strong> Generates new CAD latent codes conditioned on input images. Given a photo or rendering of a part, the diffusion model produces a latent code in the CAD embedding space.</li>
+  <li><strong>Stage 4 &mdash; Decoder:</strong> Converts latent codes back into executable CAD command sequences that can be run through geometry kernels to produce solid models.</li>
+</ul>
+
+<h3 id="gc-results">Key Results</h3>
+<table class="result-table">
+<tr><th>Capability</th><th>Result</th></tr>
+<tr><td>Image &rarr; CAD generation</td><td>Outperforms prior SOTA in fidelity and editability</td></tr>
+<tr><td>Sample diversity</td><td>Multiple valid CAD interpretations per input image</td></tr>
+<tr><td>CAD retrieval</td><td>Image-based search over ~7,000 CAD programs</td></tr>
+<tr><td>Output format</td><td>Full parametric CAD command sequences, not meshes</td></tr>
+</table>
+
+<div class="callout"><div class="label">Why Parametric Matters</div><p>A mesh of a bracket is a frozen shape. A parametric CAD model of the same bracket is a <em>recipe</em> &mdash; change the hole diameter from 5mm to 8mm, and the entire geometry updates consistently. This is the difference between a JPEG and a Figma file. Manufacturing, version control, and iterative design all require parametric representations, and GenCAD is the first system to reliably produce them from images.</p></div>
+
+<h3 id="gc-significance">Why This Matters</h3>
+<p>GenCAD addresses a critical practical gap in the design pipeline. Engineers routinely need to convert physical objects, sketches, or reference images into editable CAD &mdash; currently a manual process that takes hours. GenCAD automates this with a system that produces directly usable output. The sample diversity feature is particularly valuable: given a single reference image, it generates <em>multiple valid</em> CAD interpretations, enabling design space exploration rather than just single-point reconstruction.</p>
+</div>
+
+<!-- ===== DESIGN AGENTS ===== -->
+<div class="section" id="sec-designagents">
+<h2>Design Agents <span class="venue-badge">IDETC 2025</span></h2>
+<p><em>Elrefaie, Qian, Wu, Chen, Dai & Ahmed (2025). A multi-agent framework for aesthetic and aerodynamic car design.</em></p>
+
+<div class="toc"><h4>Sections</h4><ul>
+  <li><a href="#da2-problem">The Integration Challenge</a></li>
+  <li><a href="#da2-agents">The Four Agents</a></li>
+  <li><a href="#da2-results">Key Results</a></li>
+  <li><a href="#da2-significance">Why This Matters</a></li>
+</ul></div>
+
+<h3 id="da2-problem">The Integration Challenge</h3>
+<p>Real engineering design involves multiple phases &mdash; conceptual sketching, aesthetic evaluation, 3D modeling, physics simulation, optimization &mdash; each traditionally requiring different tools, different expertise, and days to weeks of iteration. No single AI system can handle this full pipeline alone. Design Agents takes the multi-agent approach that's been successful in software engineering (where coding, reviewing, testing, and deploying are handled by specialized agents) and applies it to <strong>physical engineering design</strong>.</p>
+
+<h3 id="da2-agents">The Four Agents</h3>
+<ul class="findings">
+  <li><strong>Designer Agent:</strong> Generates conceptual sketches and styling variations using diffusion models. Given a text prompt or reference image, it produces car design concepts.</li>
+  <li><strong>Critic Agent:</strong> A vision-language model (VLM) that evaluates designs for aesthetic quality, brand coherence, and design principles. It provides structured feedback that the Designer can iterate on.</li>
+  <li><strong>Engineer Agent:</strong> Handles 3D shape retrieval, generative modeling, CFD mesh generation, and aerodynamic simulation. It takes 2D concepts and turns them into physics-validated 3D designs.</li>
+  <li><strong>Coordinator Agent:</strong> An LLM-based orchestrator that manages the workflow, mediates between aesthetic and engineering objectives, and decides when to iterate vs. finalize. It's the "project manager" of the agent team.</li>
+</ul>
+
+<p>The framework integrates <strong>diffusion models, LLMs, VLMs, geometric deep learning, and CFD simulation</strong> into a single end-to-end pipeline. The agents communicate through structured messages, and the Coordinator manages the design loop.</p>
+
+<h3 id="da2-results">Key Results</h3>
+<table class="result-table">
+<tr><th>Metric</th><th>Result</th></tr>
+<tr><td>Time compression</td><td>Tasks taking days/weeks reduced to <strong>minutes</strong></td></tr>
+<tr><td>Pipeline coverage</td><td>Sketch &rarr; Style &rarr; 3D &rarr; CFD &rarr; Optimization</td></tr>
+<tr><td>Simulation forecasting</td><td>Agents can predict simulation outcomes to inform optimization</td></tr>
+<tr><td>Validation</td><td>Benchmarked against industry-standard automotive designs</td></tr>
+</table>
+
+<div class="callout"><div class="label">The Multi-Agent Insight</div><p>Design Agents demonstrates that the value of AI in design isn't in a single powerful model but in <strong>orchestrated collaboration between specialized agents.</strong> The Designer doesn't need to understand aerodynamics; the Engineer doesn't need aesthetic judgment; the Coordinator doesn't need domain expertise in either. This mirrors how real engineering teams work &mdash; and it's a fundamentally different architecture from monolithic "do-everything" models.</p></div>
+
+<h3 id="da2-significance">Why This Matters</h3>
+<p>Design Agents is one of the first papers to apply the LLM-agent paradigm to <strong>physical engineering design</strong> with real physics validation. Most multi-agent AI research targets software (coding, debugging, testing). This paper shows the paradigm extends to domains where outputs must satisfy physical laws &mdash; a much harder constraint than passing unit tests. The framework generalizes beyond automotive design; the same agent architecture could orchestrate aerospace, biomedical, or architectural design workflows.</p>
+<p>Read alongside Chris McComb's Human-AI Teaming Matrix, Design Agents occupies the <strong>"AI-as-Partner" quadrant</strong> &mdash; proactive and problem-focused. The agents don't wait to be asked; they actively generate, critique, simulate, and optimize. But they also demonstrate the "AI-as-Coach" pattern through the Coordinator agent, which manages process rather than contributing directly to the design artifact.</p>
 </div>
 
 </div>
