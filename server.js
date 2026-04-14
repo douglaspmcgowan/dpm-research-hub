@@ -99,6 +99,18 @@ strong { color:var(--text); font-weight:600; }
 .flow-node { padding:0.5rem 1rem; border-radius:var(--radius); background:var(--accent-light); border:1px solid var(--accent); font-size:0.8rem; font-weight:500; color:var(--text); text-align:center; }
 .flow-arrow { color:var(--text-muted); font-size:1.2rem; }
 @media(min-width:700px) { .report-cards { grid-template-columns:1fr 1fr; } }
+details.proto-plan { margin:1.5rem 0; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+details.proto-plan summary { padding:1rem 1.25rem; font-weight:600; font-size:0.95rem; cursor:pointer; color:var(--accent); list-style:none; display:flex; align-items:center; gap:0.5rem; }
+details.proto-plan summary::before { content:'\\25B6'; font-size:0.7rem; transition:transform 0.2s; }
+details.proto-plan[open] summary::before { transform:rotate(90deg); }
+details.proto-plan .plan-body { padding:0 1.25rem 1.25rem; }
+details.proto-plan .plan-body h4 { margin-top:1rem; }
+details.proto-plan .plan-body p { font-size:0.88rem; }
+details.proto-plan .plan-body ul { padding-left:1.25rem; margin:0.5rem 0; font-size:0.88rem; color:var(--text-secondary); }
+details.proto-plan .plan-body li { margin:0.3rem 0; }
+details.proto-plan .plan-body a { color:var(--accent); }
+.cost-tag { display:inline-block; font-size:0.75rem; font-weight:600; padding:0.15rem 0.5rem; border-radius:999px; background:#dcfce7; color:#166534; margin-left:0.5rem; }
+[data-theme="dark"] .cost-tag { background:#14532d; color:#86efac; }
 @media(max-width:600px) { .slide-pair{grid-template-columns:1fr} .hero{padding:3rem 1rem 2rem} .container{padding:1.5rem 1rem 3rem} h2{font-size:1.3rem} .flow-diagram{flex-direction:column} .flow-arrow{transform:rotate(90deg)} }
 `;
 }
@@ -147,7 +159,7 @@ return pageWrapper({ title: 'Research Hub', icon: '\uD83D\uDD2C', body: `
   <h1>Research Hub</h1>
   <p class="subtitle">Detailed syntheses of research talks, papers, and ideas in AI, design, and machine learning</p>
   <div class="meta"><span>Douglas McGowan</span><span>UC Berkeley</span><span>2025&ndash;2026</span></div>
-  <a href="/sandbox" style="display:inline-block;margin-top:1.5rem;padding:0.5rem 1.25rem;border:1px solid rgba(255,255,255,0.3);border-radius:999px;color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.8rem;font-weight:500;transition:all 0.2s;letter-spacing:0.03em;" onmouseover="this.style.borderColor='rgba(255,255,255,0.7)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.3)';this.style.color='rgba(255,255,255,0.8)'">&#x1F9EA; Sandbox</a>
+  <a href="/sandbox" style="display:inline-block;margin-top:1.5rem;padding:0.5rem 1.25rem;border:1px solid rgba(255,255,255,0.3);border-radius:999px;color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.8rem;font-weight:500;transition:all 0.2s;letter-spacing:0.03em;" onmouseover="this.style.borderColor='rgba(255,255,255,0.7)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.3)';this.style.color='rgba(255,255,255,0.8)'">&#x1F9EA; Psych_Battery</a>
 </div>
 <div class="container">
   <div class="report-cards">
@@ -721,14 +733,15 @@ return pageWrapper({ title: 'Eliahu Horwitz: Weight Space Learning', icon: '\uD8
 // SANDBOX PAGE
 // ═══════════════════════════════════════════════════
 function buildSandbox() {
-return pageWrapper({ title: 'Sandbox: PATHOS-BATTERY Display Mechanisms', icon: '\uD83E\uDDEA', body: `
+return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\uD83E\uDDEA', body: `
 <div class="hero" style="background:linear-gradient(135deg,#1a1a1a 0%,#2d1f0e 50%,#1a0a00 100%)">
-  <h1>PATHOS-BATTERY</h1>
-  <p class="subtitle">Physical display mechanisms for a desk object that tracks digital engagement through analog recovery</p>
-  <div class="meta"><span>Stanford ME 292C</span><span>Design Research</span><span>2025</span></div>
+  <h1>Psych_Battery</h1>
+  <p class="subtitle">A physical desk object that tracks digital engagement and promotes analog recovery &mdash; systems map, display mechanisms, and prototyping plans</p>
+  <div class="meta"><span>AI Expedition 3</span><span>Stanford ME 292C</span><span>2025</span></div>
 </div>
 <nav class="nav"><div class="nav-inner">
   <button class="nav-tab active" onclick="showSection('scontext',this)">Context</button>
+  <button class="nav-tab" onclick="showSection('ssystems',this)">Systems Map</button>
   <button class="nav-tab" onclick="showSection('sled',this)">LED Diffusion</button>
   <button class="nav-tab" onclick="showSection('sferro',this)">Ferrofluid</button>
   <button class="nav-tab" onclick="showSection('selwire',this)">EL Wire</button>
@@ -778,6 +791,140 @@ return pageWrapper({ title: 'Sandbox: PATHOS-BATTERY Display Mechanisms', icon: 
 </div>
 </div>
 
+<!-- ===== SYSTEMS MAP ===== -->
+<div class="section" id="sec-ssystems">
+<h2>Systems Map: AI Expedition 3</h2>
+<p>This section walks through the Phase 1 systems mapping process from AI Expedition 3, applying each step to the Psych_Battery concept. The goal: surface assumptions, identify dynamics, and build a system diagram that informs the physical prototype.</p>
+
+<div class="toc"><h4>Steps</h4><ul>
+  <li><a href="#s1-purpose">Step 1: Purpose</a></li>
+  <li><a href="#s2-behavior">Step 2: Behavior Assumptions</a></li>
+  <li><a href="#s3-causes">Step 3: What Causes That Behavior</a></li>
+  <li><a href="#s4-elements">Step 4: Elements & Interconnections</a></li>
+  <li><a href="#s5-scope">Step 5: What to Include</a></li>
+  <li><a href="#s6-stocks">Step 6: Stocks & Flows</a></li>
+  <li><a href="#s7-loops">Step 7: Feedback Loops</a></li>
+  <li><a href="#s8-graphs">Step 8: Behavior-Over-Time Graphs</a></li>
+</ul></div>
+
+<h3 id="s1-purpose">Step 1: What is the purpose of your concept?</h3>
+<p>The Psych_Battery helps users understand their <strong>mental energy and cognitive capacity</strong> by representing it through a physical battery object. It also promotes <strong>healthier recovery habits that involve connecting with others</strong>.</p>
+<table class="result-table">
+<tr><th>Question</th><th>Answer</th></tr>
+<tr><td><strong>What is it supposed to do?</strong></td><td>Track and limit digital engagement, require analog recovery activities to recharge, and make cognitive load visible through a physical object.</td></tr>
+<tr><td><strong>For whom?</strong></td><td>Hybrid knowledge workers that use AI-powered workflows.</td></tr>
+<tr><td><strong>In what situation?</strong></td><td>During the workday, during a typical 9-to-5 job &mdash; both in-person and remote.</td></tr>
+<tr><td><strong>Intended experience?</strong></td><td>Greater awareness of personal rhythms of energy and cognitive load, and more sustainable recovery practices involving social connection &mdash; making work more joyful and fulfilling.</td></tr>
+</table>
+
+<h3 id="s2-behavior">Step 2: Assumptions about the behavior of the system</h3>
+<p>If the Psych_Battery works as intended, we'd expect the following behavioral patterns over the first ~10 weeks of use:</p>
+
+<h4>Trust</h4>
+<div class="slide-fig"><img src="/figures/battery/bot_trust.png" alt="Trust over time" onclick="openLightbox(this)"><div class="caption">Trust starts neutral, dips slightly during the first 1-2 weeks of adoption friction, then gradually rises and levels off around month two as the system calibrates and the user builds confidence in its predictions.</div></div>
+<p>The initial dip comes from the system getting predictions wrong early on &mdash; it hasn't learned the user's actual patterns yet. As calibration improves and the user sees accurate reflections of their energy state, trust builds steadily.</p>
+
+<h4>Frustration</h4>
+<div class="slide-fig"><img src="/figures/battery/bot_frustration.png" alt="Frustration over time" onclick="openLightbox(this)"><div class="caption">Frustration starts moderate, peaks during weeks 1-3 as users encounter calibration mismatches and disagree with the system's readings, then decreases to a low (but above-zero) steady state by month two.</div></div>
+<p>The frustration spike comes from three sources: (1) the friction of data input during adoption, (2) the discomfort of having one's data analyzed, even in a closed system, and (3) calibration errors where the system misjudges the user's actual energy level. The user may <em>disagree</em> with the battery's reading and be forced to confront their own patterns &mdash; which is uncomfortable but ultimately the point.</p>
+
+<h4>Daily Energy Cycle</h4>
+<div class="slide-fig"><img src="/figures/battery/bot_energy.png" alt="Daily energy cycle" onclick="openLightbox(this)"><div class="caption">A typical daily energy curve: high in the morning, draining through work, with recovery bumps during breaks. The dashed line shows what happens without the battery &mdash; steady decline with no prompted recovery.</div></div>
+
+<h3 id="s3-causes">Step 3: What causes that behavior?</h3>
+<p>The patterns above are driven by several interacting causes:</p>
+<ul class="findings">
+  <li><strong>Adoption friction.</strong> The user must input data and change habits. Any behavior change creates initial resistance, especially in established workflows.</li>
+  <li><strong>Data awareness discomfort.</strong> Realizing that communication patterns, AI usage, and break habits are being tracked &mdash; even in a closed system &mdash; triggers privacy instincts and self-consciousness.</li>
+  <li><strong>Calibration mismatch.</strong> The system needs time to learn the user's actual energy rhythms. Early predictions will be wrong, and the user will disagree with the battery's reading of their state.</li>
+  <li><strong>Confrontation with self-knowledge.</strong> The battery forces users to see their own patterns &mdash; patterns they may have been avoiding. This is the source of both frustration (short-term) and value (long-term).</li>
+  <li><strong>Interruption escalation.</strong> As the battery drains, interruptions intensify (dims, latency, blocks). This is intentionally uncomfortable &mdash; it's the mechanism that drives behavior change, but it also drives frustration.</li>
+  <li><strong>Social recovery benefits.</strong> Over time, the recovery activities (face-to-face conversation, sunlight, rest) produce genuine improvements in wellbeing, which reinforces trust and reduces frustration.</li>
+</ul>
+
+<h3 id="s4-elements">Step 4: Elements & Interconnections</h3>
+<p>The key elements of the system and how they connect:</p>
+
+<div class="slide-fig"><img src="/figures/battery/system_diagram.png" alt="System diagram" onclick="openLightbox(this)"><div class="caption">System diagram showing the three stocks (Battery Charge Level, Interruption Intensity, Recharge Resistance), their inflows/outflows, and the balancing (B1) and reinforcing (R1) feedback loops.</div></div>
+
+<table class="result-table">
+<tr><th>Element</th><th>Role</th><th>Connections</th></tr>
+<tr><td><strong>User</strong></td><td>The hybrid knowledge worker</td><td>Generates all drain activities; performs recovery activities</td></tr>
+<tr><td><strong>Battery object</strong></td><td>Physical display device</td><td>Reads charge level; displays state; sits on desk</td></tr>
+<tr><td><strong>Backend system</strong></td><td>Data collection + prediction</td><td>Ingests communication/compute/media data; calculates energy score</td></tr>
+<tr><td><strong>Digital environment</strong></td><td>Slack, email, AI tools, browser</td><td>Source of drain data; target of interruptions (dims, blocks, latency)</td></tr>
+<tr><td><strong>Physical environment</strong></td><td>Office, outdoors, breakroom</td><td>Setting for recovery activities</td></tr>
+<tr><td><strong>Coworkers</strong></td><td>Social recovery partners</td><td>Face-to-face interaction is the primary recharge activity</td></tr>
+</table>
+
+<p><strong>Data interconnections</strong> &mdash; information that flows between elements:</p>
+<ul class="findings">
+  <li><strong>Communication data</strong> (Slack messages, email, video calls) &rarr; backend &rarr; drain rate calculation</li>
+  <li><strong>Compute data</strong> (AI token usage, agent interactions) &rarr; backend &rarr; drain rate calculation</li>
+  <li><strong>Media data</strong> (LinkedIn, news, browser history) &rarr; backend &rarr; drain rate calculation</li>
+  <li><strong>Electricity/power data</strong> &rarr; backend &rarr; ambient device usage signal</li>
+  <li><strong>Charge level</strong> &rarr; battery display &rarr; user perception</li>
+  <li><strong>Charge level</strong> &rarr; digital environment &rarr; interruption actions (dim, block, slow)</li>
+</ul>
+
+<h3 id="s5-scope">Step 5: What to include in the system diagram</h3>
+<div class="callout"><div class="label">Included</div><p>The primary stock (mental energy / charge level), both secondary stocks (recharge resistance, interruption intensity), all drain and recovery flows, the two main feedback loops (balancing and reinforcing), and the data inputs that feed the energy calculation. These are all necessary to explain the core behavior: drain &rarr; interrupt &rarr; recover &rarr; stabilize.</p></div>
+<div class="callout"><div class="label">Excluded (for now)</div><p><strong>Social dynamics between coworkers</strong> &mdash; how the user's battery state affects team dynamics is important but adds too much complexity for the initial diagram. <strong>Long-term habit formation</strong> &mdash; the 2-month calibration arc is real but operates on a different timescale than the daily drain/recover cycle. <strong>Manager/org influence</strong> &mdash; workplace culture shapes what "acceptable" break behavior looks like, but this is context, not mechanism. <strong>Multiple users</strong> &mdash; team-level battery effects are a future extension.</p></div>
+
+<h3 id="s6-stocks">Step 6: Stocks & Flows</h3>
+
+<h4>Primary Stock: Mental Energy Score</h4>
+<p>The core quantity that the battery tracks. It can be counted (0-100%), estimated from data inputs, and is directly visible through the physical display. This is what the user cares about.</p>
+<table class="result-table">
+<tr><th>Outflows (Drains)</th><th>Inflows (Recharges)</th></tr>
+<tr><td>Extended AI interaction (sustained chat, iteration)</td><td>Face-to-face interaction (tailored: 1-on-1 for introverts, groups for extroverts)</td></tr>
+<tr><td>Frustrated AI interaction</td><td>Unplugged, low-stimulation time</td></tr>
+<tr><td>Prolonged digital comms (Slack, Zoom, email)</td><td>Exposure to sunlight</td></tr>
+<tr><td>High task switching between contexts</td><td>Napping</td></tr>
+<tr><td>Working into scheduled break time</td><td>Eating / drinking / hydrating</td></tr>
+</table>
+<p>The rates aren't equal &mdash; a 30-minute AI deep-dive drains faster than a quick email check. And the user must <em>physically remove the battery</em> and engage in recovery to recharge.</p>
+
+<h4>Secondary Stock: Recharge Resistance</h4>
+<p>Accumulates when the user works beyond planned hours. Acts as a <strong>modifier that reduces the effectiveness of all inflows.</strong></p>
+<ul class="findings">
+  <li><strong>Inflow:</strong> Time spent working when battery is low or dead</li>
+  <li><strong>Outflow:</strong> Time spent actively recharging</li>
+  <li><strong>Effect:</strong> Higher resistance = recovery activities restore less charge per unit time</li>
+</ul>
+
+<h4>Secondary Stock: Interruption Intensity</h4>
+<p>As battery charge drops past thresholds, the system escalates interventions (dimming lights, adding latency, reducing frame rate, blocking apps).</p>
+<ul class="findings">
+  <li><strong>Inflow:</strong> Time spent with battery in or below the red zone</li>
+  <li><strong>Outflow:</strong> Time spent recharging, with battery in yellow/green</li>
+  <li><strong>Effect:</strong> Creates escalating pressure on the user to stop and recover</li>
+</ul>
+
+<h3 id="s7-loops">Step 7: Feedback Loops</h3>
+
+<h4>B1: The Recovery Loop (Balancing)</h4>
+<div class="callout"><div class="label">Balancing Loop</div><p><strong>Low charge &rarr; interruptions increase &rarr; user is pushed to recharge &rarr; charge rises &rarr; interruptions stop.</strong> This is the core therapeutic mechanism. The system applies escalating discomfort that can only be relieved by engaging in healthy recovery activities. It's balancing because it pushes the system back toward equilibrium.</p></div>
+
+<h4>R1: The Overtime Spiral (Reinforcing)</h4>
+<div class="callout"><div class="label">Reinforcing Loop</div><p><strong>Low battery &rarr; user pushes through &rarr; overtime hours increase &rarr; recharge resistance grows &rarr; recovery becomes less effective &rarr; battery stays low &rarr; more interruptions &rarr; more frustration &rarr; potentially more overtime.</strong> This is the dangerous loop &mdash; it captures the real-world dynamic where overworked people become <em>less</em> able to recover, creating a downward spiral. The Psych_Battery makes this spiral visible and uncomfortable enough to break.</p></div>
+
+<h4>Stabilizing Feedback via Data</h4>
+<ul class="findings">
+  <li><strong>Communication control loop:</strong> Communication data &rarr; battery score &rarr; controls communication apps (e.g. Slack notifications paused) &rarr; communication data changes &rarr; battery adjusts</li>
+  <li><strong>AI agent control loop:</strong> AI agent use &rarr; battery score &rarr; controls AI agents (e.g. adds latency to responses) &rarr; agent interaction data changes &rarr; battery adjusts</li>
+</ul>
+
+<h3 id="s8-graphs">Step 8: Behavior-Over-Time Graphs</h3>
+<p>The graphs from Step 2 above capture the key dynamics. Summarizing what the shapes tell us:</p>
+<ul class="findings">
+  <li><strong>Trust curve (dip then rise):</strong> Suggests the system needs a grace period. Early trust loss is expected and recoverable if calibration improves visibly. Implication: the first 2 weeks are critical &mdash; if the dip is too deep, users may abandon the device. Consider starting with conservative predictions and gradually increasing specificity.</li>
+  <li><strong>Frustration curve (spike then decay):</strong> Suggests the system should be <em>lenient early</em> and <em>stricter later</em>. Aggressive interruptions during the calibration phase would compound frustration with calibration errors. Implication: interruption intensity should ramp up only after the system has demonstrated accuracy.</li>
+  <li><strong>Energy curve (daily oscillation with recovery bumps):</strong> Suggests the battery's primary value is making recovery breaks <em>visible</em> and <em>non-negotiable</em>. Without the battery, energy just declines. With it, the recovery bumps create a healthier sawtooth pattern. Implication: the physical form must make the charge state visible at a glance &mdash; peripheral awareness is the core UX requirement.</li>
+  <li><strong>Sustainability check:</strong> The trust and frustration curves level off (they don't grow forever), which suggests the system reaches a sustainable equilibrium. The reinforcing overtime spiral (R1) is the main risk &mdash; it needs the balancing loop (B1) to be strong enough to counteract it. If interruptions aren't uncomfortable enough, R1 wins.</li>
+</ul>
+</div>
+
 <!-- ===== LED DIFFUSION ===== -->
 <div class="section" id="sec-sled">
 <h2>1. LED Diffusion Through Frosted Glass</h2>
@@ -797,6 +944,33 @@ return pageWrapper({ title: 'Sandbox: PATHOS-BATTERY Display Mechanisms', icon: 
 <div class="tags"><span class="tag">Warm white LED</span><span class="tag">PWM driver</span><span class="tag">Frosted enclosure</span></div>
 
 <div class="callout"><div class="label">Reference</div><p>Ambient Orb (frosted glass sphere, single data dimension mapped to color). MacBook sleep indicator breathing light (discontinued).</p></div>
+
+<details class="proto-plan"><summary>Prototyping Plan: LED Diffusion <span class="cost-tag">~$55</span></summary><div class="plan-body">
+<h4>Materials & Costs</h4>
+<ul>
+  <li>ESP32 dev board &mdash; <a href="https://www.amazon.com/dp/B08D5ZD528" target="_blank">Amazon ~$8</a></li>
+  <li>WS2812B RGB LED strip (1m) &mdash; <a href="https://www.amazon.com/dp/B01CDTED80" target="_blank">Amazon ~$10</a></li>
+  <li>Frosted acrylic sheet (1/8" thick) &mdash; <a href="https://www.amazon.com/dp/B08G8D8YRC" target="_blank">Amazon ~$12</a> (or laser-cut scrap from Jacobs Hall)</li>
+  <li>USB-C cable + breadboard + jumper wires &mdash; ~$10</li>
+  <li>Hot glue, diffusion paper, sandpaper &mdash; ~$5</li>
+  <li>Optional: silicone casting resin for enclosure &mdash; <a href="https://www.amazon.com/dp/B07ZHGCXRY" target="_blank">Amazon ~$20</a></li>
+</ul>
+<h4>Equipment (UC Berkeley)</h4>
+<ul>
+  <li><strong>Jacobs Hall:</strong> Laser cutter (cut acrylic enclosure), 3D printer (base/housing)</li>
+  <li><strong>CITRIS Invention Lab:</strong> Soldering station, electronics bench</li>
+  <li><strong>Supernode (Cory Hall):</strong> Soldering irons, 3D printers (free, 24/7)</li>
+</ul>
+<h4>Build Steps (1-2 weeks)</h4>
+<ul>
+  <li><strong>Day 1-2:</strong> Design enclosure in Fusion 360 or similar. Rounded rectangular box with frosted acrylic panels. Cut on Jacobs laser cutter or 3D print at Supernode.</li>
+  <li><strong>Day 3:</strong> Wire ESP32 to LED strip. Program basic color gradient (green &rarr; amber &rarr; red) and breathing pulse at low charge. Test with USB power.</li>
+  <li><strong>Day 4-5:</strong> Assemble enclosure. Mount LEDs inside, attach frosted panels. Route USB cable out the back. Add diffusion paper if needed for even glow.</li>
+  <li><strong>Day 6-7:</strong> Write serial/WiFi protocol for the backend to send charge level to ESP32. Test full loop: backend sends value &rarr; ESP32 updates color.</li>
+</ul>
+<h4>Difficulty: Low</h4>
+<p>This is the most forgiving prototype. LEDs are cheap, well-documented, and fail gracefully. Good first build to validate the form factor before committing to more exotic mechanisms.</p>
+</div></details>
 </div>
 
 <!-- ===== FERROFLUID ===== -->
@@ -818,6 +992,35 @@ return pageWrapper({ title: 'Sandbox: PATHOS-BATTERY Display Mechanisms', icon: 
 <div class="tags"><span class="tag">Two-chamber glass vessel</span><span class="tag">Electromagnets (x2)</span><span class="tag">H-bridge motor driver</span></div>
 
 <div class="callout"><div class="label">Reference</div><p>Ferrolic clock by Zelf Koelman (ferrofluid forming shapes in sealed glass). MTR Designs desk sculptures (ferrofluid in anodized aluminum and glass).</p></div>
+
+<details class="proto-plan"><summary>Prototyping Plan: Ferrofluid <span class="cost-tag">~$105</span></summary><div class="plan-body">
+<h4>Materials & Costs</h4>
+<ul>
+  <li>Ferrofluid (50ml, oil-based) &mdash; <a href="https://www.amazon.com/dp/B09PV4HLHM" target="_blank">Amazon ~$30</a></li>
+  <li>Shallow glass petri dish (100mm) &mdash; <a href="https://www.amazon.com/dp/B07DPMD34T" target="_blank">Amazon ~$8</a></li>
+  <li>Electromagnets (12V, 20mm) x2 &mdash; <a href="https://www.amazon.com/dp/B07PJ5XG1N" target="_blank">Amazon ~$15</a></li>
+  <li>Arduino Nano &mdash; <a href="https://www.amazon.com/dp/B0097AU5OU" target="_blank">Amazon ~$8</a></li>
+  <li>L298N H-bridge motor driver &mdash; <a href="https://www.amazon.com/dp/B07BK1QL5T" target="_blank">Amazon ~$7</a></li>
+  <li>12V power supply &mdash; ~$10</li>
+  <li>Acrylic/aluminum for base &mdash; ~$15 (laser cut at Jacobs)</li>
+  <li>Silicone sealant, wires, breadboard &mdash; ~$12</li>
+</ul>
+<h4>Equipment (UC Berkeley)</h4>
+<ul>
+  <li><strong>Jacobs Hall:</strong> Laser cutter (base plate), 3D printer (housing)</li>
+  <li><strong>CITRIS Invention Lab:</strong> Soldering, electronics bench, vacuum chamber (for degassing sealant)</li>
+</ul>
+<h4>Build Steps (2-3 weeks)</h4>
+<ul>
+  <li><strong>Day 1-3:</strong> Design and fabricate base housing. Needs cavity for electromagnet(s) below the glass dish. Laser cut acrylic or 3D print.</li>
+  <li><strong>Day 4-5:</strong> Wire electromagnets to H-bridge driver + Arduino. Program PWM control: zero current at full charge (calm fluid), increasing current as charge drops (more spikes).</li>
+  <li><strong>Day 6-7:</strong> Carefully pour ferrofluid into glass dish. Seal with silicone (ferrofluid stains everything it touches permanently). Let cure 24hrs.</li>
+  <li><strong>Day 8-10:</strong> Assemble: mount sealed dish on base, route wires. Test electromagnetic field strength vs. spike height. Calibrate PWM ranges.</li>
+  <li><strong>Day 11-14:</strong> Integrate with backend serial protocol. Test full loop.</li>
+</ul>
+<h4>Difficulty: Medium-High</h4>
+<p>Ferrofluid is messy and unforgiving &mdash; any leak permanently stains. The seal must be perfect. Electromagnetic calibration (field strength vs. spike behavior) takes experimentation. But the visual impact is unmatched.</p>
+</div></details>
 </div>
 
 <!-- ===== EL WIRE ===== -->
@@ -839,6 +1042,34 @@ return pageWrapper({ title: 'Sandbox: PATHOS-BATTERY Display Mechanisms', icon: 
 <div class="tags"><span class="tag">EL tape</span><span class="tag">Variable-frequency inverter</span><span class="tag">Frequency control MCU</span></div>
 
 <div class="callout"><div class="label">Reference</div><p>SparkFun and Adafruit EL wire products. Biological vascular imagery for the "veins" concept.</p></div>
+
+<details class="proto-plan"><summary>Prototyping Plan: EL Wire <span class="cost-tag">~$90</span></summary><div class="plan-body">
+<h4>Materials & Costs</h4>
+<ul>
+  <li>EL wire (multiple colors, 3m total) &mdash; <a href="https://www.adafruit.com/product/402" target="_blank">Adafruit ~$18</a></li>
+  <li>EL wire inverter (battery-powered) &mdash; <a href="https://www.adafruit.com/product/448" target="_blank">Adafruit ~$3</a></li>
+  <li>Clear casting resin (32oz) &mdash; <a href="https://www.amazon.com/dp/B07ZHGCXRY" target="_blank">Amazon ~$25</a></li>
+  <li>Silicone mold kit &mdash; <a href="https://www.amazon.com/dp/B07V5FFPQZ" target="_blank">Amazon ~$18</a></li>
+  <li>Arduino Nano + relay module (4-channel) &mdash; <a href="https://www.amazon.com/dp/B0B18S99MZ" target="_blank">Amazon ~$14</a></li>
+  <li>Mold release spray, mixing cups, stir sticks &mdash; ~$12</li>
+</ul>
+<h4>Equipment (UC Berkeley)</h4>
+<ul>
+  <li><strong>CITRIS Invention Lab:</strong> Vacuum chamber (critical for degassing resin &mdash; bubbles ruin the cast), pressure pot if available</li>
+  <li><strong>Jacobs Hall:</strong> 3D printer for mold master (positive form), ventilated workspace for resin</li>
+</ul>
+<h4>Build Steps (2-3 weeks)</h4>
+<ul>
+  <li><strong>Day 1-2:</strong> Design organic form in CAD. 3D print positive master at Jacobs Hall. Make silicone mold from master (24hr cure).</li>
+  <li><strong>Day 3-4:</strong> Cut EL wire into branching segments. Plan routing pattern (trunk + branches). Solder connections to each segment for individual control via relay module.</li>
+  <li><strong>Day 5-6:</strong> First resin pour (50% fill). Let partially cure until tacky. Place EL wire segments into the tacky resin in the vein pattern. Second pour to cover. Vacuum degas in CITRIS chamber.</li>
+  <li><strong>Day 7-9:</strong> Full cure (48hrs minimum). Demold. Sand any rough edges.</li>
+  <li><strong>Day 10-12:</strong> Wire relay module to Arduino. Program segment control: all veins lit at full charge, progressive shutdown from extremities inward as charge drops.</li>
+  <li><strong>Day 13-14:</strong> Integrate with backend. Test.</li>
+</ul>
+<h4>Difficulty: Medium</h4>
+<p>Resin casting has a learning curve (bubbles, cure times, exothermic heat). The CITRIS vacuum chamber is key. Plan for at least one failed cast. The result is visually stunning and structurally robust.</p>
+</div></details>
 </div>
 
 <!-- ===== ELECTROCHROMIC ===== -->
@@ -860,6 +1091,34 @@ return pageWrapper({ title: 'Sandbox: PATHOS-BATTERY Display Mechanisms', icon: 
 <div class="tags"><span class="tag">Electrochromic polymer film</span><span class="tag">Conformal application</span><span class="tag">Low-voltage driver</span></div>
 
 <div class="callout"><div class="label">Reference</div><p>Boeing 787 electrochromic windows. Auto-dimming rearview mirrors (Gentex). MIT Media Lab electrochromic fabric research.</p></div>
+
+<details class="proto-plan"><summary>Prototyping Plan: Electrochromic <span class="cost-tag">~$130</span></summary><div class="plan-body">
+<h4>Materials & Costs</h4>
+<ul>
+  <li>Electrochromic film sample (small piece, ~4"x4") &mdash; <a href="https://www.amazon.com/dp/B07K72GN2B" target="_blank">Amazon/AliExpress ~$50-70</a> (search "PDLC smart film sample")</li>
+  <li>PDLC film driver/controller &mdash; <a href="https://www.amazon.com/dp/B0D74V7ZRV" target="_blank">Amazon ~$15</a></li>
+  <li>ESP32 dev board &mdash; ~$8</li>
+  <li>MOSFET or relay for voltage switching &mdash; ~$5</li>
+  <li>3D print filament (PLA) for housing &mdash; ~$5 (Jacobs/Supernode)</li>
+  <li>Warm LED for backlight &mdash; ~$5</li>
+  <li>Wires, USB cable, breadboard &mdash; ~$10</li>
+</ul>
+<h4>Equipment (UC Berkeley)</h4>
+<ul>
+  <li><strong>Jacobs Hall / Supernode:</strong> 3D printer for housing (cube/cylinder form factor)</li>
+  <li><strong>CITRIS Invention Lab:</strong> Soldering, electronics bench for driver circuit</li>
+</ul>
+<h4>Build Steps (2-3 weeks)</h4>
+<ul>
+  <li><strong>Day 1-3:</strong> Source electrochromic/PDLC film (allow 5-7 days shipping from AliExpress for cheaper option). While waiting, design and 3D print housing with window cutout.</li>
+  <li><strong>Day 4-5:</strong> Mount PDLC film in housing window. Wire driver controller. Test: voltage ON = clear glass, voltage OFF = frosted/opaque.</li>
+  <li><strong>Day 6-7:</strong> Add warm LED backlight behind the film. When clear, the warm glow is visible (= charged). When opaque, it's hidden (= depleted).</li>
+  <li><strong>Day 8-10:</strong> Program ESP32 to control the driver via PWM for partial opacity states (not just on/off). Map charge level to opacity percentage.</li>
+  <li><strong>Day 11-14:</strong> Integrate with backend. Test full loop. Fine-tune the "cognitive fog" transition speed.</li>
+</ul>
+<h4>Difficulty: Medium</h4>
+<p>The main challenge is sourcing the electrochromic film &mdash; it's not a standard maker component. PDLC (Polymer Dispersed Liquid Crystal) film is the most accessible option. The housing and electronics are straightforward. Note: PDLC is technically not electrochromic (different mechanism) but produces the same clear-to-opaque visual effect.</p>
+</div></details>
 </div>
 
 <!-- ===== THERMOCHROMIC ===== -->
@@ -881,6 +1140,36 @@ return pageWrapper({ title: 'Sandbox: PATHOS-BATTERY Display Mechanisms', icon: 
 <div class="tags"><span class="tag">Thermochromic paint (~33&deg;C activation)</span><span class="tag">Printed substrate layer</span><span class="tag">Passive or Peltier cooling</span></div>
 
 <div class="callout"><div class="label">Reference</div><p>Hypercolor mugs and shirts (same underlying chemistry). Mood rings. Thermochromic urinal indicators (temperature-reveal interaction).</p></div>
+
+<details class="proto-plan"><summary>Prototyping Plan: Thermochromic <span class="cost-tag">~$65</span></summary><div class="plan-body">
+<h4>Materials & Costs</h4>
+<ul>
+  <li>Thermochromic pigment powder (31&deg;C activation, color-changing) &mdash; <a href="https://www.amazon.com/dp/B07PXFKQS1" target="_blank">Amazon ~$12</a></li>
+  <li>Clear acrylic paint (mixing base) &mdash; ~$8</li>
+  <li>Peltier thermoelectric module (TEC1-12706) &mdash; <a href="https://www.amazon.com/dp/B07PYMK3GC" target="_blank">Amazon ~$8</a></li>
+  <li>Heatsink + small fan for Peltier cold side &mdash; ~$6</li>
+  <li>Arduino Nano &mdash; ~$8</li>
+  <li>NTC thermistor (temperature sensor) &mdash; ~$3</li>
+  <li>12V 3A power supply (Peltier draws significant current) &mdash; ~$10</li>
+  <li>Smooth ceramic or aluminum object (bowl, dome, or 3D-printed form) &mdash; ~$10</li>
+</ul>
+<h4>Equipment (UC Berkeley)</h4>
+<ul>
+  <li><strong>Jacobs Hall:</strong> 3D printer for form (if not using found object), spray booth for paint application</li>
+  <li><strong>CITRIS Invention Lab:</strong> Soldering, electronics bench</li>
+  <li><strong>Supernode:</strong> Quick iteration on Arduino code</li>
+</ul>
+<h4>Build Steps (1-2 weeks)</h4>
+<ul>
+  <li><strong>Day 1-2:</strong> Source or 3D print the base object (smooth dome or rounded form). Sand smooth &mdash; thermochromic paint shows surface imperfections.</li>
+  <li><strong>Day 3:</strong> Mix thermochromic pigment into clear acrylic paint (10-30% pigment by weight). Apply 2-3 thin coats to the object. Let dry between coats.</li>
+  <li><strong>Day 4-5:</strong> Mount Peltier module to the underside/interior of the object with thermal paste. Wire to Arduino with PWM control. Add thermistor for closed-loop temperature control.</li>
+  <li><strong>Day 6-7:</strong> Program temperature-to-charge mapping: full charge = Peltier heats surface above activation temp (warm color). Depleted = Peltier off, surface cools to ambient (cool color). PID control for smooth transitions.</li>
+  <li><strong>Day 8-10:</strong> Test touch-reveal: body heat (37&deg;C) should trigger local color change when touched. Tune activation temperature and Peltier setpoints. Integrate with backend.</li>
+</ul>
+<h4>Difficulty: Low-Medium</h4>
+<p>The cheapest and most tactile option. Thermochromic paint is forgiving (just repaint if the mix is wrong). The Peltier module is the main engineering challenge &mdash; it needs good thermal contact and a heatsink. But the result is uniquely multisensory: you can <em>see</em> and <em>feel</em> the charge state.</p>
+</div></details>
 </div>
 
 </div>
