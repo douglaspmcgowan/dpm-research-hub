@@ -10,6 +10,7 @@ app.get('/', (req, res) => res.send(buildLanding()));
 app.get('/mccomb', (req, res) => res.send(buildMcComb()));
 app.get('/horwitz', (req, res) => res.send(buildHorwitz()));
 app.get('/ahmed', (req, res) => res.send(buildAhmed()));
+app.get('/sandbox', (req, res) => res.send(buildSandbox()));
 
 // ─── Shared CSS ───
 function getSharedCSS() {
@@ -146,6 +147,7 @@ return pageWrapper({ title: 'Research Hub', icon: '\uD83D\uDD2C', body: `
   <h1>Research Hub</h1>
   <p class="subtitle">Detailed syntheses of research talks, papers, and ideas in AI, design, and machine learning</p>
   <div class="meta"><span>Douglas McGowan</span><span>UC Berkeley</span><span>2025&ndash;2026</span></div>
+  <a href="/sandbox" style="display:inline-block;margin-top:1.5rem;padding:0.5rem 1.25rem;border:1px solid rgba(255,255,255,0.3);border-radius:999px;color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.8rem;font-weight:500;transition:all 0.2s;letter-spacing:0.03em;" onmouseover="this.style.borderColor='rgba(255,255,255,0.7)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.3)';this.style.color='rgba(255,255,255,0.8)'">&#x1F9EA; Sandbox</a>
 </div>
 <div class="container">
   <div class="report-cards">
@@ -709,6 +711,176 @@ return pageWrapper({ title: 'Eliahu Horwitz: Weight Space Learning', icon: '\uD8
 <h3 id="po-significance">Why This Matters</h3>
 <p>PoDD pushes the theoretical and practical limits of dataset distillation by <strong>reframing the problem from counting images to counting pixels</strong>. Practically, this enables extreme compression for scenarios where storage, transmission, or privacy constraints demand the smallest possible training sets. Theoretically, it reveals that the information content of a dataset is more fluid than the rigid class-by-class decomposition suggests &mdash; classes can share representational space without losing distinguishability.</p>
 <p>While thematically adjacent rather than directly connected to the Model Trees/Atlas work, PoDD shares the same intellectual instinct: <strong>the conventional way we organize and represent ML artifacts (datasets, models) may be artificially limiting, and rethinking the representation can unlock surprising efficiency.</strong></p>
+</div>
+
+</div>
+`});
+}
+
+// ═══════════════════════════════════════════════════
+// SANDBOX PAGE
+// ═══════════════════════════════════════════════════
+function buildSandbox() {
+return pageWrapper({ title: 'Sandbox: PATHOS-BATTERY Display Mechanisms', icon: '\uD83E\uDDEA', body: `
+<div class="hero" style="background:linear-gradient(135deg,#1a1a1a 0%,#2d1f0e 50%,#1a0a00 100%)">
+  <h1>PATHOS-BATTERY</h1>
+  <p class="subtitle">Physical display mechanisms for a desk object that tracks digital engagement through analog recovery</p>
+  <div class="meta"><span>Stanford ME 292C</span><span>Design Research</span><span>2025</span></div>
+</div>
+<nav class="nav"><div class="nav-inner">
+  <button class="nav-tab active" onclick="showSection('scontext',this)">Context</button>
+  <button class="nav-tab" onclick="showSection('sled',this)">LED Diffusion</button>
+  <button class="nav-tab" onclick="showSection('sferro',this)">Ferrofluid</button>
+  <button class="nav-tab" onclick="showSection('selwire',this)">EL Wire</button>
+  <button class="nav-tab" onclick="showSection('selectro',this)">Electrochromic</button>
+  <button class="nav-tab" onclick="showSection('sthermo',this)">Thermochromic</button>
+</div></nav>
+<div class="container">
+<a href="/" class="back-link">&larr; Research Hub</a>
+
+<!-- ===== CONTEXT ===== -->
+<div class="section active" id="sec-scontext">
+<h2>The PATHOS-BATTERY Concept</h2>
+<p>This project emerges from a Stanford design course exploring <strong>burnout and anxiety in AI-centered hybrid workplaces</strong>. Qualitative research &mdash; five semi-structured interviews and two observational studies &mdash; produced three core insights:</p>
+<ul class="findings">
+  <li><strong>More is Just More.</strong> Users have already iterated on their workflows multiple times. Adding tools or tasks isn't inherently helpful. Design must integrate without adding friction.</li>
+  <li><strong>Workarounds are Still Common.</strong> Even highly technical users revert to low-tech, custom-made workarounds for focus and environment optimization.</li>
+  <li><strong>Hybrid Workers Choose Environments Based on Short-Term Work Needs.</strong> The shift from connection to focus is as physical as it is mental.</li>
+</ul>
+
+<p>The core metaphor: <strong>humans have a social battery &mdash; why not a digital battery?</strong> A physical desk object that tracks and limits digital engagement, requiring analog recovery activities to recharge.</p>
+
+<div class="callout"><div class="label">How It Works</div><p>The user starts the day with a full battery. It drains through AI engagement, extended digital comms, exhausting task-switching, and eating into break time. When depleted, the device interrupts the user (lights dim, screen dims, latency increases). The user must physically remove the battery and recharge through recovery: talking to people, non-sleep deep rest, napping, sunlight, hydrating.</p></div>
+
+<h3>Design Constraints</h3>
+<div class="tags">
+  <span class="tag">No blue-light screens</span>
+  <span class="tag">No audio/voice</span>
+  <span class="tag">Analog/mechanical display</span>
+  <span class="tag">Single data dimension</span>
+  <span class="tag">Peripheral awareness</span>
+</div>
+<p>The display is analog or mechanical; all digital logic stays in the backend. Single-dimension data mapping (charge level) is the sweet spot &mdash; more axes reintroduce the cognitive load the device is meant to reduce.</p>
+
+<h3>Five Candidate Mechanisms</h3>
+<p>Each mechanism below represents a non-screen display technology with two specific implementation options. They are ordered from most practical to most experimental.</p>
+
+<div class="flow-diagram">
+  <div class="flow-node"><strong>LED Diffusion</strong><br><em>Light + color</em></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-node"><strong>Ferrofluid</strong><br><em>Magnetic sculpture</em></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-node"><strong>EL Wire</strong><br><em>Glowing veins</em></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-node"><strong>Electrochromic</strong><br><em>Smart glass</em></div>
+  <span class="flow-arrow">&rarr;</span>
+  <div class="flow-node"><strong>Thermochromic</strong><br><em>Heat-reactive</em></div>
+</div>
+</div>
+
+<!-- ===== LED DIFFUSION ===== -->
+<div class="section" id="sec-sled">
+<h2>1. LED Diffusion Through Frosted Glass</h2>
+<p>RGB LEDs mounted behind or inside a translucent enclosure (frosted glass, sandblasted acrylic, or cast resin). The frosted surface scatters point-source light across the entire surface, producing a <strong>soft, even glow with no visible light source</strong>. Brightness and color are controlled via PWM on a microcontroller. Requires minimal power and no moving parts.</p>
+
+<div class="slide-fig">
+  <img src="/figures/battery/led_diffusion.png" alt="LED Diffusion concept" onclick="openLightbox(this)" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:300px;background:linear-gradient(135deg,#0a3d0a,#3d3d0a,#3d0a0a);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.9rem;\\'>Image generating &mdash; check back soon</div>'">
+  <div class="caption">Concept visualization: frosted glass desk object with ambient LED glow mapping charge level to color.</div>
+</div>
+
+<h3>Option A: Color Gradient Mapping</h3>
+<p>A single RGB LED cluster inside a frosted glass or cast resin enclosure. Charge level maps to a <strong>continuous color gradient</strong> &mdash; deep green at full, amber at mid-range, red at depleted. The user reads the state peripherally like glancing at a candle. At critical depletion, the color pulses slowly using PWM cycling. The object's entire surface is the display &mdash; no indicators, icons, or segmentation.</p>
+<div class="tags"><span class="tag">RGB LED strip</span><span class="tag">ESP32 / Arduino Nano</span><span class="tag">Frosted glass</span><span class="tag">Silicone casting resin</span></div>
+
+<h3>Option B: Monochrome Intensity with Breathing Pulse</h3>
+<p>A warm white or amber LED inside a diffusion enclosure. <strong>No color change &mdash; only brightness varies.</strong> Full charge = bright, steady glow. Mid-range = dimmer. Depleted = very dim with a slow "breathing" pulse (gradual brighten-and-fade cycle). Critical depletion = faster, more insistent pulse. This strips the display to the absolute minimum: one light, getting quieter. The breathing rhythm is inherently biological, reinforcing the energy metaphor.</p>
+<div class="tags"><span class="tag">Warm white LED</span><span class="tag">PWM driver</span><span class="tag">Frosted enclosure</span></div>
+
+<div class="callout"><div class="label">Reference</div><p>Ambient Orb (frosted glass sphere, single data dimension mapped to color). MacBook sleep indicator breathing light (discontinued).</p></div>
+</div>
+
+<!-- ===== FERROFLUID ===== -->
+<div class="section" id="sec-sferro">
+<h2>2. Ferrofluid Display</h2>
+<p>Ferrofluid is a colloidal suspension of magnetic nanoparticles in oil. It physically reshapes in response to magnetic fields &mdash; <strong>spiking, pooling, climbing, splitting</strong>. Behavior is controlled precisely with electromagnets driven by a microcontroller. The fluid is jet black, glossy, and moves with a viscous, organic quality. Must be permanently sealed in glass to prevent staining and degradation.</p>
+
+<div class="slide-fig">
+  <img src="/figures/battery/ferrofluid.png" alt="Ferrofluid concept" onclick="openLightbox(this)" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:300px;background:linear-gradient(135deg,#0a0a0a,#1a1a2e,#0a0a0a);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.9rem;\\'>Image generating &mdash; check back soon</div>'">
+  <div class="caption">Concept visualization: ferrofluid desk sculpture with magnetic spike field responding to charge level.</div>
+</div>
+
+<h3>Option A: Spike Field as Stress Indicator</h3>
+<p>A shallow glass dish with an electromagnet underneath. At full charge, the fluid sits <strong>calm and flat &mdash; a smooth black mirror</strong>. As the battery drains, the electromagnet gradually strengthens, and the fluid forms increasingly tall, numerous spikes. The more depleted you are, the more agitated the surface looks. This <strong>inverts the typical "full = more" metaphor</strong>: calm = healthy, agitated = depleted, mapping directly onto the stress/burnout framing.</p>
+<div class="tags"><span class="tag">Ferrofluid (oil-based)</span><span class="tag">Sealed glass dish</span><span class="tag">Neodymium electromagnets</span><span class="tag">Current driver circuit</span></div>
+
+<h3>Option B: Blob Migration Between Two Chambers</h3>
+<p>Two transparent chambers connected by a narrow channel, with electromagnets behind each. At full charge, all ferrofluid is held in the "charged" chamber. As charge depletes, the fluid slowly migrates to the opposite side &mdash; <strong>an hourglass effect</strong>. The migration is slow enough that you'd only notice it changing between periodic glances &mdash; true peripheral awareness. Recharging triggers the electromagnets to pull the fluid back.</p>
+<div class="tags"><span class="tag">Two-chamber glass vessel</span><span class="tag">Electromagnets (x2)</span><span class="tag">H-bridge motor driver</span></div>
+
+<div class="callout"><div class="label">Reference</div><p>Ferrolic clock by Zelf Koelman (ferrofluid forming shapes in sealed glass). MTR Designs desk sculptures (ferrofluid in anodized aluminum and glass).</p></div>
+</div>
+
+<!-- ===== EL WIRE ===== -->
+<div class="section" id="sec-selwire">
+<h2>3. Electroluminescent (EL) Wire</h2>
+<p>EL wire glows when alternating current passes through it &mdash; a phosphor layer between two electrodes lights up along the entire length. It's thin, flexible, produces a <strong>soft even glow with no hot spots</strong>, runs on minimal power, and generates no heat. It dims gracefully with voltage reduction and flickers visibly at low drive frequencies.</p>
+
+<div class="slide-fig">
+  <img src="/figures/battery/el_wire.png" alt="EL Wire concept" onclick="openLightbox(this)" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:300px;background:linear-gradient(135deg,#0a1a2e,#0e2e3e,#0a1a1a);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.9rem;\\'>Image generating &mdash; check back soon</div>'">
+  <div class="caption">Concept visualization: translucent resin object with glowing EL wire veins like a vascular system.</div>
+</div>
+
+<h3>Option A: Embedded Veins in a Solid Object</h3>
+<p>EL wire cast inside translucent resin so the battery object appears to have <strong>glowing veins or capillaries</strong> running through it. At full charge, all veins are lit &mdash; the object looks alive. As the battery drains, veins go dark progressively from the extremities inward, like circulation withdrawing. Even when unlit, the dark veins remain visible as lines in the resin &mdash; the depleted state looks dormant rather than empty. The biological quality fits the human energy metaphor directly.</p>
+<div class="tags"><span class="tag">EL wire (multi-segment)</span><span class="tag">EL inverter</span><span class="tag">Clear casting resin</span><span class="tag">Relay/transistor array</span></div>
+
+<h3>Option B: Perimeter Ring with Heartbeat Flicker</h3>
+<p>EL wire or tape wrapped around the base as a status ring. At full charge, it glows bright and steady. As charge depletes, the wire is driven at progressively lower frequency, which makes EL wire <strong>visibly flicker</strong>. The flicker slows and becomes more irregular like a heartbeat slowing. This exploits a property most designers try to <em>avoid</em> (low-frequency flicker) and turns it into a feature.</p>
+<div class="tags"><span class="tag">EL tape</span><span class="tag">Variable-frequency inverter</span><span class="tag">Frequency control MCU</span></div>
+
+<div class="callout"><div class="label">Reference</div><p>SparkFun and Adafruit EL wire products. Biological vascular imagery for the "veins" concept.</p></div>
+</div>
+
+<!-- ===== ELECTROCHROMIC ===== -->
+<div class="section" id="sec-selectro">
+<h2>4. Electrochromic Materials</h2>
+<p>Electrochromic glass or film changes opacity or color when a small voltage is applied. Used in auto-dimming rearview mirrors and Boeing 787 windows. The transition is <strong>slow (seconds to minutes), requires very little power</strong>, and holds its state with no continuous draw once changed. The shift is subtle and non-emissive &mdash; no light is produced, only surface properties change.</p>
+
+<div class="slide-fig">
+  <img src="/figures/battery/electrochromic.png" alt="Electrochromic concept" onclick="openLightbox(this)" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:300px;background:linear-gradient(135deg,#1a1a2e,#2e2e3e,#1a1a1a);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.9rem;\\'>Image generating &mdash; check back soon</div>'">
+  <div class="caption">Concept visualization: geometric desk object with electrochromic panel transitioning from clear to opaque.</div>
+</div>
+
+<h3>Option A: Window That Clouds Over</h3>
+<p>A small electrochromic panel on the face of the battery, with a colored surface or LED behind it. At full charge, the panel is clear &mdash; the user can see through to the light underneath. As charge depletes, the panel gradually becomes opaque, <strong>fogging over like breath on glass</strong>. Full depletion = completely opaque. The metaphor is <strong>cognitive fog</strong>: clarity is physically obscured.</p>
+<div class="tags"><span class="tag">Electrochromic film</span><span class="tag">Low-voltage DC driver</span><span class="tag">Illuminated backing surface</span></div>
+
+<h3>Option B: Color-Shifting Surface</h3>
+<p>Electrochromic film as the outer skin of the entire object, so it changes color as charge level changes. Some films shift between distinct colors (deep blue &harr; transparent, blue &harr; yellow). The transition happens over minutes &mdash; the user never sees it actively changing, just <strong>notices at some point that it's different</strong>. This is genuinely peripheral: no light emission, no animation, just a material property quietly shifting.</p>
+<div class="tags"><span class="tag">Electrochromic polymer film</span><span class="tag">Conformal application</span><span class="tag">Low-voltage driver</span></div>
+
+<div class="callout"><div class="label">Reference</div><p>Boeing 787 electrochromic windows. Auto-dimming rearview mirrors (Gentex). MIT Media Lab electrochromic fabric research.</p></div>
+</div>
+
+<!-- ===== THERMOCHROMIC ===== -->
+<div class="section" id="sec-sthermo">
+<h2>5. Thermochromic Paint</h2>
+<p>Thermochromic pigments (leuco dyes) change color at specific temperature thresholds, typically between 25&ndash;45&deg;C. The transition is <strong>gradual, uneven, and tactile</strong> &mdash; the object's temperature is itself part of the information. This is the most <strong>multisensory</strong> option.</p>
+
+<div class="slide-fig">
+  <img src="/figures/battery/thermochromic.png" alt="Thermochromic concept" onclick="openLightbox(this)" onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:300px;background:linear-gradient(135deg,#2e0a0a,#2e1a0a,#0a1a2e);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:0.9rem;\\'>Image generating &mdash; check back soon</div>'">
+  <div class="caption">Concept visualization: ceramic desk object with thermochromic surface showing heat-mapped color transition.</div>
+</div>
+
+<h3>Option A: Heat-Mapped Surface</h3>
+<p>The battery object coated in thermochromic paint, with a heating element inside. At full charge, the heater keeps the surface warm and the paint shows its "charged" color. As the battery depletes, heater output decreases, the surface cools, and the paint transitions. The transition is <strong>uneven &mdash; edges cool first, center last</strong> &mdash; creating an organic pattern like frost forming. The user can also <strong>touch the object and feel the temperature difference</strong>, adding a haptic dimension: warm = charged, cool = depleted.</p>
+<div class="tags"><span class="tag">Thermochromic leuco dye paint</span><span class="tag">Resistive heating wire / Peltier</span><span class="tag">Thermistor</span><span class="tag">Aluminum/ceramic enclosure</span></div>
+
+<h3>Option B: Touch-Reveal Interaction</h3>
+<p>The surface is kept just below the activation temperature. When the user touches it, their body heat (~37&deg;C) triggers a <strong>local color change under their fingertip</strong>, revealing a charge-state indicator printed on the substrate beneath. The reveal fades back within seconds after lifting the finger. Checking the battery becomes an <strong>intentional, physical act</strong> &mdash; the information is ephemeral and only available on demand, preventing constant monitoring.</p>
+<div class="tags"><span class="tag">Thermochromic paint (~33&deg;C activation)</span><span class="tag">Printed substrate layer</span><span class="tag">Passive or Peltier cooling</span></div>
+
+<div class="callout"><div class="label">Reference</div><p>Hypercolor mugs and shirts (same underlying chemistry). Mood rings. Thermochromic urinal indicators (temperature-reveal interaction).</p></div>
 </div>
 
 </div>
