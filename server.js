@@ -1375,6 +1375,11 @@ return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\
 <h3>Architecture</h3>
 <p><code>Python Backend &rarr; (HTTP POST or Serial) &rarr; ESP32 &rarr; (Data Pin) &rarr; WS2812B LEDs &rarr; behind frosted acrylic diffuser &rarr; inside battery enclosure</code></p>
 
+<h3>Wiring Diagram</h3>
+<div class="slide-fig"><img src="/figures/battery/led_wiring.png" alt="LED wiring diagram" onclick="openLightbox(this)"><div class="caption">Complete wiring: ESP32 GPIO16 &rarr; 330&ohm; resistor &rarr; 74AHCT125 level shifter &rarr; WS2812B data input. 1000uF capacitor across power rails. 5V external power supply feeds both LEDs and level shifter VCC.</div></div>
+
+<div class="slide-fig"><img src="/figures/battery/led_assembly.png" alt="LED assembly" onclick="openLightbox(this)"><div class="caption">Assembly view: LED strip cut into serpentine segments inside 3D-printed battery enclosure, with frosted acrylic diffuser panel ready to mount. ESP32 on breadboard at the base.</div></div>
+
 <h3>Bill of Materials (~$80-130)</h3>
 <table class="result-table">
 <tr><th>Component</th><th>Product</th><th>Price</th><th>Source</th></tr>
@@ -1399,6 +1404,29 @@ return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\
 <strong>74AHCT125 VCC</strong> &rarr; +5V | <strong>GND</strong> &rarr; GND | <strong>1OE</strong> &rarr; GND (enable)
 </p></div>
 <p><strong>Why the capacitor?</strong> Protects LEDs from power surge at startup. Place it across the +5V and GND rails, as close to the first LED as possible. <strong>Why the resistor?</strong> Prevents signal reflections on the data line. Place it between the level shifter output and the first LED's data input.</p>
+
+<h3>Step-by-Step Circuit Assembly</h3>
+<p>If you've never built a circuit before, here's the exact order to wire everything on a breadboard:</p>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Place the ESP32 dev board straddling the center channel of the breadboard so its pins line up with the numbered rows on both sides.</li>
+  <li><strong>Step 2:</strong> Run a jumper wire from the ESP32's <strong>GND pin</strong> to the breadboard's <strong>blue/negative power rail</strong>.</li>
+  <li><strong>Step 3:</strong> Place the 74AHCT125 level shifter chip on the breadboard. Connect its <strong>pin 7 (GND)</strong> to the ground rail and <strong>pin 14 (VCC)</strong> to the red/positive power rail. Connect <strong>pin 1 (1OE)</strong> to ground (this enables the chip).</li>
+  <li><strong>Step 4:</strong> Run a jumper from <strong>ESP32 GPIO 16</strong> to a 330&ohm; resistor, then from the other end of the resistor to <strong>74AHCT125 pin 2 (1A = input)</strong>. Run a wire from <strong>pin 3 (1Y = output)</strong> to where the LED strip's data input wire (usually green or white) will connect.</li>
+  <li><strong>Step 5:</strong> Connect the <strong>DC barrel jack adapter</strong> screw terminals: (+) to the red power rail, (-) to the blue ground rail.</li>
+  <li><strong>Step 6:</strong> Place the <strong>1000uF capacitor</strong> across the power rails (long leg = positive = red rail, short leg = negative = blue rail). <em>Polarity matters for this component.</em></li>
+  <li><strong>Step 7:</strong> Connect the LED strip's 3 wires: <strong>VCC (red)</strong> to the red power rail, <strong>GND (white/black)</strong> to the blue ground rail, <strong>DIN (green)</strong> to the level shifter output from Step 4.</li>
+  <li><strong>Step 8:</strong> Also connect ESP32's GND to the blue ground rail (so ESP32 and LEDs share a common ground &mdash; this is essential).</li>
+  <li><strong>Step 9:</strong> Plug in the 5V power supply and the USB cable to the ESP32. The ESP32 gets its power from USB; the LEDs get theirs from the 5V supply.</li>
+</ul>
+
+<h3>Arduino IDE: Getting Started</h3>
+<p>If you've never used the Arduino IDE, here's what to expect:</p>
+<ul class="findings">
+  <li><strong>Arduino IDE</strong> is a free program where you write code (called "sketches"), click a button, and it uploads the code to your ESP32 via USB. Download from <a href="https://www.arduino.cc/en/software" target="_blank">arduino.cc/en/software</a>.</li>
+  <li>Every sketch has two functions: <code>setup()</code> (runs once when the ESP32 powers on) and <code>loop()</code> (runs repeatedly forever). Your charge-level code goes in <code>loop()</code>.</li>
+  <li>The <strong>Serial Monitor</strong> (button in top-right of Arduino IDE) lets you see text output from the ESP32 and type text to it. This is how you'll test &mdash; type "75" and press Enter to set charge level to 75%.</li>
+  <li>When you hit the <strong>Upload button</strong> (right arrow icon), the IDE compiles your code and flashes it to the ESP32. If it fails, check that the correct Board ("ESP32 Dev Module") and Port are selected under the Tools menu.</li>
+</ul>
 
 <h3>Software Setup</h3>
 <ul class="findings">
@@ -1458,6 +1486,8 @@ uint32_t chargeToColor(int level, int brightness) {<br>
 
 <div class="callout"><div class="label">Full guide</div><p>The complete 970-line guide with every code listing, circuit diagram, and safety protocol is saved as <code>Psych_Battery_EL_Wire_Prototype_Guide.md</code> in the research folder. This page has the key information.</p></div>
 
+<div class="slide-fig"><img src="/figures/battery/el_finished_battery.png" alt="Finished EL wire battery" onclick="openLightbox(this)"><div class="caption">The finished Psych_Battery: clear casting resin shaped like an AA battery with 6 EL wire coils inside. 4 coils glow blue-white (charged), 2 are dark (depleted). Wire leads exit at the base to the driver circuit.</div></div>
+
 <h3>How EL Wire Works (Plain English)</h3>
 <p>EL wire is a thin, flexible wire that glows along its entire length. Inside: a core copper wire coated in phosphor, wrapped by two thin "corona" wires, all inside a PVC jacket. When <strong>high-voltage AC (60-120V, 400-2000 Hz)</strong> passes between the core and corona wires, the phosphor layer glows.</p>
 
@@ -1485,6 +1515,9 @@ uint32_t chargeToColor(int level, int brightness) {<br>
 </table>
 
 <h3>Circuit: ESP32 &rarr; Optocoupler &rarr; TRIAC &rarr; EL Wire</h3>
+
+<div class="slide-fig"><img src="/figures/battery/el_wiring.png" alt="EL wire circuit diagram" onclick="openLightbox(this)"><div class="caption">Full circuit: ESP32 GPIO pins drive MOC3063 optocouplers (LOW VOLTAGE side), which trigger Z0103MN TRIACs (HIGH VOLTAGE side) to switch individual EL wire segments on/off. Dotted line shows the galvanic isolation boundary.</div></div>
+
 <p>Each EL wire segment is controlled by its own optocoupler + TRIAC pair. The optocoupler provides <strong>galvanic isolation</strong> &mdash; it physically separates the low-voltage ESP32 side from the high-voltage EL wire side using light (an LED inside triggers a photo-sensitive switch).</p>
 
 <div class="callout"><div class="label">Per-Channel Wiring</div><p>
@@ -1496,10 +1529,36 @@ uint32_t chargeToColor(int level, int brightness) {<br>
 Repeat for each of 6 channels on GPIO pins 16, 17, 18, 19, 21, 22.
 </p></div>
 
-<p><strong>Alternative (simpler but less flexible):</strong> The <strong>SparkFun EL Sequencer</strong> board has 8 channels of TRIAC-driven EL wire control built in, but it uses an ATmega328 (no WiFi). You'd need to wire it to an ESP32 for connectivity.</p>
+<div class="callout"><div class="label">Simpler Alternative: LILYGO T-Relay 8-Channel (~$25)</div><p>The SparkFun EL Sequencer is <strong>discontinued</strong>. The best modern replacement is the <strong>LILYGO T-Relay 8-Channel</strong> &mdash; an ESP32-based board with 8 relay channels, WiFi, and Bluetooth built in. Pair it with small EL inverters (one per channel, ~$4 each from Adafruit) and each relay switches one EL wire segment on/off. No TRIAC wiring needed &mdash; just connect EL inverter output to relay NO/COM terminals. Available on <a href="https://lilygo.cc/products/t-relay-5v-8-channel-relay" target="_blank">LILYGO official store</a> and Amazon. Programs via Arduino IDE just like a regular ESP32.</p></div>
+
+<h3>Step-by-Step Circuit Assembly (DIY TRIAC Method)</h3>
+<p>If you're building the optocoupler + TRIAC circuit yourself (more control, no relay clicking noise):</p>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Place the ESP32 on one side of a large breadboard. Place 6 MOC3063 optocouplers in a row on the other side.</li>
+  <li><strong>Step 2:</strong> For each optocoupler: run a 330&ohm; resistor from the ESP32 GPIO pin (16,17,18,19,21,22) to <strong>pin 1 (anode)</strong> of the MOC3063. Connect <strong>pin 2 (cathode)</strong> to ESP32 GND.</li>
+  <li><strong>Step 3:</strong> For each TRIAC (Z0103MN): connect <strong>MOC3063 pin 6</strong> to the TRIAC gate via a 360&ohm; resistor. Connect the TRIAC <strong>MT2</strong> to the EL inverter AC output, and <strong>MT1</strong> to the EL wire segment.</li>
+  <li><strong>Step 4:</strong> Connect all EL wire segment return wires to the EL inverter's other AC output terminal (completing the circuit).</li>
+  <li><strong>Step 5:</strong> Power the EL inverter from a 12V DC supply. Power the ESP32 from USB.</li>
+  <li><strong>Step 6:</strong> <strong>Keep the low-voltage and high-voltage sides physically separated on the breadboard.</strong> Use the center gap as a boundary. Never run high-voltage wires near ESP32 pins.</li>
+</ul>
 
 <h3>Resin Casting: Step by Step</h3>
-<p>This is the most challenging part. Plan for at least one practice cast.</p>
+<p>This is the most challenging part. Plan for at least one practice cast. The images below show what each step looks like.</p>
+
+<div class="slide-pair">
+  <div class="slide-fig"><img src="/figures/battery/el_resin_pour1.png" alt="First resin pour" onclick="openLightbox(this)"><div class="caption">Step 4: First pour. Battery-shaped silicone mold filled ~40% with clear epoxy. EL wire coil ready to be placed once resin reaches tacky stage. Mixing cups, stir sticks, and nitrile gloves on the bench.</div></div>
+  <div class="slide-fig"><img src="/figures/battery/el_resin_pour2.png" alt="Second resin pour" onclick="openLightbox(this)"><div class="caption">Step 5: Second pour. EL wire coils positioned in the tacky first layer. Remaining resin poured to fill the mold completely. Wire leads exit through a channel at the bottom.</div></div>
+</div>
+
+<h4>YouTube Tutorials for Key Skills</h4>
+<ul class="findings">
+  <li><strong>EL Wire Soldering:</strong> <a href="https://www.youtube.com/user/coolneonwire" target="_blank">Cool Neon channel</a> &mdash; "How To Solder Cool Neon EL Wire" (~5-10 min). Also see <a href="https://learn.adafruit.com/el-wire/soldering-to-el-wire" target="_blank">Adafruit's written guide</a> with photos.</li>
+  <li><strong>Silicone Mold Making:</strong> <a href="https://www.youtube.com/c/SmoothOn" target="_blank">Smooth-On channel</a> &mdash; "Mold Making Minute: Mold Star 15" (~5-8 min). 1:1 mix by volume, no degassing needed for the mold itself.</li>
+  <li><strong>Vacuum Degassing Resin:</strong> <a href="https://www.youtube.com/watch?v=GKddrZI4qAo" target="_blank">Easy Composites: "How (and Why) to Vacuum Degas Resins"</a> (~15 min). Shows bubbles expanding and collapsing under vacuum.</li>
+  <li><strong>Deep Pour Epoxy:</strong> <a href="https://www.youtube.com/@evanandkatelyn" target="_blank">Evan and Katelyn channel</a> &mdash; extensive beginner-friendly resin content including deep pours and LED embedding.</li>
+  <li><strong>EL Wire in Resin (closest to our project):</strong> <a href="https://www.youtube.com/c/Iliketomakestuff" target="_blank">I Like To Make Stuff channel</a> &mdash; "How to 3D Print and Cast a Neon Sign" &mdash; 3D prints a master, makes a silicone mold, casts clear resin, and embeds EL wire.</li>
+  <li><strong>DIY EL Wire Controller:</strong> <a href="https://www.instructables.com/EL-Wire-Arduino-Mini-Pro-Relay-Controller-Module-6/" target="_blank">Instructables: "EL Wire - Arduino Mini Pro - Relay Controller Module 6 Channels"</a> &mdash; step-by-step written guide with code.</li>
+</ul>
 
 <h4>1. Make the Mold Master</h4>
 <p>3D print a battery shape in PLA: cylinder 55mm diameter, 110mm tall, with a small terminal bump. Sand smooth (resin picks up every surface imperfection). Spray with mold release.</p>
