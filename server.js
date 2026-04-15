@@ -748,6 +748,8 @@ return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\
   <button class="nav-tab" onclick="showSection('selectro',this)">Electrochromic</button>
   <button class="nav-tab" onclick="showSection('sthermo',this)">Thermochromic</button>
   <button class="nav-tab" onclick="showSection('stech',this)">Tech Stack</button>
+  <button class="nav-tab" onclick="showSection('sledguide',this)">LED Build</button>
+  <button class="nav-tab" onclick="showSection('selguide',this)">EL Build</button>
 </div></nav>
 <div class="container">
 <a href="/" class="back-link">&larr; Research Hub</a>
@@ -1361,6 +1363,218 @@ return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\
 </ul>
 
 <div class="callout"><div class="label">Design Philosophy</div><p>This phased approach optimizes for <strong>"get clean data and validate the concept"</strong> rather than feature completeness. Phase 1 + Phase 2 together are about 380 lines of Python and touch only 3 external APIs. That's buildable in two weekends. Phase 3 is only worth doing after you've confirmed the core loop (data &rarr; energy score &rarr; intervention &rarr; recovery) actually works.</p></div>
+</div>
+
+<!-- ===== LED BUILD GUIDE ===== -->
+<div class="section" id="sec-sledguide">
+<h2>LED + Frosted Glass: Full Build Guide</h2>
+<p>A complete prototyping guide for building a battery-shaped desk object that uses WS2812B LEDs behind frosted acrylic to display charge level via color and brightness. Based on <strong>The Ripple Effect</strong> by Elisa Lupin-Jimenez (ESP32 + NeoPixel 8x8 matrix + sanded acrylic).</p>
+
+<div class="callout"><div class="label">Full guide</div><p>The complete 950-line guide with every code listing and diagram is saved as <code>psych_battery_prototyping_guide.md</code> in the research folder. This page has the key information; refer to the markdown for copy-pasteable code.</p></div>
+
+<h3>Architecture</h3>
+<p><code>Python Backend &rarr; (HTTP POST or Serial) &rarr; ESP32 &rarr; (Data Pin) &rarr; WS2812B LEDs &rarr; behind frosted acrylic diffuser &rarr; inside battery enclosure</code></p>
+
+<h3>Bill of Materials (~$80-130)</h3>
+<table class="result-table">
+<tr><th>Component</th><th>Product</th><th>Price</th><th>Source</th></tr>
+<tr><td>ESP32 Dev Board</td><td>ESP32-WROOM-32 DevKit V1 (CP2102 USB)</td><td>~$8</td><td>Amazon (HiLetgo 3-pack)</td></tr>
+<tr><td>LED Strip</td><td>WS2812B 60LED/m IP30 strip (1m)</td><td>~$10</td><td>Amazon (BTF-LIGHTING)</td></tr>
+<tr><td>OR: LED Matrix</td><td>Adafruit NeoPixel NeoMatrix 8x8 (64 LEDs)</td><td>~$35</td><td>Adafruit #1487</td></tr>
+<tr><td>Power Supply</td><td>5V 4A switching PSU</td><td>~$15</td><td>Adafruit #1466</td></tr>
+<tr><td>Level Shifter</td><td>74AHCT125 (3.3V&rarr;5V)</td><td>~$2</td><td>Adafruit #1787</td></tr>
+<tr><td>Capacitor</td><td>1000uF 6.3V+ electrolytic</td><td>~$5 (10pk)</td><td>Amazon</td></tr>
+<tr><td>Resistor</td><td>330 ohm 1/4W</td><td>~$6 (kit)</td><td>Amazon assortment</td></tr>
+<tr><td>Frosted Acrylic</td><td>1/8" (3mm) satin/frosted sheet, 6"x6"</td><td>~$10</td><td>Amazon or Canal Plastics</td></tr>
+<tr><td>Enclosure</td><td>3D printed PLA or laser-cut black acrylic</td><td>~$5-15</td><td>Jacobs Hall / Supernode</td></tr>
+<tr><td>Breadboard + Wires</td><td>Half-size breadboard + jumper wires</td><td>~$12</td><td>Amazon</td></tr>
+</table>
+
+<h3>Wiring Diagram</h3>
+<p>The ESP32 outputs 3.3V logic but WS2812B LEDs need 3.5V+ for reliable data. The 74AHCT125 level shifter bridges this gap.</p>
+<div class="callout"><div class="label">Connections</div><p>
+<strong>Power supply (+5V)</strong> &rarr; WS2812B VCC (red wire) + capacitor (+) terminal<br>
+<strong>Power supply (GND)</strong> &rarr; WS2812B GND + capacitor (-) terminal + ESP32 GND<br>
+<strong>ESP32 GPIO 16</strong> &rarr; 330 ohm resistor &rarr; 74AHCT125 pin 1A &rarr; pin 1Y &rarr; WS2812B DIN (data in, green wire)<br>
+<strong>74AHCT125 VCC</strong> &rarr; +5V | <strong>GND</strong> &rarr; GND | <strong>1OE</strong> &rarr; GND (enable)
+</p></div>
+<p><strong>Why the capacitor?</strong> Protects LEDs from power surge at startup. Place it across the +5V and GND rails, as close to the first LED as possible. <strong>Why the resistor?</strong> Prevents signal reflections on the data line. Place it between the level shifter output and the first LED's data input.</p>
+
+<h3>Software Setup</h3>
+<ul class="findings">
+  <li><strong>Arduino IDE 2.x</strong> &mdash; download from arduino.cc/en/software</li>
+  <li><strong>ESP32 board package</strong> &mdash; add URL <code>https://espressif.github.io/arduino-esp32/package_esp32_index.json</code> in Preferences, then install "esp32 by Espressif Systems" in Boards Manager</li>
+  <li><strong>Libraries</strong> &mdash; install via Library Manager: <strong>Adafruit NeoPixel</strong>, <strong>ArduinoJson</strong>. Manually install from GitHub ZIP: <strong>ESPAsyncWebServer</strong>, <strong>AsyncTCP</strong></li>
+  <li><strong>Python</strong> &mdash; <code>pip install pyserial requests</code></li>
+  <li><strong>CP2102 driver</strong> &mdash; if ESP32 port doesn't appear, install from Silicon Labs</li>
+</ul>
+
+<h3>Key Code: Color Mapping</h3>
+<p>The core function maps charge level (0-100) to an HSV color. Hue 0 = red, hue ~10922 = amber, hue ~21845 = green (in NeoPixel's 16-bit HSV).</p>
+<div class="callout"><div class="label">Arduino Snippet</div><p><code>
+uint32_t chargeToColor(int level, int brightness) {<br>
+&nbsp;&nbsp;uint16_t hue = map(level, 0, 100, 0, 21845); // red &rarr; green<br>
+&nbsp;&nbsp;return strip.ColorHSV(hue, 255, brightness);<br>
+}
+</code></p></div>
+<p>The breathing effect uses <code>exp(sin(millis() * speed))</code> for an organic pulsing pattern rather than linear fade. Full firmware (~200 lines) is in the markdown guide.</p>
+
+<h3>Enclosure: Battery Shape</h3>
+<ul class="findings">
+  <li><strong>Form factor:</strong> Cylinder 60-70mm diameter, 100-120mm tall, with a small bump on top (positive terminal)</li>
+  <li><strong>Fabrication:</strong> 3D print in white or black PLA (two halves that snap/glue together), or laser-cut flat-pack box from black acrylic</li>
+  <li><strong>Diffusion:</strong> 1/8" frosted acrylic placed <strong>30-50mm from the LED surface</strong>. If using clear acrylic, sand with 400 then 600 grit wet/dry sandpaper using circular motions. The Ripple Effect project found 5cm optimal for their 8x8 matrix.</li>
+  <li><strong>LED layout:</strong> Cut strip into segments, arrange in serpentine (zigzag) pattern to fill the viewing window evenly. Solder short jumper wires between segments.</li>
+  <li><strong>Cable routing:</strong> USB cable exits through a hole in the base. Seal light leaks with black electrical tape or hot glue.</li>
+</ul>
+
+<h3>Build Sequence (1-2 Weeks)</h3>
+<ul class="findings">
+  <li><strong>Day 1:</strong> Install Arduino IDE, ESP32 board package, libraries. Plug in ESP32, upload blink test. Verify Serial Monitor works.</li>
+  <li><strong>Day 2:</strong> Wire ESP32 to a small section of LED strip (3-4 LEDs) on breadboard. Upload NeoPixel strandtest example. Verify colors work.</li>
+  <li><strong>Day 3:</strong> Upload the full charge-level firmware. Test via Serial Monitor (type a number 0-100, press Enter). Verify color gradient and breathing pulse.</li>
+  <li><strong>Day 4:</strong> Test WiFi mode &mdash; connect ESP32 to your WiFi, send HTTP requests from Python script. Verify full data pipeline.</li>
+  <li><strong>Day 5-6:</strong> Design and fabricate enclosure. 3D print at Supernode or laser-cut at Jacobs Hall. Cut and sand the acrylic diffuser.</li>
+  <li><strong>Day 7-8:</strong> Cut LED strip to final length, solder serpentine layout. Mount inside enclosure with hot glue. Attach diffuser. Route cables.</li>
+  <li><strong>Day 9-10:</strong> Final assembly, test full loop (Python &rarr; WiFi &rarr; ESP32 &rarr; LEDs &rarr; diffused glow). Calibrate brightness and colors.</li>
+</ul>
+
+<h3>Troubleshooting</h3>
+<table class="result-table">
+<tr><th>Problem</th><th>Likely Cause</th><th>Fix</th></tr>
+<tr><td>No LEDs light up</td><td>Wrong GPIO pin, no power, data line not connected</td><td>Check wiring, verify GPIO 16 in code, check 5V supply</td></tr>
+<tr><td>First LED works, rest don't</td><td>Bad solder joint between segments</td><td>Reflow solder on the data-out &rarr; data-in connection</td></tr>
+<tr><td>Colors are wrong/random</td><td>Missing level shifter or too-long data wire</td><td>Add 74AHCT125 level shifter; keep data wire under 15cm</td></tr>
+<tr><td>LEDs flicker or brownout</td><td>Insufficient power supply</td><td>Use external 5V 4A PSU, not USB power</td></tr>
+<tr><td>WiFi won't connect</td><td>Wrong SSID/password, 5GHz network</td><td>ESP32 only supports 2.4GHz WiFi. Double-check credentials.</td></tr>
+<tr><td>Individual LED dots visible through acrylic</td><td>Diffuser too close to LEDs or not frosted enough</td><td>Increase distance to 40-50mm; sand with finer grit (600+)</td></tr>
+</table>
+</div>
+
+<!-- ===== EL WIRE BUILD GUIDE ===== -->
+<div class="section" id="sec-selguide">
+<h2>EL Wire + Resin: Full Build Guide</h2>
+<p>A complete prototyping guide for building a battery-shaped desk object with EL wire coiled inside clear casting resin. Lit coils = charged, dark coils = depleted. Includes a flicker effect at low charge.</p>
+
+<div class="callout"><div class="label">Full guide</div><p>The complete 970-line guide with every code listing, circuit diagram, and safety protocol is saved as <code>Psych_Battery_EL_Wire_Prototype_Guide.md</code> in the research folder. This page has the key information.</p></div>
+
+<h3>How EL Wire Works (Plain English)</h3>
+<p>EL wire is a thin, flexible wire that glows along its entire length. Inside: a core copper wire coated in phosphor, wrapped by two thin "corona" wires, all inside a PVC jacket. When <strong>high-voltage AC (60-120V, 400-2000 Hz)</strong> passes between the core and corona wires, the phosphor layer glows.</p>
+
+<div class="callout"><div class="label">Key Facts</div><p>
+<strong>An Arduino/ESP32 CANNOT directly drive EL wire.</strong> The microcontroller outputs 3.3V DC; EL wire needs ~100V AC. You need an <strong>EL inverter</strong> (converts DC to high-voltage AC) plus <strong>isolation components</strong> (optocouplers + TRIACs) between the microcontroller and the wire.<br><br>
+<strong>Dimming:</strong> EL wire brightness depends on frequency. Higher frequency = brighter. Lower frequency = dimmer AND flickery (which we exploit for the "dying heartbeat" effect).<br><br>
+<strong>Shock risk:</strong> Exposed EL wire conductors carry ~100V AC. Not lethal at the low current, but uncomfortable. Keep all connections insulated.
+</p></div>
+
+<h3>Bill of Materials (~$195-295)</h3>
+<table class="result-table">
+<tr><th>Component</th><th>Product</th><th>Price</th><th>Source</th></tr>
+<tr><td>EL Wire</td><td>3m total, 2.3mm diameter (white or blue)</td><td>~$18</td><td>Adafruit #402 or Amazon</td></tr>
+<tr><td>EL Inverter</td><td>12V input, drives up to 5m EL wire</td><td>~$4</td><td>Adafruit #448</td></tr>
+<tr><td>ESP32 Dev Board</td><td>ESP32-WROOM-32 DevKit V1</td><td>~$8</td><td>Amazon</td></tr>
+<tr><td>Optocouplers</td><td>MOC3063 (zero-cross TRIAC driver) x6</td><td>~$8</td><td>DigiKey or Amazon</td></tr>
+<tr><td>TRIACs</td><td>Z0103MN (1A 600V) x6</td><td>~$6</td><td>DigiKey or Amazon</td></tr>
+<tr><td>Resistors</td><td>330 ohm (optocoupler LED) + 360 ohm (TRIAC gate) x6 each</td><td>~$6</td><td>Amazon assortment</td></tr>
+<tr><td>Casting Resin</td><td>TotalBoat ThickSet or Craft Resin Deep Pour (32oz)</td><td>~$30-40</td><td>Amazon</td></tr>
+<tr><td>Silicone Mold Kit</td><td>Smooth-On Mold Star 15 (or 20)</td><td>~$25</td><td>Amazon or Reynolds Advanced Materials</td></tr>
+<tr><td>3D Print (mold master)</td><td>PLA filament (~100g)</td><td>~$3</td><td>Jacobs Hall / Supernode</td></tr>
+<tr><td>Mold release</td><td>Mann Ease Release 200 spray</td><td>~$15</td><td>Amazon</td></tr>
+<tr><td>Mixing supplies</td><td>Cups, stir sticks, nitrile gloves, respirator</td><td>~$15</td><td>Amazon</td></tr>
+<tr><td>12V Power Supply</td><td>12V 2A for EL inverter</td><td>~$8</td><td>Amazon</td></tr>
+</table>
+
+<h3>Circuit: ESP32 &rarr; Optocoupler &rarr; TRIAC &rarr; EL Wire</h3>
+<p>Each EL wire segment is controlled by its own optocoupler + TRIAC pair. The optocoupler provides <strong>galvanic isolation</strong> &mdash; it physically separates the low-voltage ESP32 side from the high-voltage EL wire side using light (an LED inside triggers a photo-sensitive switch).</p>
+
+<div class="callout"><div class="label">Per-Channel Wiring</div><p>
+<strong>ESP32 GPIO pin</strong> &rarr; 330&ohm; resistor &rarr; MOC3063 pin 1 (anode)<br>
+<strong>MOC3063 pin 2 (cathode)</strong> &rarr; ESP32 GND<br>
+<strong>MOC3063 pin 6 (output)</strong> &rarr; Z0103MN gate + 360&ohm; resistor to MT1<br>
+<strong>Z0103MN MT2</strong> &rarr; EL inverter AC output (one wire of the segment)<br>
+<strong>Z0103MN MT1</strong> &rarr; EL wire segment (other wire)<br>
+Repeat for each of 6 channels on GPIO pins 16, 17, 18, 19, 21, 22.
+</p></div>
+
+<p><strong>Alternative (simpler but less flexible):</strong> The <strong>SparkFun EL Sequencer</strong> board has 8 channels of TRIAC-driven EL wire control built in, but it uses an ATmega328 (no WiFi). You'd need to wire it to an ESP32 for connectivity.</p>
+
+<h3>Resin Casting: Step by Step</h3>
+<p>This is the most challenging part. Plan for at least one practice cast.</p>
+
+<h4>1. Make the Mold Master</h4>
+<p>3D print a battery shape in PLA: cylinder 55mm diameter, 110mm tall, with a small terminal bump. Sand smooth (resin picks up every surface imperfection). Spray with mold release.</p>
+
+<h4>2. Make the Silicone Mold</h4>
+<ul class="findings">
+  <li>Build a containment box around the master (foam board or LEGO walls work)</li>
+  <li>Mix Smooth-On Mold Star silicone per instructions (1:1 by weight). Pour slowly to avoid bubbles.</li>
+  <li>Cure 4-6 hours. Cut mold open with a scalpel to remove master. Add registration keys (V-cuts) so the mold reassembles precisely.</li>
+</ul>
+
+<h4>3. Prepare the EL Wire</h4>
+<ul class="findings">
+  <li>Cut EL wire into 6 segments (~40cm each for 6 coil loops inside the battery)</li>
+  <li>Solder leads to each segment. <strong>EL wire soldering is tricky</strong> &mdash; you must strip the PVC jacket, separate the corona wires from the phosphor, and solder to both the core wire and corona wires independently. YouTube tutorials exist.</li>
+  <li>Pre-coil each segment into the spiral shape it will hold inside the resin. Use tape to hold the shape temporarily.</li>
+  <li>Route all wire leads to exit through a single channel at the bottom of the mold.</li>
+</ul>
+
+<h4>4. Cast the Resin</h4>
+<ul class="findings">
+  <li><strong>Pour 1:</strong> Fill mold ~40% with mixed resin. Let cure until tacky (6-12 hours depending on formula).</li>
+  <li><strong>Place wire:</strong> Press the pre-coiled EL wire segments into the tacky surface. The tackiness holds them in position.</li>
+  <li><strong>Pour 2:</strong> Fill remaining 60%. Pour slowly to minimize bubbles.</li>
+  <li><strong>Degas:</strong> If you have access to the CITRIS Invention Lab vacuum chamber, degas before curing. Otherwise, use a heat gun (carefully, at low setting) to pop surface bubbles.</li>
+  <li><strong>Cure:</strong> 24-48 hours at room temperature. Do NOT heat to accelerate &mdash; epoxy is <strong>exothermic</strong> (generates heat) and thick pours can overheat, yellow, or crack.</li>
+</ul>
+
+<div class="callout"><div class="label">Exothermic Warning</div><p>Epoxy generates heat as it cures. In a thick pour (>1 inch), the center can reach 150&deg;F+, potentially melting the EL wire PVC jacket or cracking the resin. <strong>Use "deep pour" formulas</strong> (TotalBoat ThickSet, Craft Resin Deep Pour) that cure slower with less heat. Pour in 1-inch layers if using standard epoxy.</p></div>
+
+<h4>5. Demold and Finish</h4>
+<p>Remove from silicone mold. Wet-sand through grits: 400 &rarr; 800 &rarr; 1500 &rarr; 3000. Polish with automotive polishing compound for optical clarity. The EL wire coils should be clearly visible inside.</p>
+
+<h3>Key Code: Segment Control</h3>
+<p>Each GPIO pin controls one TRIAC channel. Charge level maps to number of lit segments:</p>
+<div class="callout"><div class="label">Mapping</div><p>
+100-84% = 6 segments lit (full charge)<br>
+83-67% = 5 segments lit<br>
+66-50% = 4 segments lit<br>
+49-33% = 3 segments lit<br>
+32-17% = 2 segments lit<br>
+16-1% = 1 segment lit + 2 Hz flicker effect<br>
+0% = all dark
+</p></div>
+<p>The flicker at low charge exploits the fact that rapidly toggling the TRIAC on/off at 1-3 Hz makes EL wire visibly blink in an irregular, organic way. Full firmware (~150 lines) is in the markdown guide.</p>
+
+<h3>Build Sequence (2-3 Weeks)</h3>
+<ul class="findings">
+  <li><strong>Week 1, Days 1-2:</strong> Order all parts. 3D print mold master while waiting for delivery. Sand master smooth.</li>
+  <li><strong>Week 1, Days 3-4:</strong> Make silicone mold (4-6 hr cure). While curing: set up Arduino IDE, test ESP32 basic connectivity.</li>
+  <li><strong>Week 1, Days 5-7:</strong> Solder EL wire segments. Test each with inverter before casting. Wire up the optocoupler+TRIAC circuit on breadboard. Test individual channel control.</li>
+  <li><strong>Week 2, Days 1-2:</strong> First resin pour (40%). Wait for tacky cure.</li>
+  <li><strong>Week 2, Day 3:</strong> Place EL wire coils. Second resin pour. Degas if possible.</li>
+  <li><strong>Week 2, Days 4-6:</strong> Cure time (48 hrs). Use this time to write and test the firmware.</li>
+  <li><strong>Week 2, Day 7 / Week 3:</strong> Demold, wet-sand, polish. Final assembly: connect wire leads to circuit, test full loop (Python &rarr; WiFi &rarr; ESP32 &rarr; TRIACs &rarr; EL wire glowing inside resin).</li>
+</ul>
+
+<h3>Safety</h3>
+<ul class="findings">
+  <li><strong>EL wire voltage:</strong> ~100V AC at exposed conductors. Not lethal at the milliamp current, but will sting. Insulate all connections with heat shrink or electrical tape. Never touch bare connections when powered.</li>
+  <li><strong>Resin fumes:</strong> Epoxy releases volatile organic compounds during mixing and early cure. Work in a ventilated area or under a fume hood. Wear an <strong>organic vapor respirator</strong> (not just a dust mask). The CITRIS lab has ventilation.</li>
+  <li><strong>Skin contact:</strong> Uncured epoxy causes skin sensitization (allergic reactions with repeated exposure). Wear <strong>nitrile gloves</strong> at all times when handling resin. If you get sensitized, you may become permanently allergic.</li>
+  <li><strong>Soldering:</strong> Standard precautions: ventilated area, don't touch the tip, wet sponge for cleaning.</li>
+</ul>
+
+<h3>Troubleshooting</h3>
+<table class="result-table">
+<tr><th>Problem</th><th>Likely Cause</th><th>Fix</th></tr>
+<tr><td>EL wire doesn't glow</td><td>Bad solder joint, dead inverter, wire cut through phosphor</td><td>Test each segment with inverter before casting</td></tr>
+<tr><td>One channel won't turn off</td><td>TRIAC latched on (holding current)</td><td>Check TRIAC wiring, ensure MT1/MT2 aren't swapped</td></tr>
+<tr><td>Resin has bubbles</td><td>No degassing, mixed too vigorously</td><td>Stir slowly; use heat gun on surface; or use pressure/vacuum</td></tr>
+<tr><td>Resin is yellow/cloudy</td><td>Exothermic heat, UV exposure, old resin</td><td>Use deep-pour formula, pour thinner layers, keep out of sun</td></tr>
+<tr><td>EL wire dead after casting</td><td>Resin heat melted PVC jacket</td><td>Use deep-pour formula; test with a scrap cast first</td></tr>
+<tr><td>Mold won't release</td><td>Insufficient mold release spray</td><td>Apply 3+ coats with drying time between; use dedicated mold release</td></tr>
+</table>
 </div>
 
 </div>
