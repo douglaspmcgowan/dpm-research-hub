@@ -750,6 +750,7 @@ return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\
   <button class="nav-tab" onclick="showSection('stech',this)">Tech Stack</button>
   <button class="nav-tab" onclick="showSection('sledguide',this)">LED Build</button>
   <button class="nav-tab" onclick="showSection('selguide',this)">EL Build</button>
+  <button class="nav-tab" onclick="showSection('seinkguide',this)">E-Ink Build</button>
 </div></nav>
 <div class="container">
 <a href="/" class="back-link">&larr; Research Hub</a>
@@ -1659,6 +1660,149 @@ Repeat for each of 6 channels on GPIO pins 16, 17, 18, 19, 21, 22.
 <tr><td>Resin is yellow/cloudy</td><td>Exothermic heat, UV exposure, old resin</td><td>Use deep-pour formula, pour thinner layers, keep out of sun</td></tr>
 <tr><td>EL wire dead after casting</td><td>Resin heat melted PVC jacket</td><td>Use deep-pour formula; test with a scrap cast first</td></tr>
 <tr><td>Mold won't release</td><td>Insufficient mold release spray</td><td>Apply 3+ coats with drying time between; use dedicated mold release</td></tr>
+</table>
+</div>
+
+<!-- ===== E-INK BUILD GUIDE ===== -->
+<div class="section" id="sec-seinkguide">
+<h2>E-Ink (5.79" 4-Color Bar): Full Build Guide</h2>
+<p>A complete guide for building a Psych_Battery prototype using a <strong>5.79-inch 4-color e-ink bar display</strong> (red/yellow/black/white) mounted on a battery-shaped enclosure. The display shows a charge bar that's readable in daylight, uses zero power between updates, and emits no blue light.</p>
+
+<div class="slide-fig"><img src="/figures/battery/eink_prototype.png" alt="E-ink battery prototype" onclick="openLightbox(this)"><div class="caption">The finished prototype: a battery-shaped enclosure with a 5.79" 4-color e-ink bar display showing charge level. Yellow fill = healthy, red = danger. Readable in daylight with no backlight. USB-C for power and data.</div></div>
+
+<h3>Why E-Ink for Psych_Battery?</h3>
+<ul class="findings">
+  <li><strong>Zero blue light.</strong> E-ink reflects ambient light like paper. No backlight, no screen glow. Matches the "no blue-light screens" design constraint perfectly.</li>
+  <li><strong>Always-on with zero power.</strong> The charge bar stays visible even when the ESP32 is asleep or unplugged. The display retains its image indefinitely without drawing any current.</li>
+  <li><strong>Daylight readable.</strong> Gets <em>more</em> visible in bright light (opposite of LEDs/LCDs). Perfect for a desk near a window.</li>
+  <li><strong>4 colors map to charge levels.</strong> Yellow = healthy/charged, Red = danger/depleted, Black = text and outlines, White = background. No color gradient needed &mdash; discrete zones.</li>
+  <li><strong>Slow refresh is fine.</strong> A charge bar that updates every few minutes is a perfect match for the 12-second refresh cycle.</li>
+</ul>
+
+<div class="callout"><div class="label">Limitation: No glow in the dark</div><p>E-ink displays are not visible in a dark room without ambient light. If your desk is in a dim room, consider adding a <strong>single RGB LED</strong> alongside the e-ink display for low-charge alerts (pulsing red when critically depleted). The e-ink handles the primary display; the LED handles dark-room visibility.</p></div>
+
+<h3>Full Circuit Blueprint</h3>
+<div class="slide-fig"><img src="/figures/battery/eink_blueprint.png" alt="E-ink circuit blueprint" onclick="openLightbox(this)"><div class="caption">Complete circuit: ESP32 &rarr; SPI signals (MOSI, CLK, CS, DC, RST, BUSY) &rarr; DESPI-C579 driver board &rarr; FPC ribbon cable &rarr; 5.79" 4-color e-ink display showing battery charge bar.</div></div>
+
+<h3>Bill of Materials (~$50-65)</h3>
+<table class="result-table">
+<tr><th>Component</th><th>Product</th><th>Price</th><th>Source</th></tr>
+<tr><td>E-Ink Display</td><td>Good Display GDEY0579F52 (5.79", 792x272, 4-color RYBW)</td><td>~$15-25</td><td><a href="https://buy-lcd.com/products/gdey0579f52" target="_blank">buy-lcd.com</a> or <a href="https://www.good-display.com/product/767.html" target="_blank">Good Display</a></td></tr>
+<tr><td>Driver Board</td><td>DESPI-C579 adapter (24-pin FPC, handles dual IST7158 controllers)</td><td>~$7</td><td><a href="https://www.good-display.com/product/521.html" target="_blank">Good Display</a></td></tr>
+<tr><td>ESP32 Dev Board</td><td>ESP32-WROOM-32 DevKit V1 (CP2102 USB)</td><td>~$8</td><td>Amazon</td></tr>
+<tr><td>Breadboard + Wires</td><td>Half-size breadboard + jumper wires</td><td>~$12</td><td>Amazon</td></tr>
+<tr><td>Enclosure</td><td>3D-printed PLA battery shape with display window cutout</td><td>~$5</td><td>Jacobs Hall / Supernode</td></tr>
+<tr><td>USB-C Cable</td><td>Data-capable USB cable for ESP32</td><td>~$5</td><td>Any</td></tr>
+</table>
+<p><strong>Total: ~$50-65.</strong> No level shifter needed (ESP32 is 3.3V, display is 3.3V). No external power supply needed (display draws only ~12.5 mA during refresh). No capacitor needed. This is the simplest circuit of any prototype option.</p>
+
+<h3>How E-Ink SPI Works (Plain English)</h3>
+<p>E-ink displays use <strong>SPI</strong> (Serial Peripheral Interface) &mdash; a way for the ESP32 to send data to the display over wires. Think of it like a one-way conversation:</p>
+<ul class="findings">
+  <li><strong>MOSI (Master Out, Slave In):</strong> The data wire. ESP32 sends pixel data and commands through this.</li>
+  <li><strong>CLK (Clock):</strong> A timing signal. Every pulse says "read the next bit of data." Like a metronome keeping the conversation in sync.</li>
+  <li><strong>CS (Chip Select):</strong> "Hey, display, I'm talking to you." Pulled low to start communication, high to stop.</li>
+  <li><strong>DC (Data/Command):</strong> Tells the display whether the bits coming in are a command ("change your settings") or data ("here are pixels to display"). High = data, Low = command.</li>
+  <li><strong>RST (Reset):</strong> Reboots the display. Pulled low briefly to reset, then back high.</li>
+  <li><strong>BUSY:</strong> The display tells the ESP32 "I'm still refreshing, don't send anything yet." The ESP32 checks this pin before sending new data.</li>
+</ul>
+
+<h3>Wiring: ESP32 &rarr; DESPI-C579 &rarr; Display</h3>
+<p>The DESPI-C579 driver board has a ZIF connector for the display's ribbon cable on one side, and 8 pins for connecting to the ESP32 on the other. Here's the pin-by-pin wiring:</p>
+
+<table class="result-table">
+<tr><th>DESPI-C579 Pin</th><th>Function</th><th>ESP32 Pin</th><th>Wire Color (suggested)</th></tr>
+<tr><td>BUSY</td><td>Display busy status</td><td>GPIO 4</td><td>Yellow</td></tr>
+<tr><td>RES</td><td>Reset</td><td>GPIO 16</td><td>White</td></tr>
+<tr><td>D/C</td><td>Data/Command select</td><td>GPIO 17</td><td>Green</td></tr>
+<tr><td>CS</td><td>Chip select</td><td>GPIO 5</td><td>Orange</td></tr>
+<tr><td>SCK</td><td>SPI clock</td><td>GPIO 18</td><td>Blue</td></tr>
+<tr><td>SDI</td><td>SPI data (MOSI)</td><td>GPIO 23</td><td>Blue</td></tr>
+<tr><td>GND</td><td>Ground</td><td>GND</td><td>Black</td></tr>
+<tr><td>3.3V</td><td>Power</td><td>3V3</td><td>Red</td></tr>
+</table>
+
+<div class="callout"><div class="label">Why no level shifter?</div><p>Unlike the LED build (which needs a 74AHCT125 because WS2812B LEDs want 5V logic), the e-ink display runs on <strong>3.3V logic</strong> &mdash; the same as the ESP32. They speak the same voltage natively. Fewer components = fewer things that can go wrong.</p></div>
+
+<h3>Step-by-Step Assembly</h3>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Solder the header pins onto the DESPI-C579 board (it ships with loose headers). 8 pins in a row &mdash; this is a beginner-friendly solder job.</li>
+  <li><strong>Step 2:</strong> Connect the display to the DESPI-C579. Open the ZIF connector's black tab (flip it up gently with a fingernail), slide the ribbon cable in with contacts facing down, close the tab to lock it. <strong>This is the most delicate step</strong> &mdash; be gentle with the tab.</li>
+  <li><strong>Step 3:</strong> Place the ESP32 on a breadboard straddling the center channel.</li>
+  <li><strong>Step 4:</strong> Place the DESPI-C579 on the breadboard nearby.</li>
+  <li><strong>Step 5:</strong> Run 8 jumper wires between the DESPI-C579 and ESP32 pins per the table above. Double-check each one &mdash; wrong SPI wiring produces a blank screen with no error message.</li>
+  <li><strong>Step 6:</strong> Plug USB into the ESP32. No external power needed &mdash; the 3.3V pin supplies enough current for the display.</li>
+</ul>
+
+<div class="slide-fig"><img src="/figures/battery/eink_assembly.png" alt="E-ink assembly" onclick="openLightbox(this)"><div class="caption">Assembly in progress: inserting the FPC ribbon cable into the ZIF connector on the DESPI-C579 driver board. ESP32 on breadboard with jumper wires connected. 3D-printed enclosure ready for final mounting.</div></div>
+
+<h3>Software Setup</h3>
+<ul class="findings">
+  <li><strong>Arduino IDE 2.x</strong> &mdash; same setup as the LED build (install from arduino.cc, add ESP32 board package)</li>
+  <li><strong>Good Display's sample code</strong> &mdash; download from <a href="https://www.good-display.com/companyfile/1832.html" target="_blank">good-display.com</a> (ESP32-specific ZIP). This is vendor-provided code that directly supports the GDEY0579F52 and its dual IST7158 controllers.</li>
+</ul>
+
+<div class="callout"><div class="label">Important: GxEPD2 Compatibility</div><p>The popular GxEPD2 library does <strong>NOT</strong> currently support the GDEY0579F52 (IST7158x2 dual controller). It supports the older GDEY0579F51 (HX8717, now discontinued). <strong>Use Good Display's vendor sample code instead.</strong> It handles the dual-controller register addressing that GxEPD2 doesn't know about. The code uses the same Adafruit GFX drawing functions (<code>fillRect</code>, <code>drawRect</code>, <code>setCursor</code>, <code>print</code>) so the API is familiar.</p></div>
+
+<h3>Key Code: Drawing a Charge Bar</h3>
+<p>The 792x272 pixel display is perfect for a horizontal battery bar. With 4 colors available (white, black, red, yellow), you map charge zones directly:</p>
+
+<div class="callout"><div class="label">Charge Bar Logic</div><p>
+<code>fillWidth = (percentage / 100.0) * 680 pixels</code><br><br>
+<strong>Color mapping:</strong><br>
+0-20% charge &rarr; fill with <strong>RED</strong> (danger zone)<br>
+21-100% charge &rarr; fill with <strong>YELLOW</strong> (healthy zone)<br>
+Battery outline &rarr; <strong>BLACK</strong> lines on <strong>WHITE</strong> background<br>
+Percentage text &rarr; <strong>BLACK</strong>, large font, centered<br><br>
+<strong>Optional zone bars:</strong> Split the fill into segments &mdash; first 20% always red, 21-50% amber (approximated by dithering red+yellow pixels), 51-100% yellow. This gives a visual "fuel gauge" effect.
+</p></div>
+
+<p>The display refreshes by flashing the entire screen through black/white cycles, then settling on the final image. This takes <strong>12 seconds</strong> (fast mode) and is visually conspicuous &mdash; but it only happens when the charge level changes, not continuously.</p>
+
+<h3>Enclosure Design</h3>
+<ul class="findings">
+  <li><strong>Form factor:</strong> A rectangular battery shape (~160mm tall x 65mm wide x 30mm deep) with a flat face for the display. The 5.79" bar display (151mm x 57mm) fits on the front face with ~7mm of bezel on each side.</li>
+  <li><strong>Display window:</strong> Cut a rectangular opening in the front face, sized to the display's active area (139mm x 47.7mm). The display panel sits behind the opening, flush with the surface or slightly recessed.</li>
+  <li><strong>Mounting:</strong> The display is thin (1mm) and flat. Mount it behind the window with thin double-sided tape on the bezel area. Route the ribbon cable through a slot to the DESPI-C579 inside.</li>
+  <li><strong>No frosted acrylic needed.</strong> E-ink is already matte and paper-like. No diffusion layer required &mdash; the display IS the surface.</li>
+  <li><strong>Optional:</strong> A thin clear acrylic or glass pane over the window for protection, but the display is readable without it.</li>
+</ul>
+
+<h3>Build Sequence (1-2 Weeks)</h3>
+<ul class="findings">
+  <li><strong>Day 1:</strong> Order parts. While waiting: install Arduino IDE, add ESP32 board package, download Good Display sample code.</li>
+  <li><strong>Day 2-3:</strong> Parts arrive. Solder headers onto DESPI-C579. Connect display ribbon cable. Wire to ESP32 on breadboard (8 jumper wires). Upload sample code &mdash; verify the display refreshes and shows test patterns.</li>
+  <li><strong>Day 4-5:</strong> Modify the sample code to draw a battery bar. Implement the <code>drawBatteryBar(percentage)</code> function. Test with hardcoded values (100, 75, 50, 25, 10, 0) to verify color mapping and layout.</li>
+  <li><strong>Day 6:</strong> Add WiFi HTTP endpoint so the Python backend can send charge level. Test full loop: Python sends POST &rarr; ESP32 receives &rarr; display updates with new charge bar.</li>
+  <li><strong>Day 7-8:</strong> Design and 3D print the enclosure at Jacobs Hall or Supernode. Rectangular battery shape with display window cutout.</li>
+  <li><strong>Day 9-10:</strong> Mount display in enclosure. Route ribbon cable and USB. Final integration test.</li>
+</ul>
+
+<h3>Comparison: E-Ink vs LED vs EL Wire</h3>
+<table class="result-table">
+<tr><th></th><th>E-Ink</th><th>LED + Frosted Glass</th><th>EL Wire + Resin</th></tr>
+<tr><td><strong>Cost</strong></td><td>~$50-65</td><td>~$80-130</td><td>~$195-295</td></tr>
+<tr><td><strong>Complexity</strong></td><td>Low (8 wires, no extra components)</td><td>Medium (level shifter, capacitor, power supply)</td><td>High (TRIACs, resin casting, AC voltage)</td></tr>
+<tr><td><strong>Blue light</strong></td><td>None (reflective)</td><td>Yes (LED emission)</td><td>Minimal (EL phosphor)</td></tr>
+<tr><td><strong>Dark room visible</strong></td><td>No (needs ambient light)</td><td>Yes (emits light)</td><td>Yes (emits light)</td></tr>
+<tr><td><strong>Always-on power</strong></td><td>0 mW (retains image)</td><td>~200-500 mW continuous</td><td>~100-300 mW continuous</td></tr>
+<tr><td><strong>Update speed</strong></td><td>12 seconds (with flash)</td><td>Instant</td><td>Instant</td></tr>
+<tr><td><strong>Information density</strong></td><td>High (text + graphics)</td><td>Low (color + brightness only)</td><td>Low (lit/unlit segments)</td></tr>
+<tr><td><strong>Aesthetic</strong></td><td>Paper-like, minimal, professional</td><td>Ambient glow, warm, organic</td><td>Sci-fi, ethereal, striking</td></tr>
+</table>
+
+<div class="callout"><div class="label">When to Choose E-Ink</div><p>Choose e-ink if you value <strong>information density</strong> (displaying percentage, text, icons alongside the bar), <strong>zero blue light</strong> compliance, <strong>daylight readability</strong>, and <strong>ultra-low power</strong>. Choose LED if you want ambient glow visible in dark rooms. Choose EL Wire if you want maximum visual drama. The best prototype might combine e-ink (primary display) + a single RGB LED (dark-room alert).</p></div>
+
+<h3>Troubleshooting</h3>
+<table class="result-table">
+<tr><th>Problem</th><th>Likely Cause</th><th>Fix</th></tr>
+<tr><td>Blank screen, nothing happens</td><td>Ribbon cable not seated, wrong SPI pins</td><td>Re-seat FPC cable (contacts down). Verify all 8 wires match the pin table exactly.</td></tr>
+<tr><td>Only top half or bottom half displays</td><td>Dual controller issue &mdash; only one IST7158 initialized</td><td>Use Good Display's vendor code (not GxEPD2). It handles both controllers. If using DESPI-C02 instead of DESPI-C579, switch to the C579.</td></tr>
+<tr><td>Colors are wrong (red where yellow should be)</td><td>Wrong color mode or init sequence</td><td>Verify the code is using the F52 init sequence, not F51. The register map differs.</td></tr>
+<tr><td>Screen refreshes but shows garbage</td><td>Wrong display class in code</td><td>Make sure you're using the GDEY0579F52 sample, not a generic 5.79" sample.</td></tr>
+<tr><td>Ghosting (faint previous image visible)</td><td>Too many refreshes without full clear</td><td>Normal for e-ink. Do a full white-screen refresh every 5-10 updates to clear ghosts.</td></tr>
+<tr><td>Refresh takes 20+ seconds</td><td>Using full refresh mode instead of fast</td><td>Check the refresh mode parameter in the init code. Fast mode = 12s, full = 20s.</td></tr>
+<tr><td>BUSY pin timeout error</td><td>BUSY wire disconnected or wrong GPIO</td><td>Verify BUSY wire connection. If disconnected, the code falls back to timing delays (slower but functional).</td></tr>
 </table>
 </div>
 
