@@ -1128,142 +1128,785 @@ return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\
 
 <!-- ===== LED BUILD GUIDE ===== -->
 <div class="section" id="sec-sledguide">
-<h2>LED + Frosted Glass: Full Build Guide</h2>
-<p>A complete prototyping guide for building a battery-shaped desk object that uses WS2812B LEDs behind frosted acrylic to display charge level via color and brightness. Based on <strong>The Ripple Effect</strong> by Elisa Lupin-Jimenez (ESP32 + NeoPixel 8x8 matrix + sanded acrylic).</p>
+<h2>LED + Frosted Glass: Complete Build Guide</h2>
+<p>A complete, end-to-end guide for building a Psych_Battery prototype using <strong>WS2812B addressable LEDs</strong> (NeoPixels) behind a frosted acrylic diffuser. This guide walks you through every step: buying parts, installing software, wiring the circuit, writing the code, and integrating with the Psych_Battery Python backend. Assumes no prior experience with ESP32 or addressable LEDs. Inspired by <strong>The Ripple Effect</strong> by Elisa Lupin-Jimenez (ESP32 + NeoPixel 8x8 matrix + sanded acrylic).</p>
 
-<div class="callout"><div class="label">Full guide</div><p>The complete 950-line guide with every code listing and diagram is saved as <code>psych_battery_prototyping_guide.md</code> in the research folder. This page has the key information; refer to the markdown for copy-pasteable code.</p></div>
+<div class="slide-fig"><img src="/figures/battery/led_assembly.png" alt="LED battery prototype" onclick="openLightbox(this)"><div class="caption">The finished prototype: a cylindrical battery-shaped enclosure with WS2812B LEDs arranged inside, diffused through sanded acrylic. Color ramps from red (depleted) through amber to green (full charge). Soft breathing pulse indicates active state.</div></div>
+
+<h3>Table of Contents</h3>
+<div class="toc"><ul>
+  <li><a href="#led-why">Why LED + Frosted Glass for Psych_Battery</a></li>
+  <li><a href="#led-bom">Phase 0: Supplies &amp; Bill of Materials</a></li>
+  <li><a href="#led-software">Phase 1: Software Setup (Arduino IDE + Libraries)</a></li>
+  <li><a href="#led-wiring">Phase 2: Hardware Wiring (Breadboard, Step-by-Step)</a></li>
+  <li><a href="#led-firsttest">Phase 3: First Upload &amp; Smoke Test</a></li>
+  <li><a href="#led-chargecode">Phase 4: The Complete Charge Bar Firmware</a></li>
+  <li><a href="#led-python">Phase 5: Python Backend Integration</a></li>
+  <li><a href="#led-enclosure">Phase 6: Enclosure, Diffuser &amp; Mounting</a></li>
+  <li><a href="#led-matrix">Appendix: LED Matrix Options</a></li>
+  <li><a href="#led-compare">Comparison: LED vs E-Ink</a></li>
+  <li><a href="#led-troubleshooting">Troubleshooting Guide</a></li>
+</ul></div>
+
+<h3 id="led-why">Why LED + Frosted Glass for Psych_Battery?</h3>
+<ul class="findings">
+  <li><strong>Instant updates.</strong> Brightness and color change in milliseconds &mdash; useful for live feedback or breathing animations that respond to keystrokes, Slack pings, or AFK states.</li>
+  <li><strong>Ambient, glanceable.</strong> A soft diffused glow sits in peripheral vision without demanding attention. The color shift is the signal; precise numbers aren't needed.</li>
+  <li><strong>Self-illuminating.</strong> Visible in a dark office, late at night, or under a desk hood. No ambient light required (unlike e-ink).</li>
+  <li><strong>Continuous color space.</strong> Unlike e-ink's 4 discrete colors, LEDs can render a smooth red&rarr;amber&rarr;green gradient, so "59% charged" looks meaningfully different from "65% charged."</li>
+  <li><strong>Organic animation.</strong> Breathing pulses via <code>exp(sin(t))</code> feel alive. The battery looks "on" even when the level isn't changing.</li>
+</ul>
+
+<div class="callout"><div class="label">Known trade-off: blue light &amp; always-on power</div><p>LEDs emit (including a small blue-light component) and draw 200-500 mW continuously. If your design constraint is "no blue light on the desk" or "always-on without power," choose the e-ink build instead. The LED build is best when the battery will be in a well-lit workspace during active hours and unplugged after work.</p></div>
 
 <h3>Architecture</h3>
-<p><code>Python Backend &rarr; (HTTP POST or Serial) &rarr; ESP32 &rarr; (Data Pin) &rarr; WS2812B LEDs &rarr; behind frosted acrylic diffuser &rarr; inside battery enclosure</code></p>
+<p><code>Python Backend &rarr; (HTTP POST or Serial) &rarr; ESP32 &rarr; 74AHCT125 level shifter &rarr; WS2812B LEDs &rarr; frosted acrylic diffuser &rarr; battery enclosure</code></p>
 
 <h3>Full Circuit Blueprints</h3>
-<div class="slide-fig"><img src="/figures/battery/led_blueprint_full.png" alt="Full 4-row LED blueprint" onclick="openLightbox(this)"><div class="caption">Complete blueprint: ESP32 &rarr; 74AHCT125 level shifter &rarr; 330&ohm; resistor &rarr; 4 rows of WS2812B LEDs in serpentine layout. 1000uF capacitor on power rails. 5V 4A power supply. Title block: "PSYCH_BATTERY LED CIRCUIT - 4 ROW SERPENTINE LAYOUT".</div></div>
+<div class="slide-fig"><img src="/figures/battery/led_blueprint_full.png" alt="Full 4-row LED blueprint" onclick="openLightbox(this)"><div class="caption">Complete blueprint: ESP32 &rarr; 74AHCT125 level shifter &rarr; 330&ohm; resistor &rarr; 4 rows of WS2812B LEDs in serpentine layout. 1000&micro;F capacitor on power rails. 5V 4A power supply. Title block: "PSYCH_BATTERY LED CIRCUIT &mdash; 4 ROW SERPENTINE LAYOUT".</div></div>
 
-<div class="slide-fig"><img src="/figures/battery/led_matrix_blueprint.png" alt="8x8 matrix blueprint" onclick="openLightbox(this)"><div class="caption">Alternative: 8x8 NeoPixel matrix version. Same ESP32 + level shifter circuit, but the matrix is a single rigid PCB with 64 LEDs. Frosted acrylic panel shown at 50mm distance for diffusion.</div></div>
+<div class="slide-fig"><img src="/figures/battery/led_matrix_blueprint.png" alt="8x8 matrix blueprint" onclick="openLightbox(this)"><div class="caption">Alternative: 8&times;8 NeoPixel matrix version. Same ESP32 + level shifter circuit, but the matrix is a single rigid PCB with 64 LEDs. Frosted acrylic panel shown at 50mm distance for diffusion.</div></div>
 
-<div class="slide-fig"><img src="/figures/battery/led_wiring.png" alt="LED wiring closeup" onclick="openLightbox(this)"><div class="caption">Simplified wiring closeup: ESP32 GPIO16 &rarr; resistor &rarr; level shifter &rarr; WS2812B data input. Capacitor across power rails.</div></div>
+<div class="slide-fig"><img src="/figures/battery/led_wiring.png" alt="LED wiring closeup" onclick="openLightbox(this)"><div class="caption">Simplified wiring closeup: ESP32 GPIO 16 &rarr; 330&ohm; resistor &rarr; 74AHCT125 &rarr; WS2812B data input. 1000&micro;F capacitor across the +5V and GND rails, as close to the first LED as possible.</div></div>
 
-<div class="slide-fig"><img src="/figures/battery/led_assembly.png" alt="LED assembly" onclick="openLightbox(this)"><div class="caption">Assembly view: LED strip cut into serpentine segments inside 3D-printed battery enclosure, with frosted acrylic diffuser panel ready to mount.</div></div>
+<!-- ============ PHASE 0: SUPPLIES ============ -->
+<div class="phase-header"><span class="phase-num">0</span><span class="phase-title">Supplies &amp; Bill of Materials</span><span class="phase-time">30 min (shopping + inventory)</span></div>
 
-<h3>LED Matrix Options (Instead of Strip)</h3>
-<p>Instead of cutting LED strip into rows, you can use a pre-made matrix panel. Here are the best options for the ~60-70mm battery enclosure:</p>
+<h3 id="led-bom">0.1 Electronics BOM (~$55-80 total)</h3>
+<p>These are the electronic components. If you already have an ESP32 from another project, you can skip the dev board line.</p>
+<table class="result-table">
+<tr><th>Component</th><th>Product</th><th>Price</th><th>Source</th></tr>
+<tr><td><strong>ESP32 Dev Board</strong></td><td>ESP32-WROOM-32 DevKit V1 (CP2102 USB chip)</td><td>~$8</td><td><a href="https://www.amazon.com/s?k=hiletgo+esp32+devkit+v1" target="_blank">Amazon (HiLetgo 3-pack)</a></td></tr>
+<tr><td><strong>LED module (pick one)</strong></td><td>24-LED NeoPixel Ring + 7-LED Jewel combo (recommended)</td><td>~$23</td><td><a href="https://www.adafruit.com/product/1586" target="_blank">Adafruit #1586</a> + <a href="https://www.adafruit.com/product/2226" target="_blank">#2226</a></td></tr>
+<tr><td></td><td>OR: WS2812B strip, 60 LED/m, 1m (for serpentine layout)</td><td>~$10</td><td><a href="https://www.amazon.com/s?k=ws2812b+60led+1m" target="_blank">Amazon (BTF-LIGHTING)</a></td></tr>
+<tr><td></td><td>OR: Adafruit NeoPixel NeoMatrix 8&times;8 (64 LEDs, rigid)</td><td>~$35</td><td><a href="https://www.adafruit.com/product/1487" target="_blank">Adafruit #1487</a></td></tr>
+<tr><td><strong>Power Supply</strong></td><td>5V 4A switching PSU (barrel jack)</td><td>~$15</td><td><a href="https://www.adafruit.com/product/1466" target="_blank">Adafruit #1466</a></td></tr>
+<tr><td><strong>Level Shifter</strong></td><td>74AHCT125 quad buffer (3.3V&rarr;5V)</td><td>~$2</td><td><a href="https://www.adafruit.com/product/1787" target="_blank">Adafruit #1787</a></td></tr>
+<tr><td><strong>Capacitor</strong></td><td>1000&micro;F 6.3V+ electrolytic</td><td>~$5 (10pk)</td><td>Amazon assortment</td></tr>
+<tr><td><strong>Resistor</strong></td><td>330&ohm; 1/4W carbon film</td><td>~$6 (kit)</td><td>Amazon resistor assortment</td></tr>
+<tr><td><strong>Breadboard + jumpers</strong></td><td>Half-size breadboard + M-M / M-F jumper wire pack</td><td>~$12</td><td>Amazon</td></tr>
+<tr><td><strong>DC barrel jack adapter</strong></td><td>Screw-terminal barrel jack adapter (matches PSU)</td><td>~$3</td><td>Amazon</td></tr>
+<tr><td><strong>USB cable</strong></td><td>USB-A to Micro-USB, data-capable</td><td>~$5</td><td>Anywhere</td></tr>
+</table>
+
+<div class="callout"><div class="label">Recommended LED pick: Ring + Jewel combo</div><p>For a first prototype, the <strong>24-LED NeoPixel Ring + 7-LED Jewel combo ($23)</strong> is the easiest path. The ring's 65.5mm diameter fits a cylindrical battery enclosure perfectly, the circular shape matches the form, and it produces the smoothest diffused glow. Just daisy-chain Jewel DOUT to Ring DIN &mdash; no custom soldering between segments. See the <a href="#led-matrix">LED Matrix Options appendix</a> for alternatives.</p></div>
+
+<h3>0.2 Enclosure &amp; Diffuser Supplies (~$15-30)</h3>
+<p>Physical materials for the enclosure and light diffusion. Many are free at UC Berkeley makerspaces &mdash; bring this list to make sure you don't get stuck mid-build.</p>
+
+<table class="result-table">
+<tr><th>Supply</th><th>Purpose</th><th>Available at Jacobs?</th><th>Or buy yourself</th></tr>
+<tr><td><strong>Frosted acrylic, 1/8" (3mm), 6"&times;6"</strong></td><td>Light diffuser panel in front of LEDs</td><td>Jacobs often has clear acrylic scraps (sand yourself); frosted is rarer</td><td><a href="https://www.amazon.com/s?k=frosted+acrylic+sheet+1%2F8" target="_blank">~$10 on Amazon</a> or <a href="https://canalplastic.com/" target="_blank">Canal Plastics</a></td></tr>
+<tr><td><strong>PLA filament (white or black)</strong></td><td>3D-printing the battery-shaped enclosure (~60g needed)</td><td>Yes (Jacobs Hall, Supernode, CITRIS all stock common colors)</td><td>~$25/kg on Amazon if you want a specific color</td></tr>
+<tr><td><strong>Sandpaper (400 &amp; 600 grit)</strong></td><td>Sanding clear acrylic into frosted, or smoothing 3D-print layer lines</td><td>Yes (Jacobs hand tool area)</td><td>~$6 at any hardware store</td></tr>
+<tr><td><strong>Isopropyl alcohol (90%+)</strong></td><td>Cleaning acrylic before mounting, degreasing enclosure</td><td>Yes (Jacobs / CITRIS electronics bench)</td><td>~$5 at any pharmacy</td></tr>
+<tr><td><strong>Black electrical tape</strong></td><td>Sealing light leaks around the diffuser edge and USB hole</td><td>Yes (Jacobs electronics bench)</td><td>~$3 at any hardware store</td></tr>
+<tr><td><strong>Hot glue sticks + hot glue gun</strong></td><td>Tacking the LED module inside the shell; fixing the diffuser</td><td>Yes (Jacobs, Supernode, CITRIS)</td><td>~$15 for a small gun + sticks at hardware store</td></tr>
+<tr><td><strong>M3 screws + heat-set inserts (optional)</strong></td><td>Assembling a 2-part enclosure (alternative: friction fit)</td><td>Yes (Jacobs fastener bin)</td><td>~$10 on Amazon if needed</td></tr>
+</table>
+
+<p><strong>Minimum additional cost: $10-$25</strong> depending on how much you source from Jacobs vs buy yourself. The frosted acrylic is the one item that's hard to source for free.</p>
+
+<h3>0.3 Tools You'll Use (all free at UC Berkeley makerspaces)</h3>
+<table class="result-table">
+<tr><th>Tool</th><th>Purpose</th><th>Where to Find It</th></tr>
+<tr><td><strong>Soldering iron + solder</strong></td><td>Connecting LED segments, attaching wires to the strip/ring</td><td><a href="https://jacobsinstitute.berkeley.edu/making-at-jacobs/" target="_blank">Jacobs Hall</a>, <a href="https://supernode.berkeley.edu/" target="_blank">Supernode</a> (24/7, Cory Hall), <a href="https://invent.citris-uc.org/" target="_blank">CITRIS Invention Lab</a></td></tr>
+<tr><td><strong>3D printer</strong></td><td>Printing the enclosure (~6-10 hour print for a battery-sized shell)</td><td>Jacobs Hall (Ultimakers), Supernode (Prusas, 24/7), CITRIS (Sutardja Dai Hall)</td></tr>
+<tr><td><strong>Laser cutter (optional)</strong></td><td>Cutting the diffuser panel cleanly from acrylic sheet</td><td>Jacobs Hall (training required), CITRIS Invention Lab</td></tr>
+<tr><td><strong>Multimeter</strong></td><td>Verifying 5V rail, checking continuity, debugging wiring</td><td>Jacobs, CITRIS, Supernode electronics benches</td></tr>
+<tr><td><strong>Wire strippers + small flathead</strong></td><td>Prepping jumper wires, opening barrel-jack terminals</td><td>Jacobs hand tool area</td></tr>
+<tr><td><strong>Helping hands / third hand</strong></td><td>Holding LED segments steady while soldering</td><td>Jacobs, CITRIS electronics benches</td></tr>
+<tr><td><strong>Computer with USB port</strong></td><td>Running Arduino IDE and uploading firmware</td><td>Bring your laptop</td></tr>
+</table>
+
+<div class="callout"><div class="label">Maker Pass required</div><p>To use Jacobs Hall, CITRIS Invention Lab, or most Berkeley makerspaces, you need a Maker Pass. Sign up at <a href="https://jacobsinstitute.berkeley.edu/our-space/" target="_blank">jacobsinstitute.berkeley.edu</a> &mdash; free for UC Berkeley students. Supernode is free and 24/7 with no pass required.</p></div>
+
+<h3>0.4 Final Shopping List (if you want to cover everything)</h3>
+<p>If you want to buy everything yourself instead of relying on makerspace supplies, total cost is roughly:</p>
+<ul class="findings">
+  <li>Electronics BOM (0.1): <strong>~$79</strong> with Ring+Jewel combo</li>
+  <li>Enclosure &amp; diffuser supplies (0.2) if buying all yourself: <strong>~$55</strong> (filament, acrylic, sandpaper, tape, glue gun, alcohol)</li>
+  <li><strong>Full DIY total: ~$134</strong></li>
+  <li><strong>Realistic with Berkeley makerspace resources: ~$85-95</strong></li>
+</ul>
+
+<!-- ============ PHASE 1: SOFTWARE ============ -->
+<div class="phase-header"><span class="phase-num">1</span><span class="phase-title">Software Setup (Arduino IDE + Libraries)</span><span class="phase-time">45 min</span></div>
+
+<h3 id="led-software">1.1 Install Arduino IDE 2.x</h3>
+<p>Arduino IDE is the free program where you'll write code (called "sketches") and upload it to the ESP32 via USB. It handles compiling, library management, and uploading.</p>
+<ul class="findings">
+  <li>Go to <a href="https://www.arduino.cc/en/software" target="_blank">arduino.cc/en/software</a></li>
+  <li>Download the "Arduino IDE 2.x" installer for your OS (Windows, Mac, or Linux)</li>
+  <li>Run the installer. Accept all defaults. On Mac, drag it to Applications.</li>
+  <li>Launch Arduino IDE. You'll see an empty sketch with <code>setup()</code> (runs once at power-on) and <code>loop()</code> (runs repeatedly forever). Your charge-level code goes in <code>loop()</code>.</li>
+</ul>
+
+<h3>1.2 Add ESP32 Board Support</h3>
+<p>Arduino IDE doesn't know about ESP32 by default. You have to add Espressif's board package URL.</p>
+<ul class="findings">
+  <li>In Arduino IDE, go to <strong>File &rarr; Preferences</strong> (Windows/Linux) or <strong>Arduino IDE &rarr; Settings</strong> (macOS)</li>
+  <li>Find the field labeled <strong>"Additional boards manager URLs"</strong></li>
+  <li>Paste this URL: <code>https://espressif.github.io/arduino-esp32/package_esp32_index.json</code></li>
+  <li>Click OK</li>
+  <li>Go to <strong>Tools &rarr; Board &rarr; Boards Manager</strong></li>
+  <li>Search for <strong>"esp32"</strong></li>
+  <li>Install <strong>"esp32 by Espressif Systems"</strong> (version 3.x or higher). This takes ~3-5 minutes.</li>
+  <li>After installation: <strong>Tools &rarr; Board &rarr; ESP32 Arduino &rarr; ESP32 Dev Module</strong></li>
+</ul>
+
+<h3>1.3 Install USB Driver (Windows/Mac only)</h3>
+<p>The ESP32 DevKit V1 uses a <strong>CP2102</strong> USB-to-serial chip. Most modern computers have the driver pre-installed, but if your ESP32 doesn't appear as a COM port, install it manually.</p>
+<ul class="findings">
+  <li>Download the driver from <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers" target="_blank">Silicon Labs CP2102 drivers</a></li>
+  <li>Install, reboot if prompted</li>
+  <li>Plug in your ESP32 via USB. Open Arduino IDE &rarr; <strong>Tools &rarr; Port</strong>. You should see a new port appear (COM3+ on Windows, /dev/cu.SLAB_USBtoUART on Mac, /dev/ttyUSB0 on Linux). Select it.</li>
+</ul>
+
+<h3>1.4 Install Required Arduino Libraries</h3>
+<p>You need four libraries to drive the LEDs and run an HTTP server. Install via <strong>Sketch &rarr; Include Library &rarr; Manage Libraries</strong>:</p>
+<ul class="findings">
+  <li><strong>Adafruit NeoPixel</strong> by Adafruit (latest version) &mdash; drives the WS2812B LEDs using bit-banged timing</li>
+  <li><strong>ArduinoJson</strong> by Benoit Blanchon (v7.x) &mdash; parses incoming JSON from the Python backend</li>
+</ul>
+<p>The next two libraries are <strong>not in the Library Manager</strong> &mdash; install them manually from GitHub ZIP:</p>
+<ul class="findings">
+  <li><strong>ESPAsyncWebServer</strong> &mdash; download ZIP from <a href="https://github.com/ESP32Async/ESPAsyncWebServer" target="_blank">github.com/ESP32Async/ESPAsyncWebServer</a>. In Arduino IDE: <strong>Sketch &rarr; Include Library &rarr; Add .ZIP Library</strong>, pick the downloaded ZIP.</li>
+  <li><strong>AsyncTCP</strong> &mdash; download ZIP from <a href="https://github.com/ESP32Async/AsyncTCP" target="_blank">github.com/ESP32Async/AsyncTCP</a>. Install the same way.</li>
+</ul>
+
+<div class="callout"><div class="label">Why async web server instead of WebServer.h?</div><p>The built-in <code>WebServer.h</code> is synchronous &mdash; it blocks the main loop while serving each request. That's fine for e-ink (which blocks during refresh anyway), but for LED breathing animations you want the <code>loop()</code> to run continuously at 60+ fps. ESPAsyncWebServer handles HTTP in the background so your animation never stutters.</p></div>
+
+<!-- ============ PHASE 2: WIRING ============ -->
+<div class="phase-header"><span class="phase-num">2</span><span class="phase-title">Hardware Wiring (Breadboard, Step-by-Step)</span><span class="phase-time">45 min</span></div>
+
+<h3 id="led-wiring">2.1 Understand the Components</h3>
+<p>Unlike the e-ink kit (which is plug-and-play), the LED build uses a breadboard and discrete components. Here's what each piece does:</p>
+<ul class="findings">
+  <li><strong>ESP32 DevKit V1:</strong> The "brain." Reads commands over WiFi or USB, runs the charge animation, sends data to the LEDs. Outputs 3.3V logic on its GPIO pins. Has WiFi and Bluetooth built in.</li>
+  <li><strong>74AHCT125 level shifter:</strong> Converts the ESP32's 3.3V data signal to a clean 5V signal that the LEDs reliably understand. Without it, the LEDs often misinterpret data &mdash; wrong colors, flickering, or nothing.</li>
+  <li><strong>WS2812B LEDs (NeoPixels):</strong> Addressable RGB LEDs. Each LED has a tiny driver chip inside. You send a chain of color data over a single wire; each LED grabs its color and passes the rest along to the next.</li>
+  <li><strong>330&ohm; resistor:</strong> Sits between the level shifter output and the first LED's data input. Dampens signal reflections that can corrupt data on longer runs.</li>
+  <li><strong>1000&micro;F capacitor:</strong> Buffers the 5V power rail. Absorbs the inrush current when LEDs transition between dark and bright colors.</li>
+  <li><strong>5V 4A power supply:</strong> Powers the LEDs. USB can't supply enough current (USB is 500mA; 31 LEDs at full white = ~1.8A).</li>
+</ul>
+
+<div class="callout"><div class="label">Common ground rule</div><p>The ESP32 (USB-powered) and the LEDs (wall-powered) MUST share a common ground, or the data signal reference is different between them and you get garbage output. Every build guide will hammer this point &mdash; it's the #1 mistake.</p></div>
+
+<h3>2.2 Place the ESP32 on the Breadboard</h3>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Place the ESP32 dev board straddling the center channel of the breadboard so its pins line up with the numbered rows on both sides. The USB port should hang off one end.</li>
+  <li><strong>Step 2:</strong> Run a jumper wire from the ESP32's <strong>GND pin</strong> to the breadboard's <strong>blue (negative) power rail</strong>. This is the common ground.</li>
+  <li><strong>Step 3:</strong> Do NOT connect the ESP32's 5V or VIN pin to the power rail. The ESP32 gets its own power from USB. Only GND is shared.</li>
+</ul>
+
+<h3>2.3 Place the 74AHCT125 Level Shifter</h3>
+<p>The 74AHCT125 is a 14-pin DIP chip. Orient it with the notch (or dot) toward the ESP32.</p>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Straddle the 74AHCT125 across the center channel of the breadboard, far enough from the ESP32 to leave room for jumpers.</li>
+  <li><strong>Step 2:</strong> Connect <strong>pin 7 (GND)</strong> to the blue ground rail.</li>
+  <li><strong>Step 3:</strong> Connect <strong>pin 14 (VCC)</strong> to the red (+5V) power rail.</li>
+  <li><strong>Step 4:</strong> Connect <strong>pin 1 (1OE, output enable)</strong> to GND. This enables channel 1 of the chip. (Tying to GND = always on.)</li>
+</ul>
+
+<div class="callout"><div class="label">Pin numbering on DIP chips</div><p>Pin 1 is marked with a small dot or notch. Counting goes counterclockwise when viewed from above: pin 1 in the top-left, pin 7 in the bottom-left, pin 8 in the bottom-right, pin 14 in the top-right.</p></div>
+
+<h3>2.4 Wire the Data Signal Path</h3>
+<p>This is the whole point of the level shifter &mdash; to route the ESP32's data output through the chip and get a clean 5V signal out.</p>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Run a jumper from <strong>ESP32 GPIO 16</strong> to one end of a <strong>330&ohm; resistor</strong>.</li>
+  <li><strong>Step 2:</strong> From the other end of the resistor, run a short jumper to <strong>74AHCT125 pin 2 (1A, input)</strong>.</li>
+  <li><strong>Step 3:</strong> Run a jumper from <strong>74AHCT125 pin 3 (1Y, output)</strong> out to an empty row &mdash; this is where the LED module's data wire will connect.</li>
+</ul>
+
+<h3>2.5 Connect the 5V Power Supply</h3>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Screw the 5V 4A power supply's plug into the barrel jack adapter's positive (+) and negative (-) terminals. Confirm polarity with a multimeter if unsure &mdash; the adapter should be labeled.</li>
+  <li><strong>Step 2:</strong> Run a wire from the barrel jack adapter's <strong>(+)</strong> terminal to the breadboard's <strong>red (+5V) power rail</strong>.</li>
+  <li><strong>Step 3:</strong> Run a wire from the adapter's <strong>(-)</strong> terminal to the breadboard's <strong>blue (GND) power rail</strong>.</li>
+  <li><strong>Step 4:</strong> Do NOT plug the wall brick into the wall yet. Power-on only after the full circuit is verified.</li>
+</ul>
+
+<h3>2.6 Place the 1000&micro;F Capacitor</h3>
+<p>Electrolytic capacitors are polarized &mdash; getting polarity wrong can make them pop.</p>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Identify the capacitor's <strong>negative leg</strong> &mdash; marked with a stripe and a minus sign on the can. The other leg (usually longer) is positive.</li>
+  <li><strong>Step 2:</strong> Place the capacitor near where the LED module will connect (NOT near the ESP32). This is to absorb inrush current at the LEDs.</li>
+  <li><strong>Step 3:</strong> Connect the <strong>positive (long) leg</strong> to the red (+5V) rail.</li>
+  <li><strong>Step 4:</strong> Connect the <strong>negative (striped) leg</strong> to the blue (GND) rail.</li>
+</ul>
+
+<h3>2.7 Connect the LED Module</h3>
+<p>All WS2812B LED modules use the same 3-wire interface: VCC (5V), GND, DIN (data in). The wiring below works for the Ring+Jewel combo, 8&times;8 matrix, or cut LED strip &mdash; only the physical solder joints differ.</p>
+
+<h4>Ring + Jewel combo (recommended):</h4>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Solder 3 wires to the Jewel's input pads: <strong>+5V</strong>, <strong>GND</strong>, <strong>DIN (data in)</strong>. Use red, black, and green wires for clarity.</li>
+  <li><strong>Step 2:</strong> Solder 3 wires between Jewel <strong>DOUT</strong>, Jewel <strong>+5V</strong>, Jewel <strong>GND</strong> and the matching input pads (<strong>DIN</strong>, <strong>+5V</strong>, <strong>GND</strong>) on the Ring. Both boards share power; the Jewel's data-out feeds the Ring's data-in.</li>
+  <li><strong>Step 3:</strong> Leave the Ring's <strong>DOUT</strong> disconnected. It's the end of the chain.</li>
+  <li><strong>Step 4:</strong> Connect the Jewel's 3 input wires to the breadboard: <strong>+5V</strong> &rarr; red rail, <strong>GND</strong> &rarr; blue rail, <strong>DIN</strong> &rarr; the level shifter output from Step 2.4.</li>
+</ul>
+
+<h4>8&times;8 rigid matrix or flexible panel:</h4>
+<ul class="findings">
+  <li>One DIN connection to the level shifter output, one +5V, one GND. The matrix internally chains all 64 LEDs &mdash; no soldering between rows needed. Set <code>NUM_LEDS = 64</code> in firmware.</li>
+</ul>
+
+<h4>LED strip cut into 4 rows:</h4>
+<ul class="findings">
+  <li>Cut the strip at the marked cut lines to get 4 equal-length segments. Solder short jumper wires (VCC, GND, DATA) between the end of row 1 and the start of row 2, then row 2 to row 3, and row 3 to row 4. Arrange in a serpentine (zigzag) pattern. First row's DIN goes to the level shifter output; last row's DOUT is left unconnected. Set <code>NUM_LEDS = total LEDs across all rows</code>.</li>
+</ul>
+
+<h3>2.8 Final Wiring Check</h3>
+<p>Before plugging anything in, verify:</p>
+<ul class="findings">
+  <li>ESP32 GND is tied to the blue rail (common ground)</li>
+  <li>74AHCT125 pin 7 to GND, pin 14 to +5V, pin 1 to GND</li>
+  <li>Data path: GPIO 16 &rarr; 330&ohm; resistor &rarr; pin 2 &rarr; pin 3 &rarr; LED DIN</li>
+  <li>LED module's +5V to red rail, GND to blue rail</li>
+  <li>1000&micro;F cap with long leg on +5V, striped leg on GND</li>
+  <li>Barrel jack (+) to red rail, (-) to blue rail</li>
+  <li>ESP32 USB cable plugged into your computer</li>
+  <li>Wall brick NOT yet plugged in &mdash; do that only after Phase 3 upload</li>
+</ul>
+
+<!-- ============ PHASE 3: FIRST TEST ============ -->
+<div class="phase-header"><span class="phase-num">3</span><span class="phase-title">First Upload &amp; Smoke Test</span><span class="phase-time">15 min</span></div>
+
+<h3 id="led-firsttest">3.1 Select Board and Port</h3>
+<ul class="findings">
+  <li><strong>Tools &rarr; Board &rarr; ESP32 Arduino &rarr; ESP32 Dev Module</strong></li>
+  <li><strong>Tools &rarr; Port &rarr;</strong> select your ESP32's port (COM3+ on Windows, /dev/cu.SLAB_USBtoUART on Mac, /dev/ttyUSB0 on Linux)</li>
+  <li>If no port appears: install the CP2102 USB driver (Phase 1.3), unplug and replug</li>
+  <li><strong>Tools &rarr; Upload Speed &rarr; 921600</strong> (drop to 115200 if upload errors occur)</li>
+</ul>
+
+<h3>3.2 Upload NeoPixel strandtest</h3>
+<p>Don't skip this step. Uploading Adafruit's built-in strandtest example verifies your wiring independently of the custom Psych_Battery code &mdash; if strandtest fails, it's a hardware problem, not a code problem.</p>
+<ul class="findings">
+  <li><strong>File &rarr; Examples &rarr; Adafruit NeoPixel &rarr; strandtest</strong></li>
+  <li>Near the top, find <code>#define LED_PIN 6</code> and change to <strong><code>#define LED_PIN 16</code></strong> to match the GPIO you wired.</li>
+  <li>Find <code>#define LED_COUNT 60</code> and change to match your module (<strong>31</strong> for Ring+Jewel, <strong>64</strong> for 8&times;8 matrix, etc.).</li>
+  <li>Plug the 5V wall brick into the wall now. You should NOT see smoke or feel heat. If you do, unplug immediately and re-check polarity and wiring.</li>
+  <li>Click <strong>Upload</strong>. First compile takes ~1 minute.</li>
+</ul>
+
+<h3>3.3 Verify the Smoke Test</h3>
+<p>If everything is wired correctly, right after upload completes you should see:</p>
+<ul class="findings">
+  <li>A <strong>chase animation</strong> &mdash; single LED moving across the module in red, then green, then blue, then white</li>
+  <li>A <strong>rainbow cycle</strong> &mdash; all LEDs cycling through the spectrum together</li>
+  <li>A <strong>theater chase</strong> pattern &mdash; alternating LEDs blinking in color</li>
+  <li>The animations loop forever. Count the LEDs you see light up &mdash; should match <code>LED_COUNT</code>.</li>
+</ul>
+
+<div class="callout"><div class="label">If strandtest fails</div><p>Jump to the <a href="#led-troubleshooting">Troubleshooting Guide</a> below. The most common first-time failures are: no common ground (ESP32 GND not tied to LED GND), wrong GPIO pin, level shifter pin 1 (OE) not tied to GND, or WS2812B data wire over 15cm long (causes reflections).</p></div>
+
+<!-- ============ PHASE 4: COMPLETE FIRMWARE ============ -->
+<div class="phase-header"><span class="phase-num">4</span><span class="phase-title">The Complete Charge Bar Firmware</span><span class="phase-time">2 hours</span></div>
+
+<h3 id="led-chargecode">4.1 Overview of What We're Building</h3>
+<p>Once strandtest works, replace it with the real Psych_Battery sketch that:</p>
+<ul class="findings">
+  <li>Connects to your WiFi network</li>
+  <li>Runs an async HTTP server on port 80</li>
+  <li>Accepts <code>POST /charge</code> requests with JSON like <code>{"level": 75}</code></li>
+  <li>Also accepts <code>GET /charge?level=75</code> for browser testing</li>
+  <li>Maps 0-100 charge to a red&rarr;amber&rarr;green HSV hue gradient</li>
+  <li>Applies a breathing pulse via <code>exp(sin(t))</code> for an organic, alive feel</li>
+  <li>Falls back to serial commands if WiFi isn't available</li>
+</ul>
+
+<h3>4.2 The Main Arduino Sketch</h3>
+<p>Create a new sketch (<strong>File &rarr; New Sketch</strong>) and paste this code. Save as <code>psych_battery_led.ino</code>.</p>
+
+<span class="code-label">psych_battery_led.ino &mdash; main firmware</span>
+<pre class="code-block"><span class="cmt">/*
+ * Psych_Battery LED Firmware
+ * Hardware: ESP32 DevKit V1 + WS2812B LEDs (Ring+Jewel / matrix / strip)
+ * Receives charge level (0-100) via WiFi HTTP or Serial
+ * Displays a red->amber->green hue gradient with a breathing pulse
+ */</span>
+
+<span class="kw">#include</span> <span class="str">&lt;WiFi.h&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;AsyncTCP.h&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;ESPAsyncWebServer.h&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;ArduinoJson.h&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;Adafruit_NeoPixel.h&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;math.h&gt;</span>
+
+<span class="cmt">// ============ CONFIG - EDIT THESE ============</span>
+<span class="kw">const</span> <span class="ty">char</span>* WIFI_SSID     = <span class="str">"YourWiFiName"</span>;
+<span class="kw">const</span> <span class="ty">char</span>* WIFI_PASSWORD = <span class="str">"YourWiFiPassword"</span>;
+<span class="kw">const</span> <span class="ty">int</span>   HTTP_PORT     = <span class="num">80</span>;
+
+<span class="cmt">// LED strip config</span>
+<span class="kw">#define</span> LED_PIN     <span class="num">16</span>    <span class="cmt">// GPIO wired through level shifter</span>
+<span class="kw">#define</span> NUM_LEDS    <span class="num">31</span>    <span class="cmt">// Ring(24) + Jewel(7). Set to 64 for 8x8 matrix.</span>
+<span class="kw">#define</span> MAX_BRIGHT  <span class="num">180</span>   <span class="cmt">// 0-255. 180 is ambient-comfortable.</span>
+
+<span class="cmt">// Animation config</span>
+<span class="kw">#define</span> BREATH_MS   <span class="num">4500</span>  <span class="cmt">// Full breathing cycle duration</span>
+<span class="kw">#define</span> BREATH_MIN  <span class="num">0.35f</span> <span class="cmt">// Minimum pulse floor (never fully dark)</span>
+
+Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
+<span class="ty">AsyncWebServer</span> server(HTTP_PORT);
+
+<span class="ty">int</span>  currentCharge = <span class="num">100</span>;
+<span class="ty">bool</span> wifiConnected = <span class="kw">false</span>;
+
+<span class="cmt">// ============ COLOR MAPPING ============</span>
+<span class="cmt">// Charge 0   -> hue 0     (red)</span>
+<span class="cmt">// Charge 50  -> hue 10922 (amber/yellow)</span>
+<span class="cmt">// Charge 100 -> hue 21845 (green)</span>
+<span class="ty">uint32_t</span> <span class="fn">chargeToColor</span>(<span class="ty">int</span> level, <span class="ty">uint8_t</span> brightness) {
+  <span class="ty">uint16_t</span> hue = map(level, <span class="num">0</span>, <span class="num">100</span>, <span class="num">0</span>, <span class="num">21845</span>);
+  <span class="kw">return</span> strip.ColorHSV(hue, <span class="num">255</span>, brightness);
+}
+
+<span class="cmt">// ============ BREATHING ANIMATION ============</span>
+<span class="cmt">// exp(sin(t)) gives an organic asymmetric pulse - faster rise, slower fall</span>
+<span class="ty">uint8_t</span> <span class="fn">breathBrightness</span>(<span class="ty">uint32_t</span> ms) {
+  <span class="ty">float</span> phase = (<span class="ty">float</span>)(ms % BREATH_MS) / BREATH_MS * <span class="num">2.0f</span> * M_PI;
+  <span class="ty">float</span> raw   = expf(sinf(phase)) - <span class="num">0.3679f</span>;   <span class="cmt">// shift so floor hits ~0</span>
+  <span class="ty">float</span> norm  = raw / (M_E - <span class="num">0.3679f</span>);        <span class="cmt">// normalize to 0-1</span>
+  <span class="ty">float</span> scaled = BREATH_MIN + (<span class="num">1.0f</span> - BREATH_MIN) * norm;
+  <span class="kw">return</span> (<span class="ty">uint8_t</span>)(MAX_BRIGHT * scaled);
+}
+
+<span class="cmt">// ============ DISPLAY UPDATE ============</span>
+<span class="ty">void</span> <span class="fn">renderFrame</span>() {
+  <span class="ty">uint8_t</span>  b     = breathBrightness(millis());
+  <span class="ty">uint32_t</span> color = chargeToColor(currentCharge, b);
+  <span class="kw">for</span> (<span class="ty">int</span> i = <span class="num">0</span>; i &lt; NUM_LEDS; i++) strip.setPixelColor(i, color);
+  strip.show();
+}
+
+<span class="cmt">// ============ SETUP ============</span>
+<span class="ty">void</span> <span class="fn">setup</span>() {
+  Serial.begin(<span class="num">115200</span>);
+  Serial.println(<span class="str">"\nPsych_Battery LED starting..."</span>);
+
+  strip.begin();
+  strip.setBrightness(MAX_BRIGHT);
+  strip.clear();
+  strip.show();
+
+  <span class="cmt">// Connect to WiFi</span>
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print(<span class="str">"Connecting to WiFi"</span>);
+  <span class="ty">int</span> retries = <span class="num">0</span>;
+  <span class="kw">while</span> (WiFi.status() != WL_CONNECTED && retries &lt; <span class="num">20</span>) {
+    delay(<span class="num">500</span>);
+    Serial.print(<span class="str">"."</span>);
+    retries++;
+  }
+  <span class="kw">if</span> (WiFi.status() == WL_CONNECTED) {
+    wifiConnected = <span class="kw">true</span>;
+    Serial.print(<span class="str">"\nConnected! IP: "</span>);
+    Serial.println(WiFi.localIP());
+  } <span class="kw">else</span> {
+    Serial.println(<span class="str">"\nWiFi failed. Running serial-only mode."</span>);
+  }
+
+  <span class="cmt">// HTTP endpoints</span>
+  server.on(<span class="str">"/"</span>, HTTP_GET, [](<span class="ty">AsyncWebServerRequest</span>* req) {
+    req-&gt;send(<span class="num">200</span>, <span class="str">"text/plain"</span>,
+      <span class="str">"Psych_Battery LED ready. POST /charge with JSON {\"level\": 0-100}"</span>);
+  });
+
+  <span class="cmt">// GET /charge?level=75 - easy browser test</span>
+  server.on(<span class="str">"/charge"</span>, HTTP_GET, [](<span class="ty">AsyncWebServerRequest</span>* req) {
+    <span class="kw">if</span> (!req-&gt;hasParam(<span class="str">"level"</span>)) {
+      <span class="ty">String</span> body = <span class="str">"{\"level\":"</span> + String(currentCharge) + <span class="str">"}"</span>;
+      req-&gt;send(<span class="num">200</span>, <span class="str">"application/json"</span>, body);
+      <span class="kw">return</span>;
+    }
+    <span class="ty">int</span> level = req-&gt;getParam(<span class="str">"level"</span>)-&gt;value().toInt();
+    <span class="kw">if</span> (level &lt; <span class="num">0</span> || level &gt; <span class="num">100</span>) {
+      req-&gt;send(<span class="num">400</span>, <span class="str">"text/plain"</span>, <span class="str">"level must be 0-100"</span>);
+      <span class="kw">return</span>;
+    }
+    currentCharge = level;
+    Serial.print(<span class="str">"HTTP GET: charge = "</span>);
+    Serial.println(level);
+    req-&gt;send(<span class="num">200</span>, <span class="str">"application/json"</span>,
+      <span class="str">"{\"ok\":true,\"level\":"</span> + String(level) + <span class="str">"}"</span>);
+  });
+
+  <span class="cmt">// POST /charge with JSON body</span>
+  server.on(<span class="str">"/charge"</span>, HTTP_POST,
+    [](<span class="ty">AsyncWebServerRequest</span>* req) { <span class="cmt">/* handled by body callback */</span> },
+    <span class="kw">NULL</span>,
+    [](<span class="ty">AsyncWebServerRequest</span>* req, <span class="ty">uint8_t</span>* data, <span class="ty">size_t</span> len,
+       <span class="ty">size_t</span> idx, <span class="ty">size_t</span> total) {
+      <span class="ty">JsonDocument</span> doc;
+      <span class="ty">DeserializationError</span> err = deserializeJson(doc, data, len);
+      <span class="kw">if</span> (err) {
+        req-&gt;send(<span class="num">400</span>, <span class="str">"text/plain"</span>, <span class="str">"Invalid JSON"</span>);
+        <span class="kw">return</span>;
+      }
+      <span class="ty">int</span> level = doc[<span class="str">"level"</span>] | -<span class="num">1</span>;
+      <span class="kw">if</span> (level &lt; <span class="num">0</span> || level &gt; <span class="num">100</span>) {
+        req-&gt;send(<span class="num">400</span>, <span class="str">"text/plain"</span>, <span class="str">"level must be 0-100"</span>);
+        <span class="kw">return</span>;
+      }
+      currentCharge = level;
+      Serial.print(<span class="str">"HTTP POST: charge = "</span>);
+      Serial.println(level);
+      req-&gt;send(<span class="num">200</span>, <span class="str">"application/json"</span>,
+        <span class="str">"{\"ok\":true,\"level\":"</span> + String(level) + <span class="str">"}"</span>);
+    });
+
+  server.begin();
+  Serial.println(<span class="str">"HTTP server on port 80"</span>);
+}
+
+<span class="cmt">// ============ LOOP ============</span>
+<span class="ty">void</span> <span class="fn">loop</span>() {
+  <span class="cmt">// Serial fallback: type a number 0-100 + Enter</span>
+  <span class="kw">if</span> (Serial.available()) {
+    <span class="ty">int</span> level = Serial.parseInt();
+    <span class="kw">if</span> (level &gt;= <span class="num">0</span> && level &lt;= <span class="num">100</span>) {
+      currentCharge = level;
+      Serial.print(<span class="str">"Serial: charge = "</span>);
+      Serial.println(level);
+    }
+    <span class="kw">while</span> (Serial.available()) Serial.read();
+  }
+
+  renderFrame();
+  delay(<span class="num">20</span>);   <span class="cmt">// ~50 fps update rate</span>
+}</pre>
+
+<h3>4.3 Edit Your WiFi Credentials</h3>
+<p>Find these two lines near the top:</p>
+<pre class="code-block"><span class="kw">const</span> <span class="ty">char</span>* WIFI_SSID     = <span class="str">"YourWiFiName"</span>;
+<span class="kw">const</span> <span class="ty">char</span>* WIFI_PASSWORD = <span class="str">"YourWiFiPassword"</span>;</pre>
+<p>Replace with your actual network name and password. <strong>ESP32 only supports 2.4 GHz WiFi</strong> &mdash; if your home network is 5 GHz only, use your phone's hotspot (usually 2.4 GHz) or ask your router admin to enable a 2.4 GHz band.</p>
+
+<h3>4.4 Set NUM_LEDS for Your Module</h3>
+<p>Find the <code>#define NUM_LEDS 31</code> line and adjust:</p>
+<ul class="findings">
+  <li><strong>Ring + Jewel combo:</strong> <code>NUM_LEDS 31</code> (24 + 7)</li>
+  <li><strong>8&times;8 NeoMatrix:</strong> <code>NUM_LEDS 64</code></li>
+  <li><strong>4-row WS2812B strip, 144 LED/m, ~48mm rows:</strong> count the LEDs you actually have and set accordingly</li>
+  <li><strong>16-LED NeoPixel Ring:</strong> <code>NUM_LEDS 16</code></li>
+</ul>
+
+<h3>4.5 Upload and Monitor</h3>
+<ul class="findings">
+  <li>Click <strong>Upload</strong>. Wait for compile + flash.</li>
+  <li>Open <strong>Tools &rarr; Serial Monitor</strong>. Set baud rate to <strong>115200</strong>.</li>
+  <li>You should see:<br>
+    <code>Psych_Battery LED starting...</code><br>
+    <code>Connecting to WiFi.....</code><br>
+    <code>Connected! IP: 192.168.1.123</code><br>
+    <code>HTTP server on port 80</code></li>
+  <li>Write down the IP address &mdash; you'll need it for the Python backend.</li>
+  <li>The LEDs should light up green (100%) with a slow breathing pulse.</li>
+</ul>
+
+<h3>4.6 Test via Serial</h3>
+<p>In the Serial Monitor, type a number 0-100 and press Enter. The LEDs should hue-shift immediately. Try:</p>
+<ul class="findings">
+  <li><code>85</code> &rarr; bright green, healthy pulse</li>
+  <li><code>50</code> &rarr; amber/yellow</li>
+  <li><code>15</code> &rarr; red, danger-zone pulse</li>
+  <li><code>0</code> &rarr; deep red, minimum pulse</li>
+</ul>
+
+<h3>4.7 Test via Browser</h3>
+<p>Open a browser on any device on the same WiFi network. Go to <code>http://192.168.1.123/charge?level=42</code> (use your IP). You should see a JSON response and the LEDs will hue-shift within a few milliseconds.</p>
+
+<!-- ============ PHASE 5: PYTHON BACKEND ============ -->
+<div class="phase-header"><span class="phase-num">5</span><span class="phase-title">Python Backend Integration</span><span class="phase-time">1 hour</span></div>
+
+<h3 id="led-python">5.1 Install Python Dependencies</h3>
+<p>On your laptop (the "brain" that calculates mental energy and sends it to the battery):</p>
+<pre class="code-block">pip install requests aw-client pyserial</pre>
+<ul class="findings">
+  <li><code>requests</code> &mdash; sends HTTP requests to the ESP32 over WiFi</li>
+  <li><code>aw-client</code> &mdash; queries ActivityWatch for app/website usage data</li>
+  <li><code>pyserial</code> &mdash; optional fallback for sending charge over USB if WiFi fails</li>
+</ul>
+
+<h3>5.2 The Charge Sender Module</h3>
+<p>This is the same <code>charge_sender.py</code> used by the E-Ink build &mdash; the ESP32-side HTTP contract is identical (<code>POST /charge</code> with <code>{"level": 0-100}</code>), so the Python interface doesn't change. Save as <code>charge_sender.py</code>:</p>
+
+<span class="code-label">charge_sender.py &mdash; unified charge interface</span>
+<pre class="code-block"><span class="str">"""
+charge_sender.py - sends charge level (0-100) to the Psych_Battery.
+Tries WiFi first, falls back to serial, logs locally if both fail.
+"""</span>
+<span class="kw">import</span> requests
+<span class="kw">import</span> serial
+<span class="kw">import</span> time
+<span class="kw">import</span> logging
+<span class="kw">from</span> pathlib <span class="kw">import</span> Path
+
+<span class="cmt"># ============ CONFIG ============</span>
+BATTERY_IP   = <span class="str">"192.168.1.123"</span>   <span class="cmt"># from Serial Monitor</span>
+BATTERY_PORT = <span class="num">80</span>
+SERIAL_PORT  = <span class="str">"COM3"</span>            <span class="cmt"># Windows; "/dev/cu.SLAB_USBtoUART" on Mac</span>
+SERIAL_BAUD  = <span class="num">115200</span>
+LOG_FILE     = Path.home() / <span class="str">".psych_battery"</span> / <span class="str">"charge.log"</span>
+LOG_FILE.parent.mkdir(exist_ok=<span class="kw">True</span>)
+
+logging.basicConfig(level=logging.INFO,
+    format=<span class="str">"%(asctime)s [%(levelname)s] %(message)s"</span>)
+log = logging.getLogger(<span class="str">"charge_sender"</span>)
+
+<span class="kw">class</span> <span class="ty">ChargeSender</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, ip=BATTERY_IP, serial_port=SERIAL_PORT):
+        self.ip = ip
+        self.serial_port = serial_port
+        self.last_level = <span class="kw">None</span>
+
+    <span class="kw">def</span> <span class="fn">send</span>(self, level: <span class="ty">int</span>) -&gt; <span class="ty">bool</span>:
+        <span class="str">"""Send charge level 0-100. Returns True on success."""</span>
+        <span class="kw">if</span> <span class="kw">not</span> (<span class="num">0</span> &lt;= level &lt;= <span class="num">100</span>):
+            <span class="kw">raise</span> <span class="ty">ValueError</span>(<span class="str">f"level must be 0-100, got {level}"</span>)
+
+        <span class="cmt"># LEDs update instantly, so no "skip duplicates" optimization needed</span>
+        self._log_local(level)
+
+        <span class="cmt"># Try WiFi first</span>
+        <span class="kw">if</span> self._send_http(level):
+            self.last_level = level
+            <span class="kw">return</span> <span class="kw">True</span>
+
+        <span class="cmt"># Fall back to serial</span>
+        <span class="kw">if</span> self._send_serial(level):
+            self.last_level = level
+            <span class="kw">return</span> <span class="kw">True</span>
+
+        log.error(<span class="str">"Both WiFi and serial failed"</span>)
+        <span class="kw">return</span> <span class="kw">False</span>
+
+    <span class="kw">def</span> <span class="fn">_send_http</span>(self, level: <span class="ty">int</span>) -&gt; <span class="ty">bool</span>:
+        url = <span class="str">f"http://{self.ip}:{BATTERY_PORT}/charge"</span>
+        <span class="kw">try</span>:
+            r = requests.post(url, json={<span class="str">"level"</span>: level}, timeout=<span class="num">3</span>)
+            <span class="kw">if</span> r.status_code == <span class="num">200</span>:
+                log.info(<span class="str">f"HTTP OK: level={level}"</span>)
+                <span class="kw">return</span> <span class="kw">True</span>
+            log.warning(<span class="str">f"HTTP {r.status_code}: {r.text}"</span>)
+        <span class="kw">except</span> requests.exceptions.RequestException <span class="kw">as</span> e:
+            log.warning(<span class="str">f"HTTP failed: {e}"</span>)
+        <span class="kw">return</span> <span class="kw">False</span>
+
+    <span class="kw">def</span> <span class="fn">_send_serial</span>(self, level: <span class="ty">int</span>) -&gt; <span class="ty">bool</span>:
+        <span class="kw">try</span>:
+            <span class="kw">with</span> serial.Serial(self.serial_port, SERIAL_BAUD, timeout=<span class="num">2</span>) <span class="kw">as</span> s:
+                s.write(<span class="str">f"{level}\n"</span>.encode())
+                s.flush()
+                log.info(<span class="str">f"Serial OK: level={level}"</span>)
+                <span class="kw">return</span> <span class="kw">True</span>
+        <span class="kw">except</span> serial.SerialException <span class="kw">as</span> e:
+            log.warning(<span class="str">f"Serial failed: {e}"</span>)
+            <span class="kw">return</span> <span class="kw">False</span>
+
+    <span class="kw">def</span> <span class="fn">_log_local</span>(self, level: <span class="ty">int</span>):
+        <span class="kw">with</span> open(LOG_FILE, <span class="str">"a"</span>) <span class="kw">as</span> f:
+            f.write(<span class="str">f"{time.time()},{level}\n"</span>)
+
+<span class="cmt"># ============ CLI TEST ============</span>
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="kw">import</span> sys
+    <span class="kw">if</span> len(sys.argv) != <span class="num">2</span>:
+        print(<span class="str">"Usage: python charge_sender.py &lt;level 0-100&gt;"</span>)
+        sys.exit(<span class="num">1</span>)
+    sender = ChargeSender()
+    ok = sender.send(<span class="ty">int</span>(sys.argv[<span class="num">1</span>]))
+    sys.exit(<span class="num">0</span> <span class="kw">if</span> ok <span class="kw">else</span> <span class="num">1</span>)</pre>
+
+<h3>5.3 Connect to the Psych_Battery Energy Score</h3>
+<p>This is where Tech Stack meets Build Guide. The same <code>energy_score_to_battery.py</code> loop from the E-Ink guide works unchanged, but for the LED build you can poll more aggressively because there's no e-ink refresh-cycle budget to conserve.</p>
+
+<span class="code-label">energy_score_to_battery.py &mdash; LED-tuned loop</span>
+<pre class="code-block"><span class="str">"""
+Polls ActivityWatch every 30 seconds (faster than e-ink),
+computes a mental energy score, pushes it to the Psych_Battery LEDs.
+The firmware handles breathing animation locally - we just send target level.
+"""</span>
+<span class="kw">import</span> time
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime
+<span class="kw">from</span> aw_client <span class="kw">import</span> ActivityWatchClient
+<span class="kw">from</span> charge_sender <span class="kw">import</span> ChargeSender
+
+<span class="cmt"># ============ TUNING ============</span>
+POLL_INTERVAL_SEC = <span class="num">30</span>        <span class="cmt"># LED refresh is instant - poll often</span>
+DAILY_BUDGET_MIN  = <span class="num">480</span>       <span class="cmt"># 8 hours "charged" time per workday</span>
+
+DRAIN_PER_MIN = {
+    <span class="str">"chatgpt.com"</span>:     <span class="num">2.0</span>,
+    <span class="str">"claude.ai"</span>:       <span class="num">2.0</span>,
+    <span class="str">"app.slack.com"</span>:   <span class="num">1.2</span>,
+    <span class="str">"mail.google.com"</span>: <span class="num">1.0</span>,
+    <span class="str">"twitter.com"</span>:     <span class="num">1.5</span>,
+    <span class="str">"x.com"</span>:           <span class="num">1.5</span>,
+    <span class="str">"linkedin.com"</span>:    <span class="num">1.3</span>,
+    <span class="str">"_default_"</span>:       <span class="num">0.3</span>,
+}
+RECHARGE_IDLE_PER_MIN = <span class="num">0.4</span>
+
+<span class="kw">def</span> <span class="fn">compute_energy_score</span>():
+    aw = ActivityWatchClient(<span class="str">"psych_battery"</span>, testing=<span class="kw">False</span>)
+    now = datetime.now().astimezone()
+    start = now.replace(hour=<span class="num">9</span>, minute=<span class="num">0</span>, second=<span class="num">0</span>, microsecond=<span class="num">0</span>)
+
+    buckets = aw.get_buckets()
+    web = next((b <span class="kw">for</span> b <span class="kw">in</span> buckets <span class="kw">if</span> <span class="str">"aw-watcher-web"</span> <span class="kw">in</span> b), <span class="kw">None</span>)
+    afk = next((b <span class="kw">for</span> b <span class="kw">in</span> buckets <span class="kw">if</span> <span class="str">"aw-watcher-afk"</span> <span class="kw">in</span> b), <span class="kw">None</span>)
+
+    drain = <span class="num">0.0</span>
+    <span class="kw">if</span> web:
+        <span class="kw">for</span> e <span class="kw">in</span> aw.get_events(web, start=start, end=now):
+            url = e.data.get(<span class="str">"url"</span>, <span class="str">""</span>)
+            domain = url.split(<span class="str">"/"</span>)[<span class="num">2</span>] <span class="kw">if</span> <span class="str">"://"</span> <span class="kw">in</span> url <span class="kw">else</span> <span class="str">""</span>
+            mins   = e.duration.total_seconds() / <span class="num">60</span>
+            drain += mins * DRAIN_PER_MIN.get(domain, DRAIN_PER_MIN[<span class="str">"_default_"</span>])
+
+    recharge = <span class="num">0.0</span>
+    <span class="kw">if</span> afk:
+        <span class="kw">for</span> e <span class="kw">in</span> aw.get_events(afk, start=start, end=now):
+            <span class="kw">if</span> e.data.get(<span class="str">"status"</span>) == <span class="str">"afk"</span>:
+                mins = e.duration.total_seconds() / <span class="num">60</span>
+                recharge += mins * RECHARGE_IDLE_PER_MIN
+
+    net = (drain - recharge) / DAILY_BUDGET_MIN * <span class="num">100</span>
+    <span class="kw">return</span> max(<span class="num">0</span>, min(<span class="num">100</span>, <span class="ty">int</span>(<span class="num">100</span> - net)))
+
+<span class="kw">def</span> <span class="fn">main</span>():
+    sender = ChargeSender()
+    <span class="kw">while</span> <span class="kw">True</span>:
+        <span class="kw">try</span>:
+            score = compute_energy_score()
+            print(<span class="str">f"[{datetime.now():%H:%M:%S}] Energy = {score}%"</span>)
+            sender.send(score)
+        <span class="kw">except</span> <span class="ty">Exception</span> <span class="kw">as</span> e:
+            print(<span class="str">f"Error: {e}"</span>)
+        time.sleep(POLL_INTERVAL_SEC)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    main()</pre>
+
+<div class="callout"><div class="label">LED vs E-Ink polling cadence</div><p>LEDs have no refresh budget &mdash; they update in microseconds and don't accumulate ghosting. Poll every 30-60 seconds so the battery feels live and responds to short AFK breaks. E-ink should poll every 5 minutes (12-second refresh + ghosting). The firmware handles the breathing animation locally, so the ESP32 doesn't need constant new data to look alive.</p></div>
+
+<!-- ============ PHASE 6: ENCLOSURE ============ -->
+<div class="phase-header"><span class="phase-num">6</span><span class="phase-title">Enclosure, Diffuser &amp; Mounting</span><span class="phase-time">4-5 hours (plus print time)</span></div>
+
+<h3 id="led-enclosure">6.1 Form Factor Considerations</h3>
+<p>The LED build lends itself to a classic cylindrical battery shape, since the Ring+Jewel combo is circular (65.5mm&oslash;). Design choices:</p>
+<ul class="findings">
+  <li><strong>Cylinder (recommended):</strong> 70mm outer diameter &times; 110mm tall. Ring+Jewel mounts on the inside front face, pointing forward. Top cap has a 5mm &ldquo;positive terminal&rdquo; bump for the classic AA silhouette.</li>
+  <li><strong>Flat-pack laser-cut box:</strong> 80mm &times; 80mm &times; 40mm deep. Faster to fabricate but less battery-like.</li>
+  <li><strong>Nalgene-scale:</strong> If matching the <a href="https://www.nalgene.com/shop/wide-mouth-1l/">Nalgene 1L wide-mouth</a> form (88.9mm&oslash; &times; 215.9mm tall), scale the diffuser panel up accordingly &mdash; consider the 8&times;8 matrix for more coverage.</li>
+</ul>
+
+<h3>6.2 Prepare the Diffuser</h3>
+<p>The diffuser is what makes LEDs look like a battery glow rather than visible dots.</p>
+<ul class="findings">
+  <li><strong>If buying frosted acrylic:</strong> cut a disc or square to fit the enclosure window. No sanding needed.</li>
+  <li><strong>If sanding clear acrylic:</strong> wet-sand with <strong>400 grit</strong> first (circular motion, both sides), then <strong>600 grit</strong>. Rinse and dry. The finish should look like a shower door &mdash; evenly hazy.</li>
+  <li><strong>Diffuser distance:</strong> place <strong>30-50mm from the LED surface</strong>. The Ripple Effect project found <strong>50mm</strong> optimal for the 8&times;8 matrix. Too close and individual LEDs show through as dots; too far and the light loses intensity.</li>
+  <li><strong>Test before final assembly:</strong> hold the diffuser in front of the lit LEDs by hand and adjust distance until the glow looks smooth and even.</li>
+</ul>
+
+<h3>6.3 3D Print the Enclosure</h3>
+<ul class="findings">
+  <li>Design in Fusion 360 (free for UC Berkeley students) or Onshape. A simple two-part cylinder: top cap with terminal bump, bottom shell with a window cutout and internal ledge for the diffuser.</li>
+  <li>Print in <strong>black PLA</strong> for the shell (blocks stray light) and <strong>white PLA</strong> for reflective interior surfaces. 0.2mm layer height, 20% infill.</li>
+  <li>Expected print time: 6-10 hours for the shell, 2 hours for the cap.</li>
+  <li>Add a slot on the back for the USB cable exit. Add internal standoffs or a cradle to hold the ESP32 behind the LED module.</li>
+  <li>Leave a 3mm internal ledge where the diffuser will rest.</li>
+</ul>
+
+<div class="slide-fig"><img src="/figures/battery/led_diffusion.png" alt="LED diffusion" onclick="openLightbox(this)"><div class="caption">Diffusion distance matters: individual LEDs are visible up close, but the 30-50mm air gap lets the light blend into a single smooth glow behind the frosted acrylic.</div></div>
+
+<h3>6.4 Mount the LED Module</h3>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Clean the inside of the enclosure shell with isopropyl alcohol to remove 3D-print dust and release agents.</li>
+  <li><strong>Step 2:</strong> Position the LED module (Ring+Jewel or matrix) against the front interior wall. For the cylinder, center it on the front face.</li>
+  <li><strong>Step 3:</strong> Tack it in place with 2-3 small hot-glue dots at the edges. Don't cover the LEDs themselves.</li>
+  <li><strong>Step 4:</strong> Route the 3-wire bundle (VCC/GND/DIN) through an internal slot to where the ESP32 breadboard sits in the rear of the shell.</li>
+  <li><strong>Step 5:</strong> If using a cut LED strip in serpentine layout: arrange segments to fill the viewing window evenly, leaving small gaps between rows for even diffusion. Hot-glue each segment's corners.</li>
+</ul>
+
+<h3>6.5 Install the Diffuser</h3>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Rest the frosted diffuser on the internal 3mm ledge. It should be 30-50mm in front of the LED module.</li>
+  <li><strong>Step 2:</strong> Run a thin bead of hot glue around the inside perimeter to fix it in place. Don't smear glue onto the viewable front surface.</li>
+  <li><strong>Step 3:</strong> Use black electrical tape or black Sharpie around any gaps between the diffuser and shell to block light leaks &mdash; they kill the "glowing object" illusion.</li>
+</ul>
+
+<h3>6.6 Final Assembly</h3>
+<ul class="findings">
+  <li><strong>Step 1:</strong> Route the USB cable out through the back slot, with a small strain-relief knot on the inside so tugs don't pull the ESP32 loose.</li>
+  <li><strong>Step 2:</strong> Route the 5V power supply cable through a separate hole (or use a shared larger hole with both cables).</li>
+  <li><strong>Step 3:</strong> Seat the ESP32+breadboard inside the rear shell with foam tape or a 3D-printed cradle so it can't rattle.</li>
+  <li><strong>Step 4:</strong> Snap or screw the top cap in place. The battery should look like a closed AA cell with the terminal bump up top.</li>
+  <li><strong>Step 5:</strong> Plug in both USB and 5V power. The Ring+Jewel should glow green through the diffuser with a gentle pulse. If there are visible "hot spots" or individual LED dots, increase diffuser distance.</li>
+</ul>
+
+<!-- ============ APPENDIX: MATRIX OPTIONS ============ -->
+<h3 id="led-matrix">Appendix: LED Matrix Options</h3>
+<p>Instead of cutting LED strip into rows, you can use a pre-made matrix panel. Here are the best options for the ~60-70mm cylindrical battery enclosure:</p>
 
 <table class="result-table">
 <tr><th>Option</th><th>LEDs</th><th>Size</th><th>Price</th><th>Fit</th><th>Notes</th></tr>
 <tr><td><strong>24-LED NeoPixel Ring + 7-LED Jewel</strong></td><td>31</td><td>65.5mm &oslash;</td><td>~$23</td><td>Perfect</td><td>Best for cylindrical battery. Smoothest diffusion. <a href="https://www.adafruit.com/product/1586" target="_blank">Ring</a> + <a href="https://www.adafruit.com/product/2226" target="_blank">Jewel</a></td></tr>
-<tr><td><strong>BTF-LIGHTING 8x8 Flexible Panel</strong></td><td>64</td><td>80x80mm</td><td>~$10</td><td>Curve to fit</td><td>Flexible FPCB, can be bent into an arc. Most LEDs for the price. <a href="https://www.amazon.com/BTF-LIGHTING-0-24ft0-24ft-Programmed-Individually-Addressable/dp/B01DC0IMRW" target="_blank">Amazon</a></td></tr>
-<tr><td><strong>Adafruit NeoPixel 8x8 Rigid</strong></td><td>64</td><td>71x71mm</td><td>~$35</td><td>Tight (71mm)</td><td>Rigid PCB, proven in Ripple Effect project. <a href="https://www.adafruit.com/product/1487" target="_blank">Adafruit #1487</a></td></tr>
-<tr><td><strong>144 LED/m Strip (4 rows)</strong></td><td>32</td><td>56x48mm custom</td><td>~$3</td><td>Custom</td><td>Cheapest. Densest pitch (6.9mm). Requires soldering 6 bridges. <a href="https://www.amazon.com/BTF-LIGHTING-WS2812B1M144LB30/dp/B01CDTEJR0" target="_blank">Amazon</a></td></tr>
+<tr><td><strong>BTF-LIGHTING 8&times;8 Flexible Panel</strong></td><td>64</td><td>80&times;80mm</td><td>~$10</td><td>Curve to fit</td><td>Flexible FPCB, can be bent into an arc. Most LEDs for the price. <a href="https://www.amazon.com/BTF-LIGHTING-0-24ft0-24ft-Programmed-Individually-Addressable/dp/B01DC0IMRW" target="_blank">Amazon</a></td></tr>
+<tr><td><strong>Adafruit NeoPixel 8&times;8 Rigid</strong></td><td>64</td><td>71&times;71mm</td><td>~$35</td><td>Tight (71mm)</td><td>Rigid PCB, proven in Ripple Effect project. <a href="https://www.adafruit.com/product/1487" target="_blank">Adafruit #1487</a></td></tr>
+<tr><td><strong>144 LED/m Strip (4 rows)</strong></td><td>32</td><td>56&times;48mm custom</td><td>~$3</td><td>Custom</td><td>Cheapest. Densest pitch (6.9mm). Requires soldering 6 bridges. <a href="https://www.amazon.com/BTF-LIGHTING-WS2812B1M144LB30/dp/B01CDTEJR0" target="_blank">Amazon</a></td></tr>
 <tr><td><strong>16-LED NeoPixel Ring</strong></td><td>16</td><td>44.5mm &oslash;</td><td>~$10</td><td>Small</td><td>For a smaller battery. Less coverage. <a href="https://www.adafruit.com/product/1463" target="_blank">Adafruit #1463</a></td></tr>
 </table>
 
-<div class="callout"><div class="label">Recommended</div><p>For a first prototype, the <strong>24-LED NeoPixel Ring + 7-LED Jewel combo ($23)</strong> is the best choice. The ring's 65.5mm diameter fits the battery perfectly, the circular shape matches the cylindrical form, and it produces the smoothest diffused glow. Just daisy-chain the Jewel's data-out to the Ring's data-in &mdash; no custom wiring needed.</p></div>
-
-<h4>Matrix Wiring (Same Circuit, Different LED Module)</h4>
-<p>The wiring is identical regardless of which LED option you choose &mdash; they all use the same 3-wire interface (VCC, GND, DIN). The only differences:</p>
+<h4>Matrix Wiring Notes</h4>
+<p>All options use the same 3-wire interface (VCC, GND, DIN). The only differences:</p>
 <ul class="findings">
-  <li><strong>Ring + Jewel:</strong> Connect Jewel DIN to the level shifter output. Connect Jewel DOUT to Ring DIN. Ring DOUT left unconnected. Both share VCC and GND from the power supply. In code, set <code>NUM_LEDS = 31</code>.</li>
-  <li><strong>8x8 Matrix (rigid or flexible):</strong> Single DIN connection to level shifter output. Set <code>NUM_LEDS = 64</code>. The matrix internally chains all 64 LEDs in a serpentine pattern &mdash; no soldering between rows needed.</li>
-  <li><strong>4-Row Strip:</strong> Requires cutting the strip and soldering 3 wires (VCC, GND, Data) between each row. First row's DIN connects to level shifter. Last row's DOUT left unconnected. Set <code>NUM_LEDS = total LEDs across all rows</code>.</li>
+  <li><strong>Ring + Jewel:</strong> Jewel DIN to level shifter output. Jewel DOUT to Ring DIN. Ring DOUT unconnected. Both share VCC/GND. <code>NUM_LEDS = 31</code>.</li>
+  <li><strong>8&times;8 Matrix (rigid or flexible):</strong> Single DIN to level shifter output. <code>NUM_LEDS = 64</code>. Matrix internally chains all 64 LEDs in serpentine &mdash; no soldering between rows.</li>
+  <li><strong>4-row strip:</strong> Cut at marked lines, solder 3 wires (VCC/GND/Data) between rows. First row's DIN to level shifter. Last row's DOUT unconnected. <code>NUM_LEDS = total across all rows</code>.</li>
 </ul>
 
-<h3>Bill of Materials (~$80-130)</h3>
+<!-- ============ COMPARISON ============ -->
+<h3 id="led-compare">Comparison: LED vs E-Ink</h3>
 <table class="result-table">
-<tr><th>Component</th><th>Product</th><th>Price</th><th>Source</th></tr>
-<tr><td>ESP32 Dev Board</td><td>ESP32-WROOM-32 DevKit V1 (CP2102 USB)</td><td>~$8</td><td>Amazon (HiLetgo 3-pack)</td></tr>
-<tr><td>LED Strip</td><td>WS2812B 60LED/m IP30 strip (1m)</td><td>~$10</td><td>Amazon (BTF-LIGHTING)</td></tr>
-<tr><td>OR: LED Matrix</td><td>Adafruit NeoPixel NeoMatrix 8x8 (64 LEDs)</td><td>~$35</td><td>Adafruit #1487</td></tr>
-<tr><td>Power Supply</td><td>5V 4A switching PSU</td><td>~$15</td><td>Adafruit #1466</td></tr>
-<tr><td>Level Shifter</td><td>74AHCT125 (3.3V&rarr;5V)</td><td>~$2</td><td>Adafruit #1787</td></tr>
-<tr><td>Capacitor</td><td>1000uF 6.3V+ electrolytic</td><td>~$5 (10pk)</td><td>Amazon</td></tr>
-<tr><td>Resistor</td><td>330 ohm 1/4W</td><td>~$6 (kit)</td><td>Amazon assortment</td></tr>
-<tr><td>Frosted Acrylic</td><td>1/8" (3mm) satin/frosted sheet, 6"x6"</td><td>~$10</td><td>Amazon or Canal Plastics</td></tr>
-<tr><td>Enclosure</td><td>3D printed PLA or laser-cut black acrylic</td><td>~$5-15</td><td>Jacobs Hall / Supernode</td></tr>
-<tr><td>Breadboard + Wires</td><td>Half-size breadboard + jumper wires</td><td>~$12</td><td>Amazon</td></tr>
+<tr><th></th><th>LED (this build)</th><th>E-Ink</th></tr>
+<tr><td><strong>Cost</strong></td><td>~$85-95</td><td>~$55-63</td></tr>
+<tr><td><strong>Wiring complexity</strong></td><td>Breadboard + level shifter + capacitor + PSU</td><td>Plug-and-play kit, no wiring</td></tr>
+<tr><td><strong>Blue light</strong></td><td>Yes (LED emission)</td><td>None (reflective)</td></tr>
+<tr><td><strong>Dark-room visibility</strong></td><td>Self-illuminating</td><td>Needs ambient light</td></tr>
+<tr><td><strong>Always-on power</strong></td><td>200-500 mW continuous</td><td>0 mW (retains image)</td></tr>
+<tr><td><strong>Update speed</strong></td><td>Instant (ms)</td><td>12 sec (full flash)</td></tr>
+<tr><td><strong>Information density</strong></td><td>Low (color + brightness only)</td><td>High (text, graphics, percentages)</td></tr>
+<tr><td><strong>Aesthetic</strong></td><td>Warm ambient glow, animated</td><td>Paper-like, minimal, static</td></tr>
+<tr><td><strong>Best for</strong></td><td>Desk-visible, responsive, ambient peripheral</td><td>Low-power, no-blue-light, legible detail</td></tr>
 </table>
 
-<h3>Wiring Diagram</h3>
-<p>The ESP32 outputs 3.3V logic but WS2812B LEDs need 3.5V+ for reliable data. The 74AHCT125 level shifter bridges this gap.</p>
-<div class="callout"><div class="label">Connections</div><p>
-<strong>Power supply (+5V)</strong> &rarr; WS2812B VCC (red wire) + capacitor (+) terminal<br>
-<strong>Power supply (GND)</strong> &rarr; WS2812B GND + capacitor (-) terminal + ESP32 GND<br>
-<strong>ESP32 GPIO 16</strong> &rarr; 330 ohm resistor &rarr; 74AHCT125 pin 1A &rarr; pin 1Y &rarr; WS2812B DIN (data in, green wire)<br>
-<strong>74AHCT125 VCC</strong> &rarr; +5V | <strong>GND</strong> &rarr; GND | <strong>1OE</strong> &rarr; GND (enable)
-</p></div>
-<p><strong>Why the capacitor?</strong> Protects LEDs from power surge at startup. Place it across the +5V and GND rails, as close to the first LED as possible. <strong>Why the resistor?</strong> Prevents signal reflections on the data line. Place it between the level shifter output and the first LED's data input.</p>
-
-<h3>Step-by-Step Circuit Assembly</h3>
-<p>If you've never built a circuit before, here's the exact order to wire everything on a breadboard:</p>
-<ul class="findings">
-  <li><strong>Step 1:</strong> Place the ESP32 dev board straddling the center channel of the breadboard so its pins line up with the numbered rows on both sides.</li>
-  <li><strong>Step 2:</strong> Run a jumper wire from the ESP32's <strong>GND pin</strong> to the breadboard's <strong>blue/negative power rail</strong>.</li>
-  <li><strong>Step 3:</strong> Place the 74AHCT125 level shifter chip on the breadboard. Connect its <strong>pin 7 (GND)</strong> to the ground rail and <strong>pin 14 (VCC)</strong> to the red/positive power rail. Connect <strong>pin 1 (1OE)</strong> to ground (this enables the chip).</li>
-  <li><strong>Step 4:</strong> Run a jumper from <strong>ESP32 GPIO 16</strong> to a 330&ohm; resistor, then from the other end of the resistor to <strong>74AHCT125 pin 2 (1A = input)</strong>. Run a wire from <strong>pin 3 (1Y = output)</strong> to where the LED strip's data input wire (usually green or white) will connect.</li>
-  <li><strong>Step 5:</strong> Connect the <strong>DC barrel jack adapter</strong> screw terminals: (+) to the red power rail, (-) to the blue ground rail.</li>
-  <li><strong>Step 6:</strong> Place the <strong>1000uF capacitor</strong> across the power rails (long leg = positive = red rail, short leg = negative = blue rail). <em>Polarity matters for this component.</em></li>
-  <li><strong>Step 7:</strong> Connect the LED strip's 3 wires: <strong>VCC (red)</strong> to the red power rail, <strong>GND (white/black)</strong> to the blue ground rail, <strong>DIN (green)</strong> to the level shifter output from Step 4.</li>
-  <li><strong>Step 8:</strong> Also connect ESP32's GND to the blue ground rail (so ESP32 and LEDs share a common ground &mdash; this is essential).</li>
-  <li><strong>Step 9:</strong> Plug in the 5V power supply and the USB cable to the ESP32. The ESP32 gets its power from USB; the LEDs get theirs from the 5V supply.</li>
-</ul>
-
-<h3>Arduino IDE: Getting Started</h3>
-<p>If you've never used the Arduino IDE, here's what to expect:</p>
-<ul class="findings">
-  <li><strong>Arduino IDE</strong> is a free program where you write code (called "sketches"), click a button, and it uploads the code to your ESP32 via USB. Download from <a href="https://www.arduino.cc/en/software" target="_blank">arduino.cc/en/software</a>.</li>
-  <li>Every sketch has two functions: <code>setup()</code> (runs once when the ESP32 powers on) and <code>loop()</code> (runs repeatedly forever). Your charge-level code goes in <code>loop()</code>.</li>
-  <li>The <strong>Serial Monitor</strong> (button in top-right of Arduino IDE) lets you see text output from the ESP32 and type text to it. This is how you'll test &mdash; type "75" and press Enter to set charge level to 75%.</li>
-  <li>When you hit the <strong>Upload button</strong> (right arrow icon), the IDE compiles your code and flashes it to the ESP32. If it fails, check that the correct Board ("ESP32 Dev Module") and Port are selected under the Tools menu.</li>
-</ul>
-
-<h3>Software Setup</h3>
-<ul class="findings">
-  <li><strong>Arduino IDE 2.x</strong> &mdash; download from arduino.cc/en/software</li>
-  <li><strong>ESP32 board package</strong> &mdash; add URL <code>https://espressif.github.io/arduino-esp32/package_esp32_index.json</code> in Preferences, then install "esp32 by Espressif Systems" in Boards Manager</li>
-  <li><strong>Libraries</strong> &mdash; install via Library Manager: <strong>Adafruit NeoPixel</strong>, <strong>ArduinoJson</strong>. Manually install from GitHub ZIP: <strong>ESPAsyncWebServer</strong>, <strong>AsyncTCP</strong></li>
-  <li><strong>Python</strong> &mdash; <code>pip install pyserial requests</code></li>
-  <li><strong>CP2102 driver</strong> &mdash; if ESP32 port doesn't appear, install from Silicon Labs</li>
-</ul>
-
-<h3>Key Code: Color Mapping</h3>
-<p>The core function maps charge level (0-100) to an HSV color. Hue 0 = red, hue ~10922 = amber, hue ~21845 = green (in NeoPixel's 16-bit HSV).</p>
-<div class="callout"><div class="label">Arduino Snippet</div><p><code>
-uint32_t chargeToColor(int level, int brightness) {<br>
-&nbsp;&nbsp;uint16_t hue = map(level, 0, 100, 0, 21845); // red &rarr; green<br>
-&nbsp;&nbsp;return strip.ColorHSV(hue, 255, brightness);<br>
-}
-</code></p></div>
-<p>The breathing effect uses <code>exp(sin(millis() * speed))</code> for an organic pulsing pattern rather than linear fade. Full firmware (~200 lines) is in the markdown guide.</p>
-
-<h3>Enclosure: Battery Shape</h3>
-<ul class="findings">
-  <li><strong>Form factor:</strong> Cylinder 60-70mm diameter, 100-120mm tall, with a small bump on top (positive terminal)</li>
-  <li><strong>Fabrication:</strong> 3D print in white or black PLA (two halves that snap/glue together), or laser-cut flat-pack box from black acrylic</li>
-  <li><strong>Diffusion:</strong> 1/8" frosted acrylic placed <strong>30-50mm from the LED surface</strong>. If using clear acrylic, sand with 400 then 600 grit wet/dry sandpaper using circular motions. The Ripple Effect project found 5cm optimal for their 8x8 matrix.</li>
-  <li><strong>LED layout:</strong> Cut strip into segments, arrange in serpentine (zigzag) pattern to fill the viewing window evenly. Solder short jumper wires between segments.</li>
-  <li><strong>Cable routing:</strong> USB cable exits through a hole in the base. Seal light leaks with black electrical tape or hot glue.</li>
-</ul>
-
-<h3>Build Sequence (1-2 Weeks)</h3>
-<ul class="findings">
-  <li><strong>Day 1:</strong> Install Arduino IDE, ESP32 board package, libraries. Plug in ESP32, upload blink test. Verify Serial Monitor works.</li>
-  <li><strong>Day 2:</strong> Wire ESP32 to a small section of LED strip (3-4 LEDs) on breadboard. Upload NeoPixel strandtest example. Verify colors work.</li>
-  <li><strong>Day 3:</strong> Upload the full charge-level firmware. Test via Serial Monitor (type a number 0-100, press Enter). Verify color gradient and breathing pulse.</li>
-  <li><strong>Day 4:</strong> Test WiFi mode &mdash; connect ESP32 to your WiFi, send HTTP requests from Python script. Verify full data pipeline.</li>
-  <li><strong>Day 5-6:</strong> Design and fabricate enclosure. 3D print at Supernode or laser-cut at Jacobs Hall. Cut and sand the acrylic diffuser.</li>
-  <li><strong>Day 7-8:</strong> Cut LED strip to final length, solder serpentine layout. Mount inside enclosure with hot glue. Attach diffuser. Route cables.</li>
-  <li><strong>Day 9-10:</strong> Final assembly, test full loop (Python &rarr; WiFi &rarr; ESP32 &rarr; LEDs &rarr; diffused glow). Calibrate brightness and colors.</li>
-</ul>
-
-<h3>Troubleshooting</h3>
+<!-- ============ TROUBLESHOOTING ============ -->
+<h3 id="led-troubleshooting">Troubleshooting Guide</h3>
 <table class="result-table">
-<tr><th>Problem</th><th>Likely Cause</th><th>Fix</th></tr>
-<tr><td>No LEDs light up</td><td>Wrong GPIO pin, no power, data line not connected</td><td>Check wiring, verify GPIO 16 in code, check 5V supply</td></tr>
-<tr><td>First LED works, rest don't</td><td>Bad solder joint between segments</td><td>Reflow solder on the data-out &rarr; data-in connection</td></tr>
-<tr><td>Colors are wrong/random</td><td>Missing level shifter or too-long data wire</td><td>Add 74AHCT125 level shifter; keep data wire under 15cm</td></tr>
-<tr><td>LEDs flicker or brownout</td><td>Insufficient power supply</td><td>Use external 5V 4A PSU, not USB power</td></tr>
-<tr><td>WiFi won't connect</td><td>Wrong SSID/password, 5GHz network</td><td>ESP32 only supports 2.4GHz WiFi. Double-check credentials.</td></tr>
-<tr><td>Individual LED dots visible through acrylic</td><td>Diffuser too close to LEDs or not frosted enough</td><td>Increase distance to 40-50mm; sand with finer grit (600+)</td></tr>
+<tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th></tr>
+<tr><td>No LEDs light up at all</td><td>No 5V power, missing common ground, wrong GPIO pin</td><td>Verify 5V rail with multimeter. Confirm ESP32 GND is tied to the blue rail. Check <code>#define LED_PIN 16</code> matches wired GPIO.</td></tr>
+<tr><td>First LED lights, rest stay dark</td><td>Bad solder joint between segments, or broken data line downstream</td><td>Reflow the DOUT &rarr; DIN joint between the failing pair. If using cut strip, check the 3 jumper wires between rows.</td></tr>
+<tr><td>Wrong or random colors</td><td>Missing level shifter, data wire too long, or wrong color order</td><td>Add/verify 74AHCT125 on the data line. Keep the data wire under 15cm. Check <code>NEO_GRB</code> matches your LED (some are RGB, not GRB).</td></tr>
+<tr><td>LEDs flicker or dim randomly</td><td>Insufficient power, capacitor missing, or brownout</td><td>Use external 5V 4A PSU (not USB power). Verify 1000&micro;F cap is installed. Check PSU isn't being shared with something else.</td></tr>
+<tr><td>LEDs show briefly then go dark</td><td>ESP32 browns out from LED inrush current</td><td>LEDs should NOT be powered from ESP32's 5V pin. Use the external PSU to the rail, share GND only.</td></tr>
+<tr><td>Upload fails: "Failed to connect to ESP32"</td><td>Board/Port not selected, or auto-reset circuit faulty</td><td>Tools &rarr; Port &rarr; pick COM port. Press &amp; hold BOOT button on ESP32 while upload starts, release when "Writing" appears.</td></tr>
+<tr><td>Upload: "A fatal error occurred: Serial data stream stopped"</td><td>Upload speed too high, or bad USB cable</td><td>Tools &rarr; Upload Speed &rarr; 115200. Swap to a known-good data cable (charge-only cables won't work).</td></tr>
+<tr><td>"Connecting to WiFi...." never ends</td><td>Wrong SSID/password, or 5GHz network</td><td>Double-check credentials. ESP32 only does 2.4GHz &mdash; use a phone hotspot if needed.</td></tr>
+<tr><td>HTTP requests time out from Python</td><td>ESP32 lost WiFi, or IP address changed</td><td>Check Serial Monitor for current IP. Update <code>BATTERY_IP</code> in charge_sender.py. Consider a static DHCP lease on your router.</td></tr>
+<tr><td>Individual LED dots visible through diffuser</td><td>Diffuser too close to LEDs or not frosted enough</td><td>Increase distance to 40-50mm. Sand with finer grit (600+). Add a second diffusion layer (thin vellum paper) if needed.</td></tr>
+<tr><td>Breathing animation looks jerky</td><td><code>loop()</code> delay too long, or HTTP blocking the loop</td><td>Keep <code>delay(20)</code> or less. Verify you're using ESPAsyncWebServer (not blocking <code>WebServer.h</code>).</td></tr>
+<tr><td>Color is too bright / harsh</td><td><code>MAX_BRIGHT</code> set too high</td><td>Reduce <code>#define MAX_BRIGHT 180</code> to 100-130 for a softer ambient look.</td></tr>
+<tr><td>COM port doesn't appear on your computer</td><td>Missing CP2102 USB driver</td><td>Install from <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers" target="_blank">Silicon Labs</a>. Unplug/replug after install.</td></tr>
 </table>
+
+<div class="callout"><div class="label">When to ask for help</div><p>If the LEDs are mis-coloring, flickering, or partially dark, photograph your breadboard top-down under bright light and post to the <a href="https://forums.adafruit.com/viewforum.php?f=47" target="_blank">Adafruit NeoPixel forum</a> with a description of your LED count, power supply rating, and whether strandtest worked. 90% of first-time LED bugs are a missing common ground or a skipped level shifter.</p></div>
 </div>
 
 <!-- ===== E-INK BUILD GUIDE ===== -->
