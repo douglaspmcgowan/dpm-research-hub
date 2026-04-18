@@ -1,80 +1,187 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="system-ui, -apple-system, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
   <defs>
-    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#555"/>
-    </marker>
-    <radialGradient id="energyGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#fef3c7" stop-opacity="0"/>
+    <radialGradient id="ringBg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
     </radialGradient>
-    <radialGradient id="stressGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#fecaca" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#fecaca" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="fulfilGrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#d1fae5" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#d1fae5" stop-opacity="0"/>
-    </radialGradient>
+    <linearGradient id="quadEnergy" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff7ed" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fef3c7" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="quadStress" x1="1" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#fef2f2" stop-opacity="0"/>
+      <stop offset="1" stop-color="#fee2e2" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="quadFulfill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ecfdf5" stop-opacity="0"/>
+      <stop offset="1" stop-color="#d1fae5" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="quadLow" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" stop-opacity="0"/>
+      <stop offset="1" stop-color="#e5e7eb" stop-opacity="0.7"/>
+    </linearGradient>
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" />
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.25"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
-  <rect width="900" height="560" fill="#fafafa"/>
-  <text x="450" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="#222">Three Axes, One Display</text>
-  <text x="450" y="54" text-anchor="middle" font-size="13" fill="#666">Russell's circumplex (valence × arousal) separates "energy", "stress", and "fulfillment" — a single scalar will blur them.</text>
+  <!-- page background -->
+  <rect width="960" height="600" fill="#fafafa"/>
 
-  <!-- ===== Axes ===== -->
-  <g transform="translate(450,300)">
-    <!-- Gradient zones -->
-    <circle cx="140" cy="-120" r="120" fill="url(#energyGrad)"/>
-    <circle cx="-140" cy="-120" r="120" fill="url(#stressGrad)"/>
-    <circle cx="120" cy="120" r="120" fill="url(#fulfilGrad)"/>
+  <!-- title -->
+  <text x="480" y="38" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a" letter-spacing="-0.3">Three axes, one display</text>
+  <text x="480" y="62" text-anchor="middle" font-size="13" fill="#64748b">Russell's valence &#215; arousal plane &#8212; energy, stress, and fulfillment live in different quadrants, so a single scalar blurs them.</text>
 
-    <!-- Axes lines -->
-    <line x1="-240" y1="0" x2="240" y2="0" stroke="#222" stroke-width="1.5" marker-end="url(#arr)"/>
-    <line x1="0" y1="230" x2="0" y2="-230" stroke="#222" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- =========== CIRCUMPLEX =========== -->
+  <g transform="translate(320,330)">
 
-    <!-- Axis labels -->
-    <text x="250" y="5" font-size="12" font-weight="600" fill="#333">Pleasant (valence)</text>
-    <text x="-250" y="5" text-anchor="end" font-size="12" font-weight="600" fill="#333">Unpleasant</text>
-    <text x="0" y="-240" text-anchor="middle" font-size="12" font-weight="600" fill="#333">Activated (arousal)</text>
-    <text x="0" y="250" text-anchor="middle" font-size="12" font-weight="600" fill="#333">Deactivated</text>
+    <!-- quadrant tints (pie slices) -->
+    <path d="M 0 0 L 210 0 A 210 210 0 0 1 0 -210 Z" fill="url(#quadEnergy)"/>
+    <path d="M 0 0 L 0 -210 A 210 210 0 0 1 -210 0 Z" fill="url(#quadStress)"/>
+    <path d="M 0 0 L -210 0 A 210 210 0 0 1 0 210 Z" fill="url(#quadLow)"/>
+    <path d="M 0 0 L 0 210 A 210 210 0 0 1 210 0 Z" fill="url(#quadFulfill)"/>
 
-    <!-- Quadrant labels (small) -->
-    <text x="115" y="-210" text-anchor="middle" font-size="10" fill="#999" font-style="italic">high-arousal positive</text>
-    <text x="-115" y="-210" text-anchor="middle" font-size="10" fill="#999" font-style="italic">high-arousal negative</text>
-    <text x="115" y="220" text-anchor="middle" font-size="10" fill="#999" font-style="italic">low-arousal positive</text>
-    <text x="-115" y="220" text-anchor="middle" font-size="10" fill="#999" font-style="italic">low-arousal negative</text>
+    <!-- outer circle -->
+    <circle cx="0" cy="0" r="210" fill="none" stroke="#cbd5e1" stroke-width="1.2"/>
+    <circle cx="0" cy="0" r="140" fill="none" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>
+    <circle cx="0" cy="0" r="70"  fill="none" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>
 
-    <!-- Three constructs placed in the plane -->
-    <!-- Energy: upper-right (high arousal, pleasant) -->
-    <circle cx="140" cy="-120" r="14" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
-    <text x="140" y="-116" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">E</text>
-    <text x="140" y="-145" text-anchor="middle" font-size="13" font-weight="700" fill="#b45309">Energy</text>
-    <text x="140" y="-85" text-anchor="middle" font-size="10" fill="#666">vigor, alertness, drive</text>
+    <!-- axes -->
+    <line x1="-230" y1="0" x2="230" y2="0" stroke="#475569" stroke-width="1.2"/>
+    <line x1="0" y1="230" x2="0" y2="-230" stroke="#475569" stroke-width="1.2"/>
 
-    <!-- Stress: upper-left (high arousal, unpleasant) -->
-    <circle cx="-140" cy="-120" r="14" fill="#dc2626" stroke="#7f1d1d" stroke-width="2"/>
-    <text x="-140" y="-116" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">S</text>
-    <text x="-140" y="-145" text-anchor="middle" font-size="13" font-weight="700" fill="#7f1d1d">Stress</text>
-    <text x="-140" y="-85" text-anchor="middle" font-size="10" fill="#666">tension, allostatic load</text>
+    <!-- axis arrow-heads -->
+    <polygon points="230,0 222,-4 222,4" fill="#475569"/>
+    <polygon points="-230,0 -222,-4 -222,4" fill="#475569"/>
+    <polygon points="0,-230 -4,-222 4,-222" fill="#475569"/>
+    <polygon points="0,230 -4,222 4,222" fill="#475569"/>
 
-    <!-- Fulfillment: lower-right (low arousal, pleasant) -->
-    <circle cx="120" cy="120" r="14" fill="#10b981" stroke="#065f46" stroke-width="2"/>
-    <text x="120" y="124" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">F</text>
-    <text x="120" y="155" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">Fulfillment</text>
-    <text x="120" y="173" text-anchor="middle" font-size="10" fill="#666">meaning, contentment</text>
+    <!-- axis labels -->
+    <text x="238" y="4" font-size="12" font-weight="600" fill="#334155">pleasant</text>
+    <text x="-238" y="4" text-anchor="end" font-size="12" font-weight="600" fill="#334155">unpleasant</text>
+    <text x="0" y="-238" text-anchor="middle" font-size="12" font-weight="600" fill="#334155">activated</text>
+    <text x="0" y="248" text-anchor="middle" font-size="12" font-weight="600" fill="#334155">deactivated</text>
 
-    <!-- Fatigue (opposite of energy) as reference anchor -->
-    <circle cx="-120" cy="120" r="6" fill="#888" stroke="#555" stroke-width="1"/>
-    <text x="-120" y="148" text-anchor="middle" font-size="10" fill="#555">fatigue</text>
-    <text x="-120" y="163" text-anchor="middle" font-size="9" fill="#999">(ref. point)</text>
+    <!-- axis role hints -->
+    <text x="238" y="22" font-size="10" fill="#94a3b8" font-style="italic">valence &#8594;</text>
+    <text x="10" y="-238" font-size="10" fill="#94a3b8" font-style="italic">arousal &#8593;</text>
+
+    <!-- ambient emotion words around the ring -->
+    <g font-size="10.5" fill="#94a3b8" font-style="italic">
+      <text x="148" y="-153" text-anchor="middle">excited</text>
+      <text x="75"  y="-195" text-anchor="middle">elated</text>
+      <text x="-75" y="-195" text-anchor="middle">tense</text>
+      <text x="-148" y="-153" text-anchor="middle">upset</text>
+      <text x="-195" y="-75" text-anchor="middle">nervous</text>
+      <text x="-195" y="80"  text-anchor="middle">sad</text>
+      <text x="-148" y="160" text-anchor="middle">bored</text>
+      <text x="-75"  y="200" text-anchor="middle">tired</text>
+      <text x="75"   y="200" text-anchor="middle">calm</text>
+      <text x="148"  y="160" text-anchor="middle">relaxed</text>
+      <text x="195"  y="80"  text-anchor="middle">content</text>
+      <text x="195"  y="-75" text-anchor="middle">happy</text>
+    </g>
+
+    <!-- =========== E: ENERGY =========== -->
+    <!-- anchor on ring at ~30deg above horizontal -->
+    <g filter="url(#softShadow)">
+      <circle cx="149" cy="-105" r="22" fill="#f59e0b" stroke="#b45309" stroke-width="2.5"/>
+      <text x="149" y="-100" text-anchor="middle" font-size="18" font-weight="800" fill="#fff">E</text>
+    </g>
+    <!-- E label block -->
+    <g transform="translate(215,-135)">
+      <rect x="-6" y="-18" width="130" height="54" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="0" y="0"  font-size="13" font-weight="700" fill="#b45309">Energy</text>
+      <text x="0" y="16" font-size="10" fill="#78350f">vigor, alertness, drive</text>
+      <text x="0" y="30" font-size="9"  fill="#92400e" font-style="italic">high arousal &#215; pleasant</text>
+    </g>
+
+    <!-- =========== S: STRESS =========== -->
+    <g filter="url(#softShadow)">
+      <circle cx="-149" cy="-105" r="22" fill="#dc2626" stroke="#7f1d1d" stroke-width="2.5"/>
+      <text x="-149" y="-100" text-anchor="middle" font-size="18" font-weight="800" fill="#fff">S</text>
+    </g>
+    <g transform="translate(-340,-135)">
+      <rect x="-6" y="-18" width="130" height="54" rx="6" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+      <text x="0" y="0"  font-size="13" font-weight="700" fill="#991b1b">Stress</text>
+      <text x="0" y="16" font-size="10" fill="#7f1d1d">tension, allostatic load</text>
+      <text x="0" y="30" font-size="9"  fill="#7f1d1d" font-style="italic">high arousal &#215; unpleasant</text>
+    </g>
+
+    <!-- =========== F: FULFILLMENT =========== -->
+    <g filter="url(#softShadow)">
+      <circle cx="149" cy="105" r="22" fill="#10b981" stroke="#065f46" stroke-width="2.5"/>
+      <text x="149" y="110" text-anchor="middle" font-size="18" font-weight="800" fill="#fff">F</text>
+    </g>
+    <g transform="translate(215,90)">
+      <rect x="-6" y="-18" width="130" height="54" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+      <text x="0" y="0"  font-size="13" font-weight="700" fill="#065f46">Fulfillment</text>
+      <text x="0" y="16" font-size="10" fill="#064e3b">meaning, contentment</text>
+      <text x="0" y="30" font-size="9"  fill="#065f46" font-style="italic">low arousal &#215; pleasant</text>
+    </g>
+
+    <!-- fatigue reference (small, subtle) -->
+    <circle cx="-149" cy="105" r="8" fill="#94a3b8" stroke="#475569" stroke-width="1.2"/>
+    <text x="-149" y="132" text-anchor="middle" font-size="10" fill="#475569">fatigue</text>
+    <text x="-149" y="144" text-anchor="middle" font-size="8.5" fill="#94a3b8">(reference)</text>
+
+    <!-- center origin dot -->
+    <circle cx="0" cy="0" r="3" fill="#334155"/>
+    <text x="8" y="-4" font-size="9" fill="#94a3b8">neutral</text>
   </g>
 
-  <!-- Design-note box -->
-  <g transform="translate(30,450)">
-    <rect width="840" height="90" fill="#fff" stroke="#ccc" rx="4"/>
-    <text x="18" y="25" font-size="12" font-weight="700" fill="#333">Display implication:</text>
-    <text x="18" y="46" font-size="11" fill="#555">• Battery fill-level → <tspan fill="#b45309" font-weight="600">Energy (E)</tspan> — what most people mean when they say "I'm running low."</text>
-    <text x="18" y="64" font-size="11" fill="#555">• Battery color/hue or pulse rate → <tspan fill="#7f1d1d" font-weight="600">Stress (S)</tspan> — red-shift on chronic load, steady amber on acute.</text>
-    <text x="18" y="82" font-size="11" fill="#555">• Secondary indicator (accent LED, icon) → <tspan fill="#065f46" font-weight="600">Fulfillment (F)</tspan> — glows after meaningful progress; independent of E and S.</text>
+  <!-- =========== BATTERY DISPLAY MAPPING (right inset) =========== -->
+  <g transform="translate(660,110)">
+    <text x="0" y="0" font-size="13" font-weight="700" fill="#0f172a">How each axis drives the display</text>
+    <text x="0" y="18" font-size="10.5" fill="#64748b">Three independent output channels on one physical object.</text>
+
+    <!-- battery glyph -->
+    <g transform="translate(15,55)">
+      <rect x="0" y="0" width="110" height="200" rx="8" fill="#fff" stroke="#334155" stroke-width="2"/>
+      <rect x="35" y="-10" width="40" height="10" rx="2" fill="#334155"/>
+      <!-- fill (E) -->
+      <rect x="8" y="70" width="94" height="122" rx="4" fill="#f59e0b"/>
+      <!-- accent LED (F) -->
+      <circle cx="55" cy="28" r="7" fill="#10b981"/>
+      <circle cx="55" cy="28" r="12" fill="#10b981" fill-opacity="0.25"/>
+      <!-- pulse ring (S) -->
+      <circle cx="55" cy="130" r="40" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
+    </g>
+
+    <!-- E row -->
+    <g transform="translate(150,60)">
+      <circle cx="10" cy="10" r="10" fill="#f59e0b" stroke="#b45309" stroke-width="1.5"/>
+      <text x="10" y="14" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">E</text>
+      <text x="30" y="8"  font-size="12" font-weight="700" fill="#b45309">fill level</text>
+      <text x="30" y="24" font-size="10" fill="#78350f">how full the battery shows</text>
+    </g>
+
+    <!-- S row -->
+    <g transform="translate(150,120)">
+      <circle cx="10" cy="10" r="10" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/>
+      <text x="10" y="14" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">S</text>
+      <text x="30" y="8"  font-size="12" font-weight="700" fill="#991b1b">hue &amp; pulse</text>
+      <text x="30" y="24" font-size="10" fill="#7f1d1d">amber &#8594; red shift, slow pulse</text>
+    </g>
+
+    <!-- F row -->
+    <g transform="translate(150,180)">
+      <circle cx="10" cy="10" r="10" fill="#10b981" stroke="#065f46" stroke-width="1.5"/>
+      <text x="10" y="14" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">F</text>
+      <text x="30" y="8"  font-size="12" font-weight="700" fill="#065f46">accent LED</text>
+      <text x="30" y="24" font-size="10" fill="#064e3b">glows on meaningful progress</text>
+    </g>
+
+    <!-- legibility rule -->
+    <g transform="translate(0,295)">
+      <rect x="0" y="0" width="285" height="62" rx="6" fill="#f1f5f9" stroke="#cbd5e1"/>
+      <text x="12" y="20" font-size="11" font-weight="700" fill="#0f172a">Why three channels?</text>
+      <text x="12" y="38" font-size="10" fill="#475569">&#8220;Tired but content&#8221; (low E, low S, high F)</text>
+      <text x="12" y="52" font-size="10" fill="#475569">&#8800; &#8220;tired and depleted&#8221; (low E, high S, low F).</text>
+    </g>
   </g>
 </svg>

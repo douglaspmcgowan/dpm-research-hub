@@ -146,6 +146,33 @@ details.code-fold > pre.code-block { margin:0; border:none; border-radius:0; }
 .phase-header .phase-num { font-family:'Playfair Display',serif; font-size:1.75rem; font-weight:700; color:var(--accent); line-height:1; }
 .phase-header .phase-title { font-family:'Playfair Display',serif; font-size:1.35rem; font-weight:600; color:var(--text); }
 .phase-header .phase-time { margin-left:auto; font-size:0.8rem; color:var(--text-muted); font-weight:500; }
+/* === Algorithm comparison matrix === */
+.algo-matrix-wrap { overflow-x:auto; margin:1.25rem 0; border-radius:var(--radius); border:1px solid var(--border); background:var(--bg-card); }
+table.algo-matrix { width:100%; border-collapse:collapse; font-size:0.84rem; min-width:720px; }
+table.algo-matrix thead { background:linear-gradient(180deg,#f1f5f9,#e2e8f0); }
+[data-theme="dark"] table.algo-matrix thead { background:linear-gradient(180deg,#1e293b,#0f172a); }
+table.algo-matrix th { text-align:left; padding:0.7rem 0.85rem; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); border-bottom:2px solid var(--border); }
+table.algo-matrix td { padding:0.8rem 0.85rem; border-bottom:1px solid var(--border-light); vertical-align:top; line-height:1.4; }
+table.algo-matrix tr:last-child td { border-bottom:none; }
+table.algo-matrix tr.algo-recommended { background:linear-gradient(90deg,rgba(59,130,246,0.08),transparent 70%); border-left:4px solid #3b82f6; }
+[data-theme="dark"] table.algo-matrix tr.algo-recommended { background:linear-gradient(90deg,rgba(59,130,246,0.18),transparent 70%); }
+table.algo-matrix tr.algo-recommended td:first-child { padding-left:calc(0.85rem - 4px); }
+table.algo-matrix tr:hover { background:rgba(100,116,139,0.06); }
+.algo-name { font-weight:700; color:var(--text); font-size:0.92rem; }
+.algo-name .algo-letter { display:inline-block; width:1.4em; height:1.4em; line-height:1.4em; text-align:center; border-radius:4px; background:#64748b; color:#fff; font-size:0.72rem; font-weight:700; margin-right:0.45rem; vertical-align:1px; }
+.algo-name.algo-rec .algo-letter { background:#3b82f6; }
+.algo-name .algo-sub { display:block; font-weight:400; font-size:0.76rem; color:var(--text-muted); margin-top:0.15rem; }
+.star-rating { letter-spacing:2px; font-size:0.85rem; color:#f59e0b; }
+.star-rating .off { color:var(--border); }
+.axis-chip { display:inline-block; font-size:0.68rem; font-weight:700; padding:0.12rem 0.45rem; border-radius:4px; margin:0 0.12rem 0.15rem 0; letter-spacing:0.03em; }
+.axis-chip.axis-E { background:#fef3c7; color:#92400e; }
+.axis-chip.axis-S { background:#fee2e2; color:#991b1b; }
+.axis-chip.axis-F { background:#d1fae5; color:#065f46; }
+.axis-chip.axis-none { background:var(--border-light); color:var(--text-muted); }
+[data-theme="dark"] .axis-chip.axis-E { background:#78350f; color:#fcd34d; }
+[data-theme="dark"] .axis-chip.axis-S { background:#7f1d1d; color:#fca5a5; }
+[data-theme="dark"] .axis-chip.axis-F { background:#064e3b; color:#6ee7b7; }
+.rec-badge { display:inline-block; font-size:0.65rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:4px; background:#3b82f6; color:#fff; margin-left:0.4rem; vertical-align:2px; letter-spacing:0.05em; }
 @media(max-width:600px) { .slide-pair{grid-template-columns:1fr} .hero{padding:3rem 1rem 2rem} .container{padding:1.5rem 1rem 3rem} h2{font-size:1.3rem} .flow-diagram{flex-direction:column} .flow-arrow{transform:rotate(90deg)} }
 `;
 }
@@ -1820,15 +1847,92 @@ def kalman_update_F(x, P, z, A, H, Q, R):
 <h3 id="alg-compare">Comparison matrix</h3>
 <details class="section-fold" open><summary>Tradeoffs at a glance</summary>
 <div class="section-body">
-<table class="components"><thead><tr><th>Model</th><th>Complexity</th><th>Interpretable?</th><th>Data needed</th><th>Personalization</th><th>Axes separated?</th><th>Grounded in</th><th>Use for</th></tr></thead><tbody>
-<tr><td>A: Linear sum</td><td>Very low</td><td>Yes</td><td>Day 1</td><td>None</td><td>No</td><td>Heuristic</td><td>Display sanity check, week 1</td></tr>
-<tr><td><strong>B: 2-compartment</strong></td><td>Medium</td><td>Yes</td><td>Day 1</td><td>Light (weights)</td><td>E, S</td><td>Effort-Recovery, JD-R, Allostatic Load</td><td><strong>v1 shipping model</strong></td></tr>
-<tr><td>C: Allostatic EMA</td><td>Low</td><td>Yes</td><td>1&ndash;2 weeks</td><td>None at start</td><td>S only</td><td>McEwen allostatic load</td><td>Color layer, stacks with B</td></tr>
-<tr><td>D: Circadian prior</td><td>Low</td><td>Yes</td><td>1 question (MCTQ)</td><td>Chronotype</td><td>E prior</td><td>Kleitman, Facer-Childs</td><td>Prior layer, stacks under B</td></tr>
-<tr><td>E: 3-axis vector</td><td>Medium</td><td>Yes</td><td>Day 1 + completions</td><td>Per-axis</td><td><strong>E, S, F</strong></td><td>Russell, SDT, Progress Principle</td><td>v2, needs accent indicator</td></tr>
-<tr><td>F: Kalman filter</td><td>High</td><td>Medium</td><td>2&ndash;4 weeks</td><td>Per-user variances</td><td>E, S</td><td>Bayesian state-space</td><td>v3 upgrade to B</td></tr>
-<tr><td>G: RL bandit</td><td>Very high</td><td>Low</td><td>Months + closed loop</td><td>Full</td><td>Any</td><td>Contextual bandits</td><td>Research direction</td></tr>
-</tbody></table>
+<div class="algo-matrix-wrap">
+<table class="algo-matrix">
+<thead><tr>
+  <th style="min-width:180px">Model</th>
+  <th style="width:95px">Complexity</th>
+  <th style="width:95px">Interpretable</th>
+  <th style="min-width:140px">Data needed</th>
+  <th style="min-width:130px">Personalization</th>
+  <th style="min-width:110px">Axes</th>
+  <th style="min-width:170px">Grounded in</th>
+  <th style="min-width:170px">Use for</th>
+</tr></thead>
+<tbody>
+<tr>
+  <td><span class="algo-name"><span class="algo-letter">A</span>Linear sum<span class="algo-sub">weighted add/subtract with decay</span></span></td>
+  <td><span class="star-rating">&#9679;<span class="off">&#9679;&#9679;&#9679;&#9679;</span></span></td>
+  <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+  <td>Day 1</td>
+  <td>None</td>
+  <td><span class="axis-chip axis-none">scalar</span></td>
+  <td>Heuristic only</td>
+  <td>Week-1 sanity check of display pipeline</td>
+</tr>
+<tr class="algo-recommended">
+  <td><span class="algo-name algo-rec"><span class="algo-letter">B</span>Two-compartment<span class="rec-badge">V1</span><span class="algo-sub">coupled ODE, E fast, S slow</span></span></td>
+  <td><span class="star-rating">&#9679;&#9679;&#9679;<span class="off">&#9679;&#9679;</span></span></td>
+  <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;<span class="off">&#9733;</span></span></td>
+  <td>Day 1</td>
+  <td>Light (weights)</td>
+  <td><span class="axis-chip axis-E">E</span><span class="axis-chip axis-S">S</span></td>
+  <td>Effort-Recovery, JD-R, Allostatic Load</td>
+  <td><strong>v1 shipping model</strong></td>
+</tr>
+<tr>
+  <td><span class="algo-name"><span class="algo-letter">C</span>Allostatic EMA<span class="algo-sub">multi-day exponential average</span></span></td>
+  <td><span class="star-rating">&#9679;&#9679;<span class="off">&#9679;&#9679;&#9679;</span></span></td>
+  <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+  <td>1&ndash;2 weeks</td>
+  <td>None at start</td>
+  <td><span class="axis-chip axis-S">S</span></td>
+  <td>McEwen allostatic load</td>
+  <td>Color layer, stacks on top of B</td>
+</tr>
+<tr>
+  <td><span class="algo-name"><span class="algo-letter">D</span>Circadian prior<span class="algo-sub">lark/owl baseline + BRAC ripples</span></span></td>
+  <td><span class="star-rating">&#9679;&#9679;<span class="off">&#9679;&#9679;&#9679;</span></span></td>
+  <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;&#9733;</span></td>
+  <td>1 question (MCTQ)</td>
+  <td>Chronotype</td>
+  <td><span class="axis-chip axis-E">E prior</span></td>
+  <td>Kleitman, Facer-Childs</td>
+  <td>Prior layer, stacks under B</td>
+</tr>
+<tr>
+  <td><span class="algo-name"><span class="algo-letter">E</span>Three-axis vector<span class="algo-sub">separate E, S, F scalars</span></span></td>
+  <td><span class="star-rating">&#9679;&#9679;&#9679;<span class="off">&#9679;&#9679;</span></span></td>
+  <td><span class="star-rating">&#9733;&#9733;&#9733;&#9733;<span class="off">&#9733;</span></span></td>
+  <td>Day 1 + completions</td>
+  <td>Per-axis</td>
+  <td><span class="axis-chip axis-E">E</span><span class="axis-chip axis-S">S</span><span class="axis-chip axis-F">F</span></td>
+  <td>Russell, SDT, Progress Principle</td>
+  <td>v2 &mdash; accent indicator needed</td>
+</tr>
+<tr>
+  <td><span class="algo-name"><span class="algo-letter">F</span>Kalman filter<span class="algo-sub">Bayesian latent-state update</span></span></td>
+  <td><span class="star-rating">&#9679;&#9679;&#9679;&#9679;<span class="off">&#9679;</span></span></td>
+  <td><span class="star-rating">&#9733;&#9733;&#9733;<span class="off">&#9733;&#9733;</span></span></td>
+  <td>2&ndash;4 weeks</td>
+  <td>Per-user variances</td>
+  <td><span class="axis-chip axis-E">E</span><span class="axis-chip axis-S">S</span></td>
+  <td>Bayesian state-space</td>
+  <td>v3 upgrade to B</td>
+</tr>
+<tr>
+  <td><span class="algo-name"><span class="algo-letter">G</span>RL bandit<span class="algo-sub">contextual nudge-policy learner</span></span></td>
+  <td><span class="star-rating">&#9679;&#9679;&#9679;&#9679;&#9679;</span></td>
+  <td><span class="star-rating">&#9733;&#9733;<span class="off">&#9733;&#9733;&#9733;</span></span></td>
+  <td>Months + closed loop</td>
+  <td>Full</td>
+  <td><span class="axis-chip axis-none">any</span></td>
+  <td>Contextual bandits</td>
+  <td>Research direction</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p><strong>Recommended architecture:</strong> ship Model B as the core, stack Model D's chronotype prior underneath, layer Model C's multi-day EMA to drive color separately from fill, and leave a Model E hook so the secondary F-axis indicator is populated from day one. That composite is what v1 should be.</p>
 </div></details>
 
