@@ -782,6 +782,8 @@ return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\
   <button class="nav-tab active" onclick="showSection('scontext',this)">Context</button>
   <button class="nav-tab" onclick="showSection('ssystems',this)">Systems Map</button>
   <button class="nav-tab" onclick="showSection('stech',this)">Tech Stack</button>
+  <button class="nav-tab" onclick="showSection('ssignals',this)">Data Signals</button>
+  <button class="nav-tab" onclick="showSection('salgorithm',this)">Scoring Algorithms</button>
   <button class="nav-tab" onclick="showSection('sledguide',this)">LED Build</button>
   <button class="nav-tab" onclick="showSection('seinkguide',this)">E-Ink Build</button>
 </div></nav>
@@ -1151,6 +1153,735 @@ return pageWrapper({ title: 'Psych_Battery: Systems Map & Prototyping', icon: '\
 </ul>
 
 <div class="callout"><div class="label">Design Philosophy</div><p>This phased approach optimizes for <strong>"get clean data and validate the concept"</strong> rather than feature completeness. Phase 1 + Phase 2 together are about 380 lines of Python and touch only 3 external APIs. That's buildable in two weekends. Phase 3 is only worth doing after you've confirmed the core loop (data &rarr; energy score &rarr; intervention &rarr; recovery) actually works.</p></div>
+</div>
+
+<!-- ===== DATA SIGNALS ===== -->
+<div class="section" id="sec-ssignals">
+<h2>Passive Data Signals: What We Collect &amp; How</h2>
+<p>The battery is only as good as the signals feeding it. This tab inventories every passive data source we can reasonably collect from a knowledge-worker's digital exhaust, the exact API or system hook that produces it, what we keep vs. drop, and how we keep it private. Self-report is intentionally excluded from the main loop &mdash; it's only used for <em>one-time calibration</em>. Every signal below is something a laptop, phone, or watch can observe without the user re-typing their day.</p>
+
+<div class="callout"><div class="label">Three design principles</div>
+<p><strong>1. Local-first.</strong> All raw signals are stored on-device in SQLite (ActivityWatch + our own tables). Only a derived score leaves the machine, and only to the battery itself over LAN.<br>
+<strong>2. Minimum viable data.</strong> For each source we explicitly list <em>fields to keep</em> and <em>fields to drop</em>. Message bodies, URLs beyond hostname, and document contents never hit disk.<br>
+<strong>3. Three axes, not one.</strong> Every signal is tagged as contributing to <span style="color:#b45309"><strong>Energy (E)</strong></span>, <span style="color:#7f1d1d"><strong>Stress (S)</strong></span>, or <span style="color:#065f46"><strong>Fulfillment (F)</strong></span> &mdash; often multiple. See the Scoring Algorithms tab for how these combine.</p></div>
+
+<details class="section-fold" open><summary>Table of Contents</summary>
+<div class="section-body">
+<div class="toc"><ul>
+  <li><a href="#sig-cal">1. Calendar signals (Google, Outlook)</a></li>
+  <li><a href="#sig-comms">2. Communications metadata (Slack, Teams, Gmail)</a></li>
+  <li><a href="#sig-rhythm">3. Work-rhythm (ActivityWatch: windows, AFK, web)</a></li>
+  <li><a href="#sig-keys">4. Keystroke &amp; mouse cadence (CGEventTap, Win32 hooks)</a></li>
+  <li><a href="#sig-todo">5. To-do &amp; task systems (Todoist, Linear, Notion, Reminders)</a></li>
+  <li><a href="#sig-rest">6. Rest &amp; recovery (DRAMMA-weighted categories)</a></li>
+  <li><a href="#sig-social">7. Social media &amp; AI-tool use (ActivityWatch rules)</a></li>
+  <li><a href="#sig-wear">8. Wearables (Oura, Whoop, HealthKit)</a></li>
+  <li><a href="#sig-ctx">9. Environmental context (Wi-Fi SSID, audio mic flag)</a></li>
+  <li><a href="#sig-mvp">MVP stack: the 7 signals to ship first</a></li>
+  <li><a href="#sig-2026">2025&ndash;2026 API cheat sheet</a></li>
+  <li><a href="#sig-privacy">Privacy posture &amp; what we <em>never</em> collect</a></li>
+</ul></div>
+</div></details>
+
+<h3 id="sig-cal">1. Calendar signals</h3>
+<details class="section-fold"><summary>Google Calendar + Outlook &mdash; meeting load, fragmentation, deep-work windows</summary>
+<div class="section-body">
+<p>Calendar is the single highest-signal passive source for knowledge work. We can infer meeting density, back-to-back pressure, video-call load, after-hours creep, and (critically) the <em>gaps</em> that represent possible deep-work windows &mdash; all without reading a single meeting title.</p>
+
+<h4>Google Calendar API</h4>
+<ul class="findings">
+  <li><strong>Scope:</strong> <code>https://www.googleapis.com/auth/calendar.events.readonly</code> (read-only, no write).</li>
+  <li><strong>Auth:</strong> Loopback OAuth on <code>http://127.0.0.1:PORT</code> &mdash; a desktop client flow, no secrets shipped.</li>
+  <li><strong>Endpoint:</strong> <code>GET /calendars/primary/events?timeMin=&amp;timeMax=&amp;singleEvents=true&amp;orderBy=startTime</code>.</li>
+  <li><strong>Incremental sync:</strong> use <code>syncToken</code> after first full pull &mdash; each poll is then O(changes).</li>
+</ul>
+
+<p><strong>Fields we keep:</strong> <code>start.dateTime</code>, <code>end.dateTime</code>, <code>attendees.length</code>, <code>conferenceData.conferenceId ? true : false</code> (video? yes/no), <code>organizer.self</code> (am I the host?), <code>responseStatus</code> (accepted/declined/tentative), <code>recurringEventId ? true : false</code>.</p>
+<p><strong>Fields we drop immediately:</strong> <code>summary</code> (title), <code>description</code>, <code>location</code>, attendee emails, attachments, every free-text field.</p>
+
+<details class="code-fold"><summary>Minimal loader (Python, google-auth-oauthlib)</summary>
+<pre class="code-block"><code># calendar_loader.py -- pulls only what we need, drops everything else
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+SCOPES = ['https://www.googleapis.com/auth/calendar.events.readonly']
+
+def load_today(creds):
+    svc = build('calendar', 'v3', credentials=creds)
+    events = svc.events().list(
+        calendarId='primary',
+        timeMin=today_start_iso(), timeMax=today_end_iso(),
+        singleEvents=True, orderBy='startTime',
+        fields='items(start,end,attendees,conferenceData(conferenceId),organizer,responseStatus,recurringEventId)'
+    ).execute().get('items', [])
+    return [{
+        'start': e['start'].get('dateTime'),
+        'end':   e['end'].get('dateTime'),
+        'n_attendees': len(e.get('attendees', [])),
+        'is_video':  bool(e.get('conferenceData', {}).get('conferenceId')),
+        'is_self_org': e.get('organizer', {}).get('self', False),
+        'response': e.get('responseStatus', 'accepted'),
+        'recurring': bool(e.get('recurringEventId')),
+    } for e in events]</code></pre></details>
+
+<h4>Microsoft Graph (Outlook / Teams calendar)</h4>
+<ul class="findings">
+  <li><strong>Scope:</strong> <code>Calendars.Read</code> (delegated).</li>
+  <li><strong>Endpoint:</strong> <code>GET /me/calendarView?startDateTime=&amp;endDateTime=&amp;$select=start,end,attendees,isOnlineMeeting,organizer,showAs</code>.</li>
+  <li><strong>Delta queries:</strong> <code>/me/calendarView/delta</code> returns only what changed &mdash; same incremental-sync pattern as Google.</li>
+</ul>
+
+<p><strong>Derived features we compute from calendar alone:</strong></p>
+<ul class="findings">
+  <li><code>meeting_density</code> &mdash; meeting minutes / available-hour minutes (excluding lunch + blocked).</li>
+  <li><code>b2b_run_max</code> &mdash; longest back-to-back streak with gaps &le; 5 min.</li>
+  <li><code>video_load_min</code> &mdash; total minutes on <code>isOnlineMeeting=true</code>.</li>
+  <li><code>fragmentation</code> &mdash; count of sub-30-min gaps between meetings (too-short deep-work slots).</li>
+  <li><code>after_hours_meetings</code> &mdash; meetings ending after 18:00 local or before 08:00.</li>
+  <li><code>longest_gap_min</code> &mdash; the biggest unbroken window today (the battery lights up green here).</li>
+</ul>
+
+<p><strong>Privacy posture:</strong> We never store <em>who</em> you met with, only how many. A meeting with 2 people and one with 20 look identical to the algorithm except in the <code>n_attendees</code> scalar &mdash; no names, no emails, no titles.</p>
+</div></details>
+
+<h3 id="sig-comms">2. Communications metadata</h3>
+<details class="section-fold"><summary>Slack, Microsoft Teams, Gmail &mdash; counts &amp; timing, never content</summary>
+<div class="section-body">
+<p>Message <em>volume and timing</em> is a strong stress predictor (off-hours pings correlate with HRV suppression in every major study since 2018). We collect counts, timestamps, and sender-role flags. We never read a single character of message text.</p>
+
+<h4>Slack (granular scopes only &mdash; legacy custom bots are dead since March 2025)</h4>
+<ul class="findings">
+  <li><strong>App type:</strong> Slack "granular app" with user token (not bot token), installed to your own workspace.</li>
+  <li><strong>Scopes:</strong> <code>channels:history</code>, <code>groups:history</code>, <code>im:history</code>, <code>users:read</code> &mdash; request only scopes you need; scope additions trigger reinstall.</li>
+  <li><strong>Events API:</strong> subscribe to <code>message.channels</code>, <code>message.groups</code>, <code>message.im</code>. Classic apps lose Events API November 2026 &mdash; granular apps are the forward-compatible path.</li>
+  <li><strong>What we keep per event:</strong> <code>channel_type</code> (dm/group/public), <code>ts</code> (timestamp), <code>thread_ts ? true : false</code>, sender-is-self flag, length bucket (short/medium/long, from <code>text.length</code> computed <em>in-memory then discarded</em>).</li>
+  <li><strong>What we drop:</strong> <code>text</code>, <code>files</code>, <code>attachments</code>, <code>blocks</code>, user IDs of others (hashed or dropped).</li>
+</ul>
+
+<h4>Microsoft Teams via Graph</h4>
+<ul class="findings">
+  <li><strong>Scope:</strong> <code>ChannelMessage.Read.All</code> + <code>Chat.Read</code>.</li>
+  <li><strong>Endpoint:</strong> <code>GET /me/chats/getAllMessages/delta</code> and <code>/teams/{id}/channels/{id}/messages/delta</code>.</li>
+  <li>Same keep/drop policy as Slack.</li>
+</ul>
+
+<h4>Gmail (metadata-only scope)</h4>
+<ul class="findings">
+  <li><strong>Scope:</strong> <code>gmail.metadata</code> &mdash; headers and labels only, no body, no snippet. Critical: you <em>cannot</em> combine <code>gmail.metadata</code> with a <code>q=</code> query parameter; you list all IDs then fetch individually.</li>
+  <li><strong>What we keep:</strong> <code>internalDate</code>, <code>labelIds</code> (INBOX/IMPORTANT/CATEGORY_*), <code>threadId</code>, header-only: from-domain (hashed), to-count.</li>
+  <li><strong>Derived:</strong> inbox-arrival rate by hour, after-hours inbound ratio, thread-depth distribution.</li>
+</ul>
+
+<details class="code-fold"><summary>Slack event handler (Python, slack_bolt)</summary>
+<pre class="code-block"><code># slack_listener.py -- count-only, content-free
+from slack_bolt import App
+app = App(token=os.environ['SLACK_USER_TOKEN'])
+
+@app.event("message")
+def handle_message(event, logger):
+    # drop bot messages and edits
+    if event.get('subtype') in ('bot_message','message_changed','message_deleted'): return
+    len_bucket = 's' if len(event.get('text','')) &lt; 40 else ('m' if len(event['text']) &lt; 200 else 'l')
+    db.execute(
+        "INSERT INTO msg_events(ts, channel_type, is_thread, is_self, len_bucket) VALUES(?,?,?,?,?)",
+        (float(event['ts']),
+         event.get('channel_type','unknown'),
+         'thread_ts' in event,
+         event['user'] == MY_USER_ID,
+         len_bucket)
+    )
+    # note: we never store event['text']</code></pre></details>
+
+<p><strong>Derived features from comms metadata:</strong> <code>msgs_per_hour</code>, <code>after_hours_msgs</code>, <code>dm_burst_ratio</code> (DMs / total), <code>thread_depth_mean</code>, <code>interrupt_index</code> (messages arriving while an ActivityWatch focus session is open).</p>
+</div></details>
+
+<h3 id="sig-rhythm">3. Work-rhythm: ActivityWatch (windows, AFK, web)</h3>
+<details class="section-fold"><summary>The canonical open-source passive-activity logger</summary>
+<div class="section-body">
+<p><a href="https://activitywatch.net/" target="_blank">ActivityWatch</a> v0.13.2 is the backbone. It runs locally, stores everything in a local SQLite database at <code>~/.local/share/activitywatch/</code> (Linux), <code>~/Library/Application Support/activitywatch/</code> (macOS), or <code>%LOCALAPPDATA%\activitywatch\</code> (Windows). Three default watchers plus a browser extension give us everything.</p>
+
+<ul class="findings">
+  <li><strong>aw-watcher-window:</strong> active-window title + app every 1 s. We keep <em>app bundle ID</em> and <em>window-title hash</em>, drop the raw title.</li>
+  <li><strong>aw-watcher-afk:</strong> AFK/active state, driven by keyboard + mouse idle time (default 180 s threshold).</li>
+  <li><strong>aw-watcher-web:</strong> Manifest V3 browser extension (Chrome, Firefox, Edge). We keep <em>hostname only</em>, drop full URL and title.</li>
+  <li><strong>Query API:</strong> <code>POST http://localhost:5600/api/0/query/</code> with an AWQL query returns aggregated events &mdash; no need to reinvent aggregation.</li>
+</ul>
+
+<p><strong>macOS Sequoia gotcha (2024+):</strong> aw-watcher-window needs Accessibility permission (System Settings &rarr; Privacy &amp; Security &rarr; Accessibility) <em>and</em> Screen Recording permission (for window titles, though we don't keep them). Without both, you get empty events and silent failure. Document this in the build guide &mdash; it's the #1 new-user drop-off.</p>
+
+<details class="code-fold"><summary>Minimal AWQL query (last 24h, grouped by app)</summary>
+<pre class="code-block"><code># aw_query.py
+import requests, json
+AWQL = '''
+events = query_bucket(find_bucket("aw-watcher-window_"));
+afk = query_bucket(find_bucket("aw-watcher-afk_"));
+events = filter_period_intersect(events, filter_keyvals(afk, "status", ["not-afk"]));
+RETURN = merge_events_by_keys(events, ["app"]);
+'''
+def query(start, end):
+    r = requests.post('http://localhost:5600/api/0/query/', json={
+        'query': [AWQL],
+        'timeperiods': [f'{start}/{end}']
+    })
+    return r.json()[0]   # list of {app, duration, ...}</code></pre></details>
+
+<p><strong>Derived features:</strong> <code>focus_session_count</code> (&ge; 25 min uninterrupted single-app), <code>focus_session_mean_len</code>, <code>context_switches_per_hour</code> (app changes), <code>afk_breaks_10min+</code>, <code>deep_work_minutes</code> (focus session on category = "creation/coding/writing").</p>
+</div></details>
+
+<h3 id="sig-keys">4. Keystroke &amp; mouse cadence</h3>
+<details class="section-fold"><summary>Intensity without content &mdash; rates only, zero keylogging</summary>
+<div class="section-body">
+<p>Raw typing content is off-limits. But <em>rate</em> &mdash; keystrokes per minute, mouse clicks per minute, idle-to-burst ratios &mdash; is a useful fatigue proxy. Typing slows measurably under cognitive load and sleep debt (multiple studies 2019&ndash;2024). We aggregate to per-minute counts in a ring buffer and never store which keys were pressed.</p>
+
+<p><strong>macOS:</strong> <code>CGEventTap</code> in a Swift LSUIElement background agent. (Do <em>not</em> use <code>pynput</code> &mdash; it's been broken on Apple Silicon + Xcode 15+ since 2024.) Requires Input Monitoring permission.</p>
+
+<p><strong>Windows:</strong> <code>SetWindowsHookEx(WH_KEYBOARD_LL, ...)</code> low-level keyboard hook, or the Rust <code>rdev</code> crate (cross-platform, maintained).</p>
+
+<p><strong>Linux/Wayland:</strong> gets ugly &mdash; no unprivileged global keyboard hook on Wayland. Options: libinput record (root), or skip this signal and rely on ActivityWatch's window-event rate as a proxy.</p>
+
+<details class="code-fold"><summary>macOS CGEventTap — counts only, in Swift</summary>
+<pre class="code-block"><code>// KeyCountTap.swift  — LSUIElement agent, ~40 lines
+import Cocoa
+var buckets: [Int: Int] = [:]   // minute-of-epoch -&gt; count
+let mask = (1 &lt;&lt; CGEventType.keyDown.rawValue) | (1 &lt;&lt; CGEventType.leftMouseDown.rawValue)
+let tap = CGEvent.tapCreate(
+    tap: .cgSessionEventTap, place: .headInsertEventTap,
+    options: .listenOnly, eventsOfInterest: CGEventMask(mask),
+    callback: { _, _, event, _ in
+        let m = Int(Date().timeIntervalSince1970 / 60)
+        buckets[m, default: 0] += 1      // count only; event discarded
+        return Unmanaged.passUnretained(event)
+    }, userInfo: nil)!
+CFRunLoopAddSource(CFRunLoopGetCurrent(),
+    CFMachPortCreateRunLoopSource(nil, tap, 0), .commonModes)
+CGEvent.tapEnable(tap: tap, enable: true)
+// every 60s, flush buckets to SQLite, clear buffer
+Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in flushToDB() }
+CFRunLoopRun()</code></pre></details>
+
+<p><strong>Derived:</strong> <code>kpm_p50</code>, <code>kpm_p95</code>, <code>kpm_during_meetings</code> (proxy for multitasking in calls), <code>typing_session_length</code>, <code>burst_idleness</code> (variance in inter-key intervals).</p>
+
+<p><strong>Privacy invariant:</strong> the callback increments a counter and returns immediately. <code>event</code> is never copied, dereferenced for content, or persisted. Even a core dump wouldn't contain keystrokes.</p>
+</div></details>
+
+<h3 id="sig-todo">5. To-do &amp; task systems</h3>
+<details class="section-fold"><summary>Progress Principle signal &mdash; completions as fulfillment</summary>
+<div class="section-body">
+<p>Amabile &amp; Kramer's <em>Progress Principle</em> (2011) shows small wins are the single strongest daily-mood predictor in knowledge work. Completed tasks are therefore a key Fulfillment (F-axis) input &mdash; and they're trivial to observe passively.</p>
+
+<h4>Todoist</h4>
+<ul class="findings">
+  <li><strong>API:</strong> Todoist Unified API <strong>v1</strong> &mdash; this replaced v2 and Sync v9 in 2025. The old <code>api.todoist.com/rest/v2</code> endpoints are deprecated; use <code>api.todoist.com/api/v1</code>.</li>
+  <li><strong>Auth:</strong> Personal API token from user's settings, or OAuth2 for distributed apps.</li>
+  <li><strong>Endpoint:</strong> <code>GET /tasks/completed</code> for done-today; <code>GET /tasks/filter</code> for active.</li>
+  <li><strong>Keep:</strong> <code>completed_at</code>, <code>project_id</code> (hashed), priority, duration-since-created. <strong>Drop:</strong> task content, description, labels text.</li>
+</ul>
+
+<h4>Linear</h4>
+<ul class="findings">
+  <li><strong>API:</strong> GraphQL at <code>https://api.linear.app/graphql</code>.</li>
+  <li><strong>Query:</strong> <code>issues(filter: {completedAt: {gte: $today}}) { nodes { completedAt priority estimate team { id } } }</code>.</li>
+  <li>Same keep/drop: completion timestamps, priority, estimate points; drop title/description.</li>
+</ul>
+
+<h4>Notion</h4>
+<ul class="findings">
+  <li><strong>API version:</strong> <code>2025-09-03</code> &mdash; this is a breaking change. You now query against <code>data_source_id</code>, not <code>database_id</code>. Older code breaks silently.</li>
+  <li>Useful if the user manages tasks in a Notion DB with a "Status" or "Done" checkbox property.</li>
+</ul>
+
+<h4>Apple Reminders</h4>
+<ul class="findings">
+  <li><strong>Framework:</strong> EventKit (<code>EKReminder</code>, <code>EKEventStore.fetchReminders(matching:)</code>).</li>
+  <li>Native, no auth. Requires <code>NSRemindersUsageDescription</code> in Info.plist and user grant.</li>
+</ul>
+
+<p><strong>Derived features:</strong> <code>tasks_completed_today</code>, <code>high_prio_done</code>, <code>streak_days</code>, <code>completion_spread</code> (all at 5pm = crunch; spread across day = sustainable), <code>carry_over_count</code> (tasks moved to tomorrow &mdash; negative F, positive S).</p>
+</div></details>
+
+<h3 id="sig-rest">6. Rest &amp; recovery (DRAMMA-weighted)</h3>
+<details class="section-fold"><summary>Newman, Tay &amp; Diener (2014) &mdash; the six ingredients of psychological recovery</summary>
+<div class="section-body">
+<p>DRAMMA is the best-validated framework for <em>what kind</em> of break actually recovers energy. Not all breaks are equal &mdash; scrolling Twitter for 10 min recovers almost nothing; a 10-min walk outside recovers substantially.</p>
+
+<table class="components"><thead><tr><th>DRAMMA component</th><th>What it is</th><th>Passive signal we can catch</th><th>Recovery weight</th></tr></thead>
+<tbody>
+<tr><td><strong>D</strong>etachment</td><td>Mental disengagement from work</td><td>AFK &ge; 10 min + no work-app foreground + (optional) phone lock state</td><td>+++</td></tr>
+<tr><td><strong>R</strong>elaxation</td><td>Low-arousal positive state</td><td>HRV rise (Oura/Whoop/Watch), mindfulness app opens, HealthKit <code>mindfulSession</code></td><td>+++</td></tr>
+<tr><td><strong>A</strong>utonomy</td><td>Self-chosen activity</td><td>Hard to detect passively; proxy: non-calendar time, non-work apps</td><td>++</td></tr>
+<tr><td><strong>M</strong>astery</td><td>Challenging non-work skill-building</td><td>App category = "hobby" (Duolingo, music apps, GitHub on personal repos)</td><td>++</td></tr>
+<tr><td><strong>M</strong>eaning</td><td>Values-aligned activity</td><td>Not passively detectable; user one-time tags favorite apps as "meaningful"</td><td>++</td></tr>
+<tr><td><strong>A</strong>ffiliation</td><td>Positive social contact</td><td>Calendar event with <code>n_attendees&ge;2</code> + non-work + video/in-person</td><td>+++</td></tr>
+</tbody></table>
+
+<p><strong>Additional high-value recovery signals:</strong></p>
+<ul class="findings">
+  <li><strong>Outdoor / nature minutes:</strong> iOS motion sensor + GPS "outdoor" heuristic (Apple Health's <em>time in daylight</em> since iOS 17), or Android's activity-recognition API. Attention Restoration Theory (Kaplan, Berman) &mdash; 20 min in greenspace measurably restores executive-function test scores.</li>
+  <li><strong>Synchronous voice/in-person social:</strong> calendar + Zoom/Meet/Teams active-call detection via app foregrounding. Holt-Lunstad meta-analyses (2010, 2015) put social connection mortality effect at OR 1.50 &mdash; larger than smoking.</li>
+  <li><strong>Sleep continuity:</strong> wearable sleep stages, or iOS/Android sleep schedule. 7+ h continuous sleep &rarr; detaches S-axis the next day.</li>
+</ul>
+</div></details>
+
+<h3 id="sig-social">7. Social media &amp; AI-tool use</h3>
+<details class="section-fold"><summary>ActivityWatch categorization rules &mdash; the easy parts and the hard parts</summary>
+<div class="section-body">
+<p>ActivityWatch already supports a category-rule engine at <a href="http://localhost:5600/#/settings" target="_blank">localhost:5600/#/settings</a>. We ship a starter ruleset and let the user edit.</p>
+
+<p><strong>Easy (clear categories):</strong></p>
+<ul class="findings">
+  <li><strong>Social media:</strong> <code>twitter.com|x.com|instagram.com|tiktok.com|facebook.com|reddit.com|youtube.com|threads.net|bsky.app</code> &rarr; category <code>social_passive</code>. Negative Energy on &gt;20 min, zero Fulfillment.</li>
+  <li><strong>AI tools &mdash; conversational:</strong> <code>claude.ai|chatgpt.com|gemini.google.com|perplexity.ai|poe.com</code> &rarr; category <code>ai_chat</code>. Neutral on short sessions; fatigue-inducing on &gt;90 min.</li>
+  <li><strong>AI tools &mdash; coding:</strong> Cursor, Windsurf, Zed bundle-IDs; JetBrains + Copilot plugin; VS Code + any *.copilot extension. Category <code>ai_code</code>.</li>
+  <li><strong>Meeting apps:</strong> <code>zoom.us</code>, Zoom desktop bundle, MSFT Teams bundle, Google Meet tab. Category <code>meeting</code>.</li>
+</ul>
+
+<p><strong>Hard:</strong> distinguishing "scrolling Twitter as break" from "scrolling Twitter because I'm avoiding a hard task." We don't try &mdash; we just count minutes and let Model B's stress/energy coupling surface it (high stress + high social_passive = the avoidance signature).</p>
+
+<details class="code-fold"><summary>Example ActivityWatch category JSON</summary>
+<pre class="code-block"><code>{
+  "categories": [
+    {"name":["Work","Code"], "rule":{"type":"regex","regex":"vscode|code-insiders|Cursor|Windsurf|JetBrains|Xcode"}},
+    {"name":["Work","AI","chat"], "rule":{"type":"regex","regex":"claude\\.ai|chatgpt|perplexity|gemini"}},
+    {"name":["Work","Comms"], "rule":{"type":"regex","regex":"Slack|Teams|Outlook|Gmail|mail\\.google"}},
+    {"name":["Rest","Social-passive"], "rule":{"type":"regex","regex":"twitter|x\\.com|instagram|tiktok|reddit|youtube|threads|bsky"}},
+    {"name":["Rest","Mastery"], "rule":{"type":"regex","regex":"Duolingo|Anki|GitHub.*\\/personal"}}
+  ]
+}</code></pre></details>
+</div></details>
+
+<h3 id="sig-wear">8. Wearables (Oura, Whoop, HealthKit)</h3>
+<details class="section-fold"><summary>HRV, sleep debt, readiness &mdash; the most direct S-axis measurements we have</summary>
+<div class="section-body">
+<p>Heart-rate variability (RMSSD or SDNN, 2&ndash;5 min recording) is the single most validated allostatic-load biomarker. Thayer's neurovisceral-integration model (2009, and every follow-up) ties low HRV to reduced executive function. If the user already wears a device, we should ingest its signals.</p>
+
+<h4>Oura (v2 API)</h4>
+<ul class="findings">
+  <li><strong>Auth:</strong> Personal Access Token &mdash; requires <em>active Oura membership</em>. A user without membership can't grant us data even if they own the ring. This is a hard change from v1.</li>
+  <li><strong>Endpoints we use:</strong> <code>/v2/usercollection/daily_readiness</code>, <code>/v2/usercollection/daily_sleep</code>, <code>/v2/usercollection/daily_activity</code>, <code>/v2/usercollection/heartrate</code>.</li>
+  <li><strong>Keep:</strong> readiness_score, hrv_balance, sleep_score, total_sleep_duration, efficiency, activity_score, average_resting_heart_rate.</li>
+</ul>
+
+<h4>Whoop</h4>
+<ul class="findings">
+  <li><strong>Auth:</strong> OAuth2. Scopes: <code>read:recovery read:sleep read:workout read:cycles</code>.</li>
+  <li><strong>Endpoints:</strong> <code>/v1/recovery</code>, <code>/v1/sleep</code>, <code>/v1/cycle</code>.</li>
+  <li><strong>Keep:</strong> recovery_score, hrv (rmssd), resting_heart_rate, sleep_performance_pct, strain.</li>
+</ul>
+
+<h4>Apple HealthKit (if we ship a macOS companion)</h4>
+<ul class="findings">
+  <li>Apple Watch HRV lives in <code>HKQuantityTypeIdentifierHeartRateVariabilitySDNN</code>.</li>
+  <li>Mindfulness sessions: <code>HKCategoryTypeIdentifierMindfulSession</code>.</li>
+  <li>Daylight: <code>HKQuantityTypeIdentifierTimeInDaylight</code> (iOS 17+).</li>
+  <li>Sleep: <code>HKCategoryTypeIdentifierSleepAnalysis</code> with the post-iOS-16 stages (Core/REM/Deep).</li>
+</ul>
+
+<p><strong>If no wearable:</strong> we degrade gracefully. Sleep debt can be estimated from first-window-event-of-morning + last-event-of-night timestamps (ActivityWatch-derived "device-active hours"). HRV becomes unavailable; Model B just runs without it and weights the S-compartment more on fragmentation + after-hours-comms.</p>
+</div></details>
+
+<h3 id="sig-ctx">9. Environmental context</h3>
+<details class="section-fold"><summary>Wi-Fi SSID hashing for home/office/cafe detection; mic-in-use flag</summary>
+<div class="section-body">
+<p>Where you are physically shapes what counts as "focus" or "rest." We don't need GPS &mdash; SSID of the connected network is enough. We hash it so the raw name never touches disk.</p>
+
+<h4>Wi-Fi SSID (macOS)</h4>
+<ul class="findings">
+  <li><strong>Post-Sequoia (macOS 15+):</strong> <code>airport -I</code> is gone and <code>networksetup -getairportnetwork</code> no longer returns SSID without Location Services. The sanctioned path is now <code>CoreWLAN</code>.</li>
+  <li><strong>Framework:</strong> <code>CWWiFiClient.shared().interface()?.ssid()</code> from Swift or ObjC. Requires Location Services permission (ironically), but returns the SSID.</li>
+</ul>
+
+<details class="code-fold"><summary>Swift SSID probe — hash + bucket</summary>
+<pre class="code-block"><code>// SSIDProbe.swift
+import CoreWLAN, CryptoKit
+func currentSSIDHash() -&gt; String? {
+    guard let ssid = CWWiFiClient.shared().interface()?.ssid() else { return nil }
+    let h = SHA256.hash(data: Data(ssid.utf8))
+    return h.prefix(6).map { String(format: "%02x", $0) }.joined()  // 12-char hash
+}
+// first run: ask user to label hashes: "home", "office", "cafe".
+// from then on, just the hash is stored.</code></pre></details>
+
+<h4>Wi-Fi SSID (Windows)</h4>
+<p><code>netsh wlan show interfaces</code> returns SSID &mdash; same hash-and-bucket approach.</p>
+
+<h4>Microphone / camera in-use flag</h4>
+<p>macOS: Audio Services / AVCaptureDevice "in use" notifications &mdash; a proxy for "currently in a call." Windows: <code>Windows.Media.Capture</code> camera-in-use event. We don't record audio; we just flag "currently on a call" which is a better signal than "Zoom is foregrounded" (you might be on a call with Slack foregrounded).</p>
+</div></details>
+
+<h3 id="sig-mvp">MVP stack: the 7 signals to ship first</h3>
+<details class="section-fold" open><summary>What actually goes in v1 &mdash; the 80/20 list</summary>
+<div class="section-body">
+<p>Collecting everything above is months of work. To validate the battery concept, ship with <em>these seven</em> and nothing else:</p>
+
+<ol class="findings">
+  <li><strong>Google Calendar</strong> (read-only) &mdash; meeting density, b2b runs, video load, longest gap.</li>
+  <li><strong>ActivityWatch window + AFK</strong> &mdash; focus sessions, context switches, idle breaks.</li>
+  <li><strong>ActivityWatch web extension</strong> &mdash; social-media minutes, AI-chat minutes, meeting-app minutes.</li>
+  <li><strong>Slack message metadata</strong> (self-installed granular app) &mdash; msgs/hour, after-hours, DM-burst.</li>
+  <li><strong>Gmail metadata</strong> &mdash; inbox-arrival rate, after-hours ratio.</li>
+  <li><strong>Todoist completions</strong> (or Reminders on macOS) &mdash; Progress Principle / Fulfillment signal.</li>
+  <li><strong>Wearable HRV + sleep</strong> if available (Oura or Whoop); otherwise skip and document the degraded mode.</li>
+</ol>
+
+<details class="code-fold"><summary>The v1 SQLite schema</summary>
+<pre class="code-block"><code>-- schema.sql
+CREATE TABLE cal_events   (ts INT, dur_s INT, n_att INT, is_video INT, is_self_org INT, response TEXT);
+CREATE TABLE msg_events   (ts REAL, channel_type TEXT, is_thread INT, is_self INT, len_bucket TEXT, source TEXT);
+CREATE TABLE mail_events  (ts INT, label TEXT, from_domain_hash TEXT);
+CREATE TABLE aw_focus     (start INT, dur_s INT, app_category TEXT);
+CREATE TABLE aw_afk       (start INT, dur_s INT);
+CREATE TABLE aw_web       (ts INT, dur_s INT, hostname TEXT, category TEXT);
+CREATE TABLE tasks_done   (ts INT, project_hash TEXT, priority INT, age_days INT);
+CREATE TABLE wear_daily   (date TEXT PRIMARY KEY, hrv REAL, sleep_h REAL, readiness INT, rhr INT);
+CREATE TABLE kpm_minute   (minute INT PRIMARY KEY, count INT, src TEXT);
+CREATE TABLE ctx_minute   (minute INT PRIMARY KEY, ssid_hash TEXT, on_call INT);
+-- derived / cached:
+CREATE TABLE features_5m  (ts INT PRIMARY KEY, meeting_density REAL, fragmentation REAL,
+                           focus_frac REAL, ctx_switches INT, msgs_ph REAL,
+                           social_min REAL, ai_min REAL, hrv_z REAL, sleep_debt_h REAL);
+CREATE TABLE score_5m     (ts INT PRIMARY KEY, E REAL, S REAL, F REAL, model TEXT);</code></pre></details>
+</div></details>
+
+<h3 id="sig-2026">2025&ndash;2026 API cheat sheet</h3>
+<details class="section-fold"><summary>Things that changed recently and will break your build if you copy old tutorials</summary>
+<div class="section-body">
+<table class="components"><thead><tr><th>Area</th><th>Old (deprecated)</th><th>Current (2025&ndash;2026)</th></tr></thead><tbody>
+<tr><td>Slack apps</td><td>Legacy custom bots</td><td>Granular apps (legacy dies March 2025; classic-app Events API dies Nov 2026)</td></tr>
+<tr><td>Todoist</td><td>REST v2, Sync v9</td><td>Unified API v1 (<code>api.todoist.com/api/v1</code>)</td></tr>
+<tr><td>Notion</td><td><code>database_id</code></td><td><code>data_source_id</code>, API version <code>2025-09-03</code></td></tr>
+<tr><td>macOS Wi-Fi</td><td><code>airport -I</code>, <code>networksetup -getairportnetwork</code></td><td>CoreWLAN <code>CWWiFiClient</code></td></tr>
+<tr><td>Oura</td><td>v1 API, no membership required</td><td>v2 API, <em>active membership</em> required for PATs</td></tr>
+<tr><td>Python key hooks</td><td><code>pynput</code></td><td>CGEventTap (Swift) on macOS; <code>rdev</code> (Rust) cross-platform</td></tr>
+<tr><td>Browser extension</td><td>Manifest V2</td><td>Manifest V3 mandatory (Chrome MV2 disabled June 2024; Firefox/Edge same trajectory)</td></tr>
+<tr><td>iOS daylight</td><td>Not exposed</td><td><code>HKQuantityTypeIdentifierTimeInDaylight</code> (iOS 17+)</td></tr>
+</tbody></table>
+</div></details>
+
+<h3 id="sig-privacy">Privacy posture &amp; what we <em>never</em> collect</h3>
+<div class="callout"><div class="label">Hard rules, encoded as code review gates</div>
+<ol class="findings">
+<li><strong>No message/document content.</strong> Message bodies, email subjects/bodies, document text, meeting titles. If a PR adds a field named <code>text</code>, <code>title</code>, <code>subject</code>, <code>summary</code>, or <code>description</code> to any storage table, it's rejected.</li>
+<li><strong>No URL paths.</strong> Only hostname. <code>claude.ai/chat/xyz</code> becomes <code>claude.ai</code>.</li>
+<li><strong>No individual collaborator identities.</strong> Attendee counts, not attendee emails. Message counts from a hashed sender ID, not the sender's username.</li>
+<li><strong>No keystroke content.</strong> Only per-minute counts. The Swift tap increments a counter and discards the event.</li>
+<li><strong>No location beyond a hashed SSID bucket.</strong> No GPS coordinates, no IP geolocation.</li>
+<li><strong>All data local by default.</strong> Only the derived E/S/F scalars and current-state bits (color, pulse) leave the host &mdash; and only to the battery hardware on the LAN.</li>
+<li><strong>Kill switch.</strong> A single tray icon toggle that freezes all watchers and can purge the last N days with one click.</li>
+</ol></div>
+</div>
+
+<!-- ===== SCORING ALGORITHMS ===== -->
+<div class="section" id="sec-salgorithm">
+<h2>Scoring Algorithms: Seven Ways to Weight the Battery</h2>
+<p>Once signals are flowing, the question becomes: <em>how do we turn a stream of events into a single number (or small vector) that drives a fill-level and color</em>? There is no settled answer in the literature. Different theoretical traditions yield different equations &mdash; some simple, some requiring weeks of per-user calibration. This tab lays out seven candidate models, grounded in psychology, cognitive science, and affective computing; names the tradeoffs; and recommends one as v1 with a clear upgrade path.</p>
+
+<div class="slide-fig"><img src="/figures/battery/circumplex.svg" alt="Russell circumplex with Energy, Stress, Fulfillment placed on valence-arousal plane" onclick="openLightbox(this)"><div class="caption">Russell's valence &times; arousal circumplex. "Energy," "stress," and "fulfillment" sit in distinct quadrants. A single scalar cannot preserve this geometry &mdash; which is why several of the models below output a vector, not a number.</div></div>
+
+<div class="callout"><div class="label">Why not just add and subtract?</div>
+<p>The intuitive "meeting = -5, walk = +10, run out the clock" model is wrong for two reasons well-established in the literature:</p>
+<p><strong>(1) Ego-depletion has not replicated.</strong> Vohs et al. (2021) pre-registered multi-lab replication: effect size d &asymp; 0.10, indistinguishable from zero. The original Baumeister (1998) "willpower is a finite resource" framing &mdash; which would justify pure subtraction &mdash; does not survive replication. <em>Any</em> additive model should therefore be treated as a heuristic, not a mechanism.</p>
+<p><strong>(2) Baselines are wildly person-specific.</strong> Facer-Childs et al. (2018) measured chronotype peak-cognitive-performance times: larks peak at 13:52, owls at 20:59. A 3 pm dip is "normal day" for a lark and "red alert" for an owl. An algorithm that doesn't personalize the <em>prior</em> will be wrong for half its users.</p>
+</div>
+
+<details class="section-fold" open><summary>Table of Contents</summary>
+<div class="section-body">
+<div class="toc"><ul>
+  <li><a href="#alg-found">Theoretical foundations</a></li>
+  <li><a href="#alg-principles">Five design principles</a></li>
+  <li><a href="#alg-a">Model A: Linear weighted sum (simplest baseline)</a></li>
+  <li><a href="#alg-b">Model B: Two-compartment dynamical model &mdash; <strong>recommended v1</strong></a></li>
+  <li><a href="#alg-c">Model C: Allostatic load EMA</a></li>
+  <li><a href="#alg-d">Model D: Circadian + ultradian prior</a></li>
+  <li><a href="#alg-e">Model E: Multi-axis vector (E, S, F)</a></li>
+  <li><a href="#alg-f">Model F: Bayesian Kalman filter</a></li>
+  <li><a href="#alg-g">Model G: RL / contextual bandit (speculative)</a></li>
+  <li><a href="#alg-compare">Comparison matrix</a></li>
+  <li><a href="#alg-personal">Personalization tiers (cold &rarr; warm &rarr; stable)</a></li>
+  <li><a href="#alg-roadmap">v1 roadmap &amp; honest limitations</a></li>
+</ul></div>
+</div></details>
+
+<h3 id="alg-found">Theoretical foundations</h3>
+<details class="section-fold"><summary>The 20 theories every model below draws on (one-liners with citations)</summary>
+<div class="section-body">
+<ol class="findings">
+  <li><strong>Effort-Recovery (Meijman &amp; Mulder, 1998).</strong> Load depletes a reserve; recovery restores it; incomplete recovery compounds. Directly motivates two-compartment models.</li>
+  <li><strong>Conservation of Resources (Hobfoll, 1989).</strong> People actively protect resources (time, attention, energy); loss spirals are non-linear. Motivates convex loss in stress accumulation.</li>
+  <li><strong>Job Demands-Resources (Demerouti et al., 2001).</strong> Demands &times; resources interact; high demand + low resource &rarr; burnout. Motivates multiplicative (not additive) coupling between S and E.</li>
+  <li><strong>Cognitive Load Theory (Sweller, 1988).</strong> Working-memory capacity is bounded; intrinsic + extraneous + germane loads sum. Motivates weighting context-switch cost heavily.</li>
+  <li><strong>Attention Residue (Leroy, 2009).</strong> Switching tasks leaves residue that impairs the next task; unfinished tasks leak more residue than finished ones. Motivates a decay term on incomplete-switch penalties.</li>
+  <li><strong>Ego-depletion replication crisis (Vohs et al., 2021).</strong> Effect d &asymp; 0.10 across 36 labs; original effect likely overestimated. <em>Don't</em> use pure subtraction as the mechanism.</li>
+  <li><strong>Flow (Csikszentmihalyi, 1990).</strong> Challenge-skill match &rarr; deep engagement, which is actively energizing (not depleting). Motivates the positive recovery term on long focus sessions.</li>
+  <li><strong>Basic Rest-Activity Cycle (Kleitman, 1963).</strong> ~90&ndash;120 min ultradian oscillation in alertness throughout the day. Motivates the ripple layer in Model D.</li>
+  <li><strong>Chronotype (Facer-Childs et al., 2018).</strong> Lark peak 13:52, owl peak 20:59 &mdash; 7-hour spread in peak cognition. Motivates per-user circadian prior.</li>
+  <li><strong>DRAMMA recovery (Newman, Tay &amp; Diener, 2014).</strong> Six distinct recovery ingredients with different weights. Motivates typed recovery events in Model B.</li>
+  <li><strong>Self-Determination Theory (Deci &amp; Ryan, 2000).</strong> Autonomy, competence, relatedness &rarr; intrinsic motivation &rarr; Fulfillment axis.</li>
+  <li><strong>Allostatic Load (McEwen, 1998).</strong> Repeated activation wears physiology down; slow time constants (days&ndash;weeks). Motivates Model C's EMA on stress.</li>
+  <li><strong>Holt-Lunstad social connection meta-analyses (2010, 2015).</strong> Social isolation OR 1.50 for mortality &mdash; larger than smoking. Motivates +++ weight on affiliation.</li>
+  <li><strong>Zoom Fatigue (Bailenson, 2021; Fauville ZEF scale).</strong> Hyper-gaze, mirror anxiety, reduced mobility specifically deplete beyond equivalent in-person meeting time. Motivates a video-specific drain coefficient.</li>
+  <li><strong>Context switching (Mark et al., 2005 &rarr; 2008 &rarr; 2023).</strong> The popular "23-minute" figure comes from Mark 2005; more recent work shows distribution is heavy-tailed. Motivates convex cost per switch above a daily threshold.</li>
+  <li><strong>Progress Principle (Amabile &amp; Kramer, 2011).</strong> Small daily wins are the single strongest mood predictor. Motivates Fulfillment ratchet on task completions.</li>
+  <li><strong>HRV / Neurovisceral Integration (Thayer, 2009).</strong> Vagal tone indexes executive-function capacity. Motivates HRV as the most direct E-axis input when available.</li>
+  <li><strong>Attention Restoration Theory (Kaplan, 1995; Berman et al., 2008).</strong> 20 min in greenspace restores measurable executive function. Motivates outdoor/daylight minutes as a high-weight recovery event.</li>
+  <li><strong>Sleep debt dose-response (Van Dongen et al., 2003).</strong> Chronic partial sleep restriction produces cognitive deficits equivalent to acute total deprivation, <em>without subjective awareness</em>. Motivates sleep debt as an S-load that we trust over the user's self-report.</li>
+  <li><strong>Russell circumplex (1980).</strong> Affect lives on a valence &times; arousal plane; energy/stress/fulfillment are geometrically distinct. Motivates multi-axis Model E over any single scalar.</li>
+</ol>
+</div></details>
+
+<h3 id="alg-principles">Five design principles</h3>
+<details class="section-fold"><summary>Constraints every candidate model must satisfy</summary>
+<div class="section-body">
+<ol class="findings">
+  <li><strong>Deviations, not absolutes.</strong> A meeting-dense day is normal for a manager and abnormal for a researcher. Score against a personalized prior.</li>
+  <li><strong>Non-linear stress accumulation.</strong> Per CoR, resource loss is convex; per Leroy, switch residue compounds. Use convex (not linear) penalty beyond a daily threshold.</li>
+  <li><strong>Type-weighted recovery.</strong> A scroll-break &ne; a walk-outside. DRAMMA-weight recovery events.</li>
+  <li><strong>Fast energy, slow stress.</strong> E recovers on hours; S unwinds on days. The coupling is not symmetric.</li>
+  <li><strong>Legible to the user.</strong> If the battery drops, the algorithm must be able to answer "why" in one sentence. Black-box models fail this bar.</li>
+</ol>
+</div></details>
+
+<h3 id="alg-a">Model A: Linear weighted sum with exponential decay</h3>
+<details class="section-fold"><summary>The simplest useful baseline &mdash; one scalar, fixed weights, exponential forgetting</summary>
+<div class="section-body">
+<p><strong>Equation:</strong> <code>E(t) = E(t-&Delta;t) &middot; exp(-&Delta;t/&tau;) + &Sigma;<sub>i</sub> w<sub>i</sub> &middot; x<sub>i</sub>(t)</code></p>
+<p>where <code>&tau;</code> is a half-life (say 2 h), <code>x<sub>i</sub></code> are event magnitudes (meeting-minutes, walk-minutes, etc.), and <code>w<sub>i</sub></code> are signed weights (negative for drains, positive for restorers). Clipped to [0, 100].</p>
+
+<p><strong>Pros:</strong> trivially implementable, fully interpretable ("your battery dropped 8 because of a 60-min video meeting"), near-zero calibration needed. Good for a tech demo in week 1.</p>
+<p><strong>Cons:</strong> ignores all five design principles except #5. No personalization, no circadian prior, no stress axis, no type-weighted recovery.</p>
+
+<details class="code-fold"><summary>Python reference</summary>
+<pre class="code-block"><code>def update_score_A(E, events, dt_min, tau_min=120, weights=W):
+    # decay
+    E *= math.exp(-dt_min / tau_min)
+    # add/subtract events
+    for ev in events:
+        E += weights[ev.type] * ev.magnitude
+    return max(0.0, min(100.0, E))
+
+W = {
+    'meeting_video_min': -0.30, 'meeting_f2f_min': -0.15,
+    'context_switch':    -0.40, 'after_hours_msg':  -0.20,
+    'focus_block_min':   +0.25, 'walk_outside_min': +0.80,
+    'social_voice_min':  +0.40, 'task_completed':   +1.50,
+    'sleep_debt_h':      -5.00,
+}</code></pre></details>
+
+<p><strong>Verdict:</strong> ship as Model A for the first week as a sanity check and to sanity-check the display pipeline. Do not leave it in production; it will give chronotype-wrong feedback to half the users.</p>
+</div></details>
+
+<h3 id="alg-b">Model B: Two-compartment dynamical model <span style="color:#0066cc">&#9733; recommended v1</span></h3>
+<details class="section-fold" open><summary>Energy and Stress as coupled state variables with different time constants</summary>
+<div class="section-body">
+<p>Grounded in Effort-Recovery + Allostatic Load + JD-R. Two state variables, E and S, each with their own dynamics. Stress taxes energy; energy recovers on hours, stress unwinds on days.</p>
+
+<div class="slide-fig"><img src="/figures/battery/two_compartment.svg" alt="Two-compartment model of energy and stress with coupling" onclick="openLightbox(this)"><div class="caption">Model B: E (energy, fast time-constant, shown on the battery fill) is pushed around by meetings, focus, breaks, and also taxed by the slower S (stress) compartment. S accumulates from sleep debt, after-hours work, fragmentation, and HRV trend, and only unwinds with detachment + continuous sleep.</div></div>
+
+<p><strong>Equations (discrete, per 5-minute tick):</strong></p>
+<pre class="code-block"><code>dE/dt = recover(t) &minus; drain(t) &minus; &alpha; &middot; S(t)      # E has fast time constant (&tau;<sub>E</sub> &asymp; 2h)
+dS/dt = load(t)    &minus; &beta; &middot; detach(t)              # S has slow time constant (&tau;<sub>S</sub> &asymp; 3d)</code></pre>
+
+<p>where <code>drain</code>/<code>recover</code> aggregate typed events with DRAMMA weights; <code>load</code> aggregates sleep-debt EMA, after-hours ratio, fragmentation, HRV trend; <code>detach</code> aggregates uninterrupted off-work blocks and continuous sleep.</p>
+
+<p><strong>Display mapping:</strong> fill-level = E; hue shifts amber &rarr; red as S &gt; 60; "dangerous state" = low E &times; high S (slow red pulse). Fulfillment (from task completions + mastery minutes) is a secondary accent indicator.</p>
+
+<details class="code-fold"><summary>Python reference</summary>
+<pre class="code-block"><code>def update_state_B(E, S, features, dt_min=5, params=P):
+    tauE = params['tauE_min']    # 120 min
+    tauS_d = params['tauS_days'] # 3 days
+    alpha = params['alpha']      # 0.05 per unit S per hour
+
+    # E-axis terms
+    drain = (features['meeting_video_min'] * 0.30
+           + features['meeting_f2f_min']   * 0.15
+           + features['context_switches']  * 0.40
+           + features['kpm_p95_over_base'] * 0.10)
+    recover = (features['focus_block_min']   * 0.25
+             + features['walk_outside_min']  * 0.80
+             + features['social_voice_min']  * 0.40
+             + features['afk_10plus_min']    * 0.15)
+    dE = (recover - drain) * (dt_min/60) - alpha * S * (dt_min/60)
+    E = max(0.0, min(100.0, E * math.exp(-dt_min/tauE) + dE))
+
+    # S-axis terms
+    load   = (features['sleep_debt_h']        * 2.0
+            + features['after_hours_frac']    * 5.0
+            + features['fragmentation_dev']   * 3.0
+            + max(0, -features['hrv_z'])      * 4.0)
+    detach = (features['continuous_sleep_h']  * 1.0
+            + features['detach_block_min']/60 * 2.0)
+    dS = (load - params['beta'] * detach) * (dt_min / (tauS_d*1440))
+    S = max(0.0, min(100.0, S + dS))
+
+    return E, S</code></pre></details>
+
+<p><strong>Pros:</strong> satisfies principles 2, 3, 4, 5. Axes are legible. Coefficients are small enough to ship sensible defaults and refine per-user over weeks. Matches the mental model users already have ("I'm tired AND stressed" is different from "I'm tired"). This is the <strong>recommended v1</strong>.</p>
+<p><strong>Cons:</strong> still no circadian prior &mdash; it will be wrong in the morning for owls and late for larks. Fix by stacking Model D's prior underneath (see <a href="#alg-d">below</a>).</p>
+</div></details>
+
+<h3 id="alg-c">Model C: Allostatic load EMA</h3>
+<details class="section-fold"><summary>Stress-centric: a slow-moving exponential moving average of stressor load</summary>
+<div class="section-body">
+<p>A minimal version of the S-compartment alone. Useful if you want a single "am I heading for burnout" scalar without tracking short-term energy. Mechanism: multi-day EMA of a stressor vector &mdash; sleep debt, after-hours, video load, HRV trend, no-detachment days.</p>
+
+<pre class="code-block"><code>AL(t) = &lambda; &middot; AL(t&minus;1d) + (1&minus;&lambda;) &middot; stressor_score(t)
+# &lambda; = 0.85 &rarr; half-life ~ 4 days</code></pre>
+
+<p><strong>Display mapping:</strong> battery color (green/amber/red) is driven by AL; fill level is separate and driven by Model A or B energy.</p>
+<p><strong>Pros:</strong> captures the McEwen "chronic load" mechanism, which is what burnout research actually tracks. Drift is slow &mdash; a single bad day doesn't panic the display.</p>
+<p><strong>Cons:</strong> doesn't react fast enough to acute events. Alone, it can't drive a real-time battery. It's a complement to Model B, not a replacement.</p>
+</div></details>
+
+<h3 id="alg-d">Model D: Circadian + ultradian prior</h3>
+<details class="section-fold"><summary>Personalized baseline curve; signals are weighted as deviations from it</summary>
+<div class="section-body">
+<p>Grounded in Kleitman + Facer-Childs. Every user has a baseline expected-energy curve that depends on chronotype (lark / intermediate / owl) and the time of day. Signals are then weighted as <em>deviations from this prior</em>, not absolute values.</p>
+
+<div class="slide-fig"><img src="/figures/battery/circadian_prior.svg" alt="Lark vs owl baseline expected-energy curves across a day with ultradian ripples" onclick="openLightbox(this)"><div class="caption">Model D's prior layer: lark peaks ~14:00, owl peaks ~21:00 (per Facer-Childs 2018), with ~90-min BRAC ripples on top. A 3 pm dip for a lark is expected; for an owl, it's a warning.</div></div>
+
+<pre class="code-block"><code>def expected_energy(t, chronotype):
+    peak_h = {'lark':13.87, 'intermediate':16.0, 'owl':20.98}[chronotype]
+    # broad circadian envelope (cosine peaking at peak_h)
+    envelope = 50 + 30 * math.cos(2*math.pi * (t.hour + t.minute/60 - peak_h) / 24)
+    # ultradian ripple (~90 min)
+    ripple   = 5 * math.sin(2*math.pi * (t.hour + t.minute/60) / 1.5)
+    return envelope + ripple
+
+def update_score_D(E_obs, t, chronotype, features):
+    prior = expected_energy(t, chronotype)
+    delta = sum(W[k]*features[k] for k in features)
+    return prior + delta   # deviations from personalized prior</code></pre>
+
+<p><strong>Pros:</strong> addresses principle #1 directly. Critical for chronotype-diverse users &mdash; half the user base otherwise gets wrong feedback. Only one piece of calibration needed (chronotype, from the 5-question MCTQ-Munich Chronotype Questionnaire).</p>
+<p><strong>Cons:</strong> a prior alone isn't a model &mdash; this should stack <em>under</em> Model B, not replace it.</p>
+</div></details>
+
+<h3 id="alg-e">Model E: Multi-axis vector (E, S, F)</h3>
+<details class="section-fold"><summary>Three distinct scalars mapped to three distinct display features</summary>
+<div class="section-body">
+<p>Grounded in Russell's circumplex + SDT + Progress Principle. Rather than collapse to one number, the state is a 3-vector &mdash; Energy, Stress, Fulfillment &mdash; each with its own update rule.</p>
+
+<pre class="code-block"><code>def update_vector_E(state, features, dt_min):
+    E, S, F = state
+    E = update_E_with_circadian_prior(E, features, dt_min)   # from Model D+B
+    S = update_S_allostatic(S, features, dt_min)             # from Model C
+    F_delta = (features['tasks_done_hi_prio']   * 3.0
+             + features['mastery_minutes']      * 0.05
+             + features['meaning_tagged_min']   * 0.08
+             + features['social_voice_min']     * 0.10
+             - features['carry_over_tasks']     * 1.0)
+    F = max(0.0, min(100.0, F*0.95 + F_delta))  # gentle decay toward 0
+    return (E, S, F)
+
+def display_decode(E, S, F):
+    return {
+      'fill_level':  E,                              # battery fill
+      'hue_shift':   min(1.0, S/60),                 # amber-to-red
+      'pulse_speed': 0 if S&lt;40 else (S-40)/60,       # 0..1 pulse as S climbs
+      'accent_glow': max(0, min(1, (F-50)/50)),      # secondary LED
+      'alert':       (E&lt;20 and S&gt;70),                # danger state
+    }</code></pre>
+
+<p><strong>Pros:</strong> matches the psychology. Distinguishes "tired but content" (low E, low S, high F &mdash; a good Friday afternoon) from "tired and depleted" (low E, high S, low F &mdash; a bad Thursday). Only Model E can render that difference.</p>
+<p><strong>Cons:</strong> harder to explain to users in one sentence. The hardware has to support the multi-channel display (we planned for this: fill + hue + accent).</p>
+</div></details>
+
+<h3 id="alg-f">Model F: Bayesian Kalman filter</h3>
+<details class="section-fold"><summary>Treat E and S as latent states; signals are noisy observations</summary>
+<div class="section-body">
+<p>Treat E, S as latent states evolving per Model B's linear dynamics. Each signal (HRV, focus-minutes, meeting-density, etc.) is a noisy observation of a linear combination of E and S. Standard Kalman update gives a posterior + uncertainty.</p>
+
+<details class="code-fold"><summary>Numpy sketch</summary>
+<pre class="code-block"><code>import numpy as np
+# state x = [E, S]
+def kalman_update_F(x, P, z, A, H, Q, R):
+    # predict
+    x = A @ x
+    P = A @ P @ A.T + Q
+    # update with observation z
+    y = z - H @ x
+    S = H @ P @ H.T + R
+    K = P @ H.T @ np.linalg.inv(S)
+    x = x + K @ y
+    P = (np.eye(2) - K @ H) @ P
+    return x, P</code></pre></details>
+
+<p><strong>Pros:</strong> explicit uncertainty (the battery could dim its certainty: a crisp fill when confident, a fuzzy one when signals are sparse). Gracefully handles missing signals (e.g. wearable not worn today).</p>
+<p><strong>Cons:</strong> needs per-user variance estimates to work well &mdash; that's weeks of passive data. Less legible than Model B.</p>
+</div></details>
+
+<h3 id="alg-g">Model G: RL / contextual bandit (speculative)</h3>
+<details class="section-fold"><summary>Let the device learn which interventions actually restore <em>this user's</em> energy</summary>
+<div class="section-body">
+<p>Concept: after N weeks of data, train a contextual-bandit policy that suggests interventions ("take a walk now"? "close Slack for 30 min"?) and observes downstream E-axis change as reward. Interventions are arms; context is the current state vector.</p>
+<p><strong>Pros:</strong> per-user personalization without asking the user anything. In principle, the device gets smarter the longer you own it.</p>
+<p><strong>Cons:</strong> only honest if we have a closed intervention loop on the device (nudge &rarr; behavior &rarr; measured change). Also ethically loaded &mdash; nudging is a design decision, not a data-science decision.</p>
+<p><strong>Verdict:</strong> v3 or later. Not a day-one priority. Worth mentioning so the architecture doesn't foreclose it.</p>
+</div></details>
+
+<h3 id="alg-compare">Comparison matrix</h3>
+<details class="section-fold" open><summary>Tradeoffs at a glance</summary>
+<div class="section-body">
+<table class="components"><thead><tr><th>Model</th><th>Complexity</th><th>Interpretable?</th><th>Data needed</th><th>Personalization</th><th>Axes separated?</th><th>Grounded in</th><th>Use for</th></tr></thead><tbody>
+<tr><td>A: Linear sum</td><td>Very low</td><td>Yes</td><td>Day 1</td><td>None</td><td>No</td><td>Heuristic</td><td>Display sanity check, week 1</td></tr>
+<tr><td><strong>B: 2-compartment</strong></td><td>Medium</td><td>Yes</td><td>Day 1</td><td>Light (weights)</td><td>E, S</td><td>Effort-Recovery, JD-R, Allostatic Load</td><td><strong>v1 shipping model</strong></td></tr>
+<tr><td>C: Allostatic EMA</td><td>Low</td><td>Yes</td><td>1&ndash;2 weeks</td><td>None at start</td><td>S only</td><td>McEwen allostatic load</td><td>Color layer, stacks with B</td></tr>
+<tr><td>D: Circadian prior</td><td>Low</td><td>Yes</td><td>1 question (MCTQ)</td><td>Chronotype</td><td>E prior</td><td>Kleitman, Facer-Childs</td><td>Prior layer, stacks under B</td></tr>
+<tr><td>E: 3-axis vector</td><td>Medium</td><td>Yes</td><td>Day 1 + completions</td><td>Per-axis</td><td><strong>E, S, F</strong></td><td>Russell, SDT, Progress Principle</td><td>v2, needs accent indicator</td></tr>
+<tr><td>F: Kalman filter</td><td>High</td><td>Medium</td><td>2&ndash;4 weeks</td><td>Per-user variances</td><td>E, S</td><td>Bayesian state-space</td><td>v3 upgrade to B</td></tr>
+<tr><td>G: RL bandit</td><td>Very high</td><td>Low</td><td>Months + closed loop</td><td>Full</td><td>Any</td><td>Contextual bandits</td><td>Research direction</td></tr>
+</tbody></table>
+<p><strong>Recommended architecture:</strong> ship Model B as the core, stack Model D's chronotype prior underneath, layer Model C's multi-day EMA to drive color separately from fill, and leave a Model E hook so the secondary F-axis indicator is populated from day one. That composite is what v1 should be.</p>
+</div></details>
+
+<h3 id="alg-personal">Personalization tiers</h3>
+<details class="section-fold"><summary>Cold start &rarr; warm &rarr; stable, with one-time calibration that stays in scope</summary>
+<div class="section-body">
+<p>The user asked for "one-time user-report for calibration" to be acceptable. That gives us three tiers:</p>
+
+<h4>Cold start (day 0 &mdash; one 90-second survey)</h4>
+<ul class="findings">
+  <li><strong>MCTQ (Munich Chronotype Questionnaire, short form):</strong> 5 items, chronotype in minutes. Sets Model D's <code>peak_h</code>. Validated Roenneberg et al.</li>
+  <li><strong>BFI-2-S Extraversion subscale (6 items, ~40 s):</strong> high extraversion &rarr; upweight social-affiliation recovery; low extraversion &rarr; upweight solo recovery.</li>
+  <li><strong>UWES-3 engagement baseline (3 items):</strong> gives a fulfillment-scale zero-point so the F-axis isn't stuck at the user's average.</li>
+  <li><strong>Work pattern declarations:</strong> typical start/end hours, remote/hybrid/office. Sets the "after-hours" threshold individually.</li>
+</ul>
+
+<h4>Warm phase (days 1&ndash;14)</h4>
+<ul class="findings">
+  <li>Per-user mean and SD for every feature are learned (meeting_density, msgs_per_hour, focus_block_length, HRV, etc.).</li>
+  <li>All features are z-scored against the user's own baseline from here on.</li>
+  <li>The weights in Model B stay at shipped defaults &mdash; we don't have enough labels yet to re-fit.</li>
+</ul>
+
+<h4>Stable phase (day 14+)</h4>
+<ul class="findings">
+  <li>Periodic (weekly) reweighting of Model B coefficients, if we have any label signal at all (e.g. the user occasionally taps a "was this about right?" button on the battery).</li>
+  <li>Kalman (Model F) becomes viable: per-user observation noise and process noise are estimable.</li>
+  <li>Optional: chronotype can be refined from observed typing/activity rhythm rather than self-report.</li>
+</ul>
+</div></details>
+
+<h3 id="alg-roadmap">v1 roadmap &amp; honest limitations</h3>
+<details class="section-fold" open><summary>Six shipping steps and what we know will be wrong at first</summary>
+<div class="section-body">
+<ol class="findings">
+  <li><strong>Week 1:</strong> Model A + 7-signal MVP stack. Validate the data pipeline and display path end-to-end. Accept that the scores themselves will be noisy.</li>
+  <li><strong>Week 2:</strong> Swap in Model B with shipped default coefficients. Stack Model D's chronotype prior underneath (ask for MCTQ at onboarding).</li>
+  <li><strong>Week 3&ndash;4:</strong> Start computing per-user z-scores for every feature; begin driving Model C's color layer from allostatic EMA, decoupled from fill level.</li>
+  <li><strong>Week 5&ndash;6:</strong> Populate Model E's F-axis from task completions + mastery minutes; wire to the accent indicator.</li>
+  <li><strong>Month 2+:</strong> Add a single "was this right?" button. Accumulate labels. Begin coefficient refitting.</li>
+  <li><strong>Month 3+:</strong> Upgrade to Model F (Kalman) per user with enough data. Consider Model G research pilot.</li>
+</ol>
+
+<div class="callout"><div class="label">What we know will be imperfect on day 1</div>
+<ul class="findings">
+  <li><strong>Chronotype self-report is noisy.</strong> MCTQ has test-retest of ~0.8; some users will be miscategorized.</li>
+  <li><strong>Default coefficients won't fit you perfectly.</strong> Expect 2&ndash;4 weeks before the battery "feels right."</li>
+  <li><strong>Wearable-less mode is a degraded mode.</strong> Without HRV, the S-axis is estimated from behavior alone and will lag acute changes.</li>
+  <li><strong>Fulfillment is the hardest axis to measure passively.</strong> Task completions are a proxy; we'll under-capture creative and relational meaning.</li>
+  <li><strong>Chronic stress and burnout are not the same as "bad day."</strong> Model C's slow EMA helps, but we should not claim clinical validity; the device is a research prototype.</li>
+</ul></div>
+</div></details>
+
 </div>
 
 <!-- ===== LED BUILD GUIDE ===== -->

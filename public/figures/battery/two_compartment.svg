@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrDrain" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrRecov" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#059669"/>
+    </marker>
+    <marker id="arrCouple" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="560" fill="#fafafa"/>
+  <text x="450" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="#222">Two-Compartment Dynamical Model</text>
+  <text x="450" y="54" text-anchor="middle" font-size="13" fill="#666">Energy (E) and Stress (S) as coupled state variables. Inputs perturb; recovery restores; stress taxes energy over time.</text>
+
+  <!-- Energy compartment -->
+  <g transform="translate(120,150)">
+    <rect width="220" height="150" fill="#fef3c7" stroke="#b45309" stroke-width="2.5" rx="10"/>
+    <text x="110" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="#b45309">Energy compartment (E)</text>
+    <text x="110" y="52" text-anchor="middle" font-size="11" fill="#92400e">short time-constant (hours)</text>
+    <!-- level indicator -->
+    <rect x="20" y="70" width="180" height="22" fill="#fff" stroke="#b45309" stroke-width="1.5" rx="3"/>
+    <rect x="22" y="72" width="120" height="18" fill="#f59e0b" rx="2"/>
+    <text x="110" y="87" text-anchor="middle" font-size="10" fill="#7c2d12" font-weight="600">E(t) = 66</text>
+    <text x="110" y="115" text-anchor="middle" font-size="10" fill="#7c2d12">dE/dt = recov(t) − drain(t) − α·S(t)</text>
+    <text x="110" y="132" text-anchor="middle" font-size="9" fill="#92400e" font-style="italic">"the battery you see"</text>
+  </g>
+
+  <!-- Stress compartment -->
+  <g transform="translate(560,150)">
+    <rect width="220" height="150" fill="#fee2e2" stroke="#991b1b" stroke-width="2.5" rx="10"/>
+    <text x="110" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="#991b1b">Stress compartment (S)</text>
+    <text x="110" y="52" text-anchor="middle" font-size="11" fill="#7f1d1d">long time-constant (days)</text>
+    <!-- level indicator -->
+    <rect x="20" y="70" width="180" height="22" fill="#fff" stroke="#991b1b" stroke-width="1.5" rx="3"/>
+    <rect x="22" y="72" width="78" height="18" fill="#dc2626" rx="2"/>
+    <text x="110" y="87" text-anchor="middle" font-size="10" fill="#7f1d1d" font-weight="600">S(t) = 43</text>
+    <text x="110" y="115" text-anchor="middle" font-size="10" fill="#7f1d1d">dS/dt = load(t) − β·detach(t)</text>
+    <text x="110" y="132" text-anchor="middle" font-size="9" fill="#7f1d1d" font-style="italic">"allostatic load, slow moving"</text>
+  </g>
+
+  <!-- Coupling arrow: S drains E (alpha) -->
+  <line x1="560" y1="225" x2="340" y2="225" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrCouple)"/>
+  <text x="450" y="215" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="700">α — stress taxes energy</text>
+  <text x="450" y="243" text-anchor="middle" font-size="10" fill="#7c3aed" font-style="italic">(chronic stress reduces available cognitive capacity)</text>
+
+  <!-- Drain inputs to E -->
+  <g transform="translate(40,350)">
+    <text x="0" y="0" font-size="12" font-weight="700" fill="#dc2626">Drains E:</text>
+    <text x="0" y="20" font-size="10" fill="#555">• back-to-back meetings</text>
+    <text x="0" y="36" font-size="10" fill="#555">• context-switch bursts</text>
+    <text x="0" y="52" font-size="10" fill="#555">• video-call duration</text>
+    <text x="0" y="68" font-size="10" fill="#555">• notification bursts</text>
+  </g>
+  <line x1="150" y1="345" x2="175" y2="300" stroke="#dc2626" stroke-width="1.8" marker-end="url(#arrDrain)"/>
+
+  <!-- Recovery inputs to E -->
+  <g transform="translate(370,350)">
+    <text x="0" y="0" font-size="12" font-weight="700" fill="#059669">Restores E:</text>
+    <text x="0" y="20" font-size="10" fill="#555">• uninterrupted focus block (flow)</text>
+    <text x="0" y="36" font-size="10" fill="#555">• outdoor / nature minutes</text>
+    <text x="0" y="52" font-size="10" fill="#555">• AFK ≥ 10 min</text>
+    <text x="0" y="68" font-size="10" fill="#555">• synchronous voice/in-person social</text>
+  </g>
+  <line x1="480" y1="345" x2="260" y2="300" stroke="#059669" stroke-width="1.8" marker-end="url(#arrRecov)"/>
+
+  <!-- Load inputs to S -->
+  <g transform="translate(620,350)">
+    <text x="0" y="0" font-size="12" font-weight="700" fill="#991b1b">Loads S:</text>
+    <text x="0" y="20" font-size="10" fill="#555">• sleep debt (7-day EMA)</text>
+    <text x="0" y="36" font-size="10" fill="#555">• after-hours work</text>
+    <text x="0" y="52" font-size="10" fill="#555">• fragmentation over baseline</text>
+    <text x="0" y="68" font-size="10" fill="#555">• declining HRV trend</text>
+  </g>
+  <line x1="720" y1="345" x2="680" y2="300" stroke="#991b1b" stroke-width="1.8" marker-end="url(#arrDrain)"/>
+
+  <!-- Detachment input to S (negative) -->
+  <g transform="translate(460,455)">
+    <text x="0" y="0" font-size="11" font-weight="700" fill="#059669">Detaches S (resets load):</text>
+    <text x="0" y="18" font-size="10" fill="#555">• psychological detachment block (evenings, weekends with no work)</text>
+    <text x="0" y="34" font-size="10" fill="#555">• sleep continuity ≥ 7 h for consecutive nights</text>
+  </g>
+  <line x1="600" y1="458" x2="660" y2="300" stroke="#059669" stroke-width="1.8" marker-end="url(#arrRecov)"/>
+
+  <!-- Display mapping -->
+  <g transform="translate(30,510)">
+    <rect width="840" height="40" fill="#fff" stroke="#ccc" rx="4"/>
+    <text x="18" y="24" font-size="11" fill="#333"><tspan font-weight="700">Display:</tspan> fill level = E(t). Hue shift from amber → red as S(t) crosses ~60. Low E + high S = "dangerous state" (red, slow pulse).</text>
+  </g>
+</svg>
