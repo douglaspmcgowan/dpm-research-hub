@@ -627,226 +627,211 @@ return pageWrapper({ title: 'McComb: AI & the Soul of Design', icon: '\uD83E\uDD
 // ═══════════════════════════════════════════════════
 function buildHorwitz() {
 return pageWrapper({ title: 'Eliahu Horwitz: Weight Space Learning', icon: '\uD83E\uDDE0', body: `
-<div class="hero" style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#312e81 100%)">
-  <h1>Eliahu Horwitz</h1>
-  <p class="subtitle">Weight space learning, model forensics, and dataset distillation &mdash; four recent papers treating neural networks as data</p>
-  <div class="meta"><span>Hebrew University of Jerusalem</span><span>Google PhD Fellow</span><span>Advisor: Yedid Hoshen</span><span>2025</span></div>
-</div>
-<nav class="nav"><div class="nav-inner">
-  <button class="nav-tab active" onclick="showSection('hoverview',this)">Overview</button>
-  <button class="nav-tab" onclick="showSection('atlas',this)">Model Atlas</button>
-  <button class="nav-tab" onclick="showSection('probex',this)">ProbeX</button>
-  <button class="nav-tab" onclick="showSection('mother',this)">MoTHer</button>
-  <button class="nav-tab" onclick="showSection('podd',this)">PoDD</button>
-</div></nav>
-<div class="container">
-<a href="/" class="back-link">&larr; Research Hub</a>
+<div class="editorial">
+<style>
+.editorial{--paper:#FBF8F1;--ink:#1C1712;--ink-soft:#4a3f33;--rule:#d8cfbd;--accent-ed:#1F4E8C;--accent-ed-soft:#5d84b5;background:var(--paper);color:var(--ink);font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;line-height:1.7;position:relative;min-height:100vh;}
+[data-theme="dark"] .editorial{--paper:#10141a;--ink:#e8edf5;--ink-soft:#a4b0c5;--rule:#2a3545;--accent-ed:#7fa8d9;--accent-ed-soft:#9dbee3;}
+.editorial *{color:inherit;}
+.editorial .grain{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0.32;mix-blend-mode:multiply;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.08 0 0 0 0 0.09 0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");}
+[data-theme="dark"] .editorial .grain{mix-blend-mode:screen;opacity:0.12;}
+.editorial .ed-wrap{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:3.5rem 1.75rem 5rem;}
+.editorial .ed-back{display:inline-block;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;margin-bottom:2.5rem;border-bottom:1px solid transparent;transition:border-color 0.2s,color 0.2s;}
+.editorial .ed-back:hover{color:var(--accent-ed);border-bottom-color:var(--accent-ed);}
+.editorial .masthead{border-top:3px double var(--ink);border-bottom:1px solid var(--rule);padding:1.75rem 0 2.25rem;margin-bottom:3rem;}
+.editorial .folio{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+.editorial .folio .folio-dot{color:var(--accent-ed);margin:0 0.6em;}
+.editorial .ed-title{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(2.2rem,5.8vw,3.6rem);line-height:1.08;letter-spacing:-0.015em;margin:0 0 1.25rem;color:var(--ink);}
+.editorial .ed-dek{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-size:1.15rem;line-height:1.55;color:var(--ink-soft);font-weight:400;margin:0 0 1.5rem;max-width:58ch;}
+.editorial .ed-byline{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft);}
+.editorial .ed-byline .byline-sep{margin:0 0.55em;color:var(--accent-ed);}
+.editorial .section-mark{display:flex;align-items:baseline;gap:1rem;margin:4rem 0 1.25rem;padding-top:2rem;border-top:1px solid var(--rule);}
+.editorial .section-num{display:inline-block;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent-ed);border:1px solid var(--accent-ed);padding:0.2rem 0.55rem;border-radius:2px;flex-shrink:0;font-weight:600;}
+.editorial .section-title{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(1.6rem,3.5vw,2.15rem);line-height:1.2;margin:0;letter-spacing:-0.01em;color:var(--ink);}
+.editorial h3.ed-h3{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-style:italic;font-weight:400;font-size:1.35rem;margin:2.5rem 0 0.75rem;letter-spacing:-0.005em;color:var(--ink);}
+.editorial h4.ed-h4{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent-ed);margin:2rem 0 0.5rem;font-weight:600;}
+.editorial p{font-size:1.08rem;line-height:1.75;margin:0 0 1.2rem;color:var(--ink);font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;}
+.editorial p.lede{font-size:1.12rem;}
+.editorial p.lede::first-letter{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-weight:700;font-size:4.4rem;line-height:0.9;float:left;padding:0.35rem 0.6rem 0 0;margin:0.15rem 0.1rem 0 0;color:var(--accent-ed);font-style:normal;}
+.editorial strong{font-weight:600;color:var(--ink);}
+.editorial em{font-style:italic;}
+.editorial a.ed-link{color:var(--accent-ed);text-decoration:none;border-bottom:1px solid var(--accent-ed-soft);transition:border-color 0.15s,color 0.15s;}
+.editorial a.ed-link:hover{color:var(--ink);border-bottom-color:var(--ink);}
+.editorial a.cite{display:inline-block;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72em;vertical-align:super;line-height:1;color:var(--accent-ed);text-decoration:none;padding:0 0.1em;font-weight:600;position:relative;}
+.editorial a.cite:hover{color:var(--ink);}
+.editorial a.cite[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;line-height:1.35;padding:0.5rem 0.65rem;border-radius:3px;white-space:normal;width:max-content;max-width:260px;z-index:10;letter-spacing:0.02em;text-transform:none;font-weight:400;pointer-events:none;box-shadow:0 3px 8px rgba(0,0,0,0.18);}
+.editorial .pull{border-left:3px solid var(--accent-ed);padding:0.5rem 0 0.5rem 1.5rem;margin:2.5rem 0;}
+.editorial .pull p{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-style:italic;font-size:1.35rem;line-height:1.45;color:var(--ink);margin:0;}
+.editorial .meta-label{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-ed);font-weight:600;display:block;margin-bottom:0.35rem;}
+.editorial ol.findings-ed{list-style:none;counter-reset:findings;padding:0;margin:1.5rem 0 2rem;}
+.editorial ol.findings-ed li{counter-increment:findings;position:relative;padding:0.85rem 0 0.85rem 3rem;border-bottom:1px solid var(--rule);font-size:1.05rem;line-height:1.65;}
+.editorial ol.findings-ed li::before{content:counter(findings,decimal-leading-zero);position:absolute;left:0;top:0.95rem;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.1em;color:var(--accent-ed);font-weight:600;}
+.editorial ol.findings-ed li:last-child{border-bottom:none;}
+.editorial details.expandable{margin:3.5rem 0 1.5rem;border-top:2px solid var(--ink);padding-top:1.25rem;}
+.editorial details.expandable summary{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.8rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink);cursor:pointer;list-style:none;display:flex;align-items:center;gap:0.6rem;font-weight:600;}
+.editorial details.expandable summary::before{content:'+';font-family:'Source Serif 4',Georgia,serif;font-size:1.4rem;font-weight:400;color:var(--accent-ed);line-height:1;transition:transform 0.2s;}
+.editorial details.expandable[open] summary::before{content:'\u2013';}
+.editorial ol.reflist{list-style:none;counter-reset:refs;padding:0;margin:1.5rem 0 0;}
+.editorial ol.reflist li{counter-increment:refs;position:relative;padding:0.75rem 0 0.75rem 2.5rem;font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-size:0.95rem;line-height:1.55;color:var(--ink);border-bottom:1px solid var(--rule);scroll-margin-top:4rem;}
+.editorial ol.reflist li::before{content:'[' counter(refs) ']';position:absolute;left:0;top:0.78rem;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;letter-spacing:0.04em;color:var(--accent-ed);font-weight:600;}
+.editorial ol.reflist li:last-child{border-bottom:none;}
+.editorial ol.reflist li:target{background:rgba(31,78,140,0.08);padding-left:2.75rem;}
+.editorial ol.reflist .ref-authors{color:var(--ink-soft);}
+.editorial ol.reflist .ref-title{font-style:italic;}
+.editorial ol.reflist .ref-venue{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.78rem;color:var(--ink-soft);letter-spacing:0.02em;display:block;margin-top:0.2rem;}
+.editorial ol.reflist a{color:var(--accent-ed);text-decoration:none;border-bottom:1px solid var(--accent-ed-soft);}
+.editorial ol.reflist a:hover{color:var(--ink);border-bottom-color:var(--ink);}
+.editorial .divider{text-align:center;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.85rem;color:var(--rule);letter-spacing:0.6em;margin:3rem 0 2.5rem;padding-right:0;}
+.editorial hr.rule{border:none;border-top:1px solid var(--rule);margin:2.5rem 0;}
+.editorial table.comp-table{width:100%;border-collapse:collapse;font-size:0.92rem;margin:1.25rem 0 2rem;font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;}
+.editorial table.comp-table th,.editorial table.comp-table td{text-align:left;padding:0.65rem 0.75rem;border-bottom:1px solid var(--rule);vertical-align:top;}
+.editorial table.comp-table thead th{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-ed);font-weight:600;border-bottom:2px solid var(--ink);}
+.editorial table.comp-table tbody th{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;width:34%;}
+</style>
+<div class="grain"></div>
+<div class="ed-wrap">
+<a href="/" class="ed-back">&larr; Research Hub</a>
 
-<!-- ===== OVERVIEW ===== -->
-<div class="section active" id="sec-hoverview">
-<h2>The Big Idea</h2>
-<p>Eliahu Horwitz is a PhD student and Google PhD Fellow at the Hebrew University of Jerusalem whose research asks a deceptively simple question: <strong>what if we treated trained neural networks not as tools, but as data?</strong></p>
-<p>The insight driving this line of work is that the weights of a trained neural network encode rich information about what the model was trained on, how it was trained, and where it came from. Public model repositories like Hugging Face now contain over a million models, and their weights are a vast, largely untapped data source. Horwitz's research program &mdash; which he calls <strong>Weight Space Learning</strong> &mdash; develops methods to extract, structure, and reason about this information.</p>
+<header class="masthead">
+  <div class="folio"><span>Horwitz<span class="folio-dot">&bull;</span>Research Note<span class="folio-dot">&bull;</span>Vol.&nbsp;I</span><span>April&nbsp;2026</span></div>
+  <h1 class="ed-title">Neural networks, read as data</h1>
+  <p class="ed-dek">Eliahu Horwitz's weight-space research asks what trained models reveal about themselves &mdash; their ancestors, their training data, and the structure of the ecosystem they inhabit.</p>
+  <div class="ed-byline">Douglas McGowan<span class="byline-sep">&#x2022;</span>UC Berkeley<span class="byline-sep">&#x2022;</span>Reading notes on four papers: Model Atlas, ProbeX, MoTHer, PoDD</div>
+</header>
 
-<div class="tags">
-  <span class="tag">Weight Space Learning</span><span class="tag">Model Forensics</span><span class="tag">Model Trees</span><span class="tag">Dataset Distillation</span><span class="tag">Computer Vision</span><span class="tag">Neural Network Analysis</span><span class="tag">Google PhD Fellow</span>
-</div>
+<section>
+<div class="section-mark"><span class="section-num">I</span><h2 class="section-title">The big idea</h2></div>
+<p class="lede">Eliahu Horwitz is a PhD student and Google PhD Fellow at the Hebrew University of Jerusalem,<a href="#ref-1" class="cite" data-tip="Horwitz personal site, HUJI">[1]</a> working with Yedid Hoshen. His research starts from a deceptively plain question: <em>what if trained neural networks were treated as data, rather than as tools?</em> Public repositories like Hugging Face now host millions of models, each one a dense encoding of what it was trained on, how it was tuned, and where it came from. Those weights are a largely unexplored corpus, and Horwitz's program &mdash; he calls it <strong>weight space learning</strong><a href="#ref-2" class="cite" data-tip="Publications index, horwitz.ai">[2]</a> &mdash; develops methods to read them.</p>
+<p>Four papers sit at the center of that program. <strong>MoTHer</strong><a href="#ref-3" class="cite" data-tip="Unsupervised Model Tree Heritage Recovery, ICLR 2025">[3]</a> recovers model genealogies from weights alone. <strong>ProbeX</strong><a href="#ref-4" class="cite" data-tip="Learning on Model Weights using Tree Experts, CVPR 2025">[4]</a> turns those genealogies into practical representations of individual model behaviour. <strong>Model Atlas</strong><a href="#ref-5" class="cite" data-tip="We Should Chart an Atlas of All the World's Models, NeurIPS 2025">[5]</a> zooms out to argue we should be charting the population of neural networks the way biologists chart species. <strong>PoDD</strong><a href="#ref-6" class="cite" data-tip="Distilling Datasets Into Less Than One Image, TMLR 2025">[6]</a> is thematically adjacent: rather than compressing models, it compresses the training data itself, pushing distillation below one image per class.</p>
 
-<h3>How the Papers Connect</h3>
-<p>The four papers form a logical progression, from foundational observations to practical tools to a sweeping vision:</p>
+<div class="pull"><p>Just as biologists chart species and librarians chart books, Horwitz argues, ML needs an atlas of its own outputs &mdash; and methods that can infer a model's lineage and training data directly from its weights.</p></div>
 
-<div class="flow-diagram">
-  <div class="flow-node"><strong>MoTHer</strong><br>ICLR 2025<br><em>Recover model genealogy</em></div>
-  <span class="flow-arrow">&rarr;</span>
-  <div class="flow-node"><strong>ProbeX</strong><br>CVPR 2025<br><em>Learn from weights within trees</em></div>
-  <span class="flow-arrow">&rarr;</span>
-  <div class="flow-node"><strong>Model Atlas</strong><br>NeurIPS 2025<br><em>Chart the global ecosystem</em></div>
-</div>
+<h3 class="ed-h3">Four threads, one instinct</h3>
+<ol class="findings-ed">
+  <li><strong>Models are a data modality.</strong> Weights, not just outputs, deserve the kind of systematic treatment we give images, text, and audio.</li>
+  <li><strong>The model ecosystem is a tree, not a cloud.</strong> Most public models descend from a small set of foundation models. That structure is load-bearing for everything else.</li>
+  <li><strong>Data-free and unsupervised by default.</strong> Real-world models rarely ship with documentation or training data, so the methods need to work without either.</li>
+  <li><strong>Scale is the point.</strong> MoTHer recovers trees with 500+ nodes from in-the-wild Hugging Face families;<a href="#ref-3" class="cite" data-tip="MoTHer results section">[3]</a> Model Atlas analyses more than 63,000 documented relationships.<a href="#ref-5" class="cite" data-tip="Model Atlas paper, arXiv 2503.10633">[5]</a></li>
+</ol>
 
-<p><strong>MoTHer</strong> discovers that model weights encode genealogical information and develops methods to recover model family trees. <strong>ProbeX</strong> builds on the "Model Trees" insight to develop practical probing methods that learn from weights within a tree. <strong>Model Atlas</strong> takes the broadest view, proposing a unified graph structure mapping the entire global population of neural networks. <strong>PoDD</strong> is thematically adjacent &mdash; it treats training data itself as compressible, pushing the boundaries of how information can be distilled and represented.</p>
+<table class="comp-table">
+<thead><tr><th>Paper</th><th>Venue</th><th>Role in the program</th></tr></thead>
+<tbody>
+<tr><th>MoTHer</th><td>ICLR 2025</td><td>Foundational: weights encode genealogy</td></tr>
+<tr><th>ProbeX</th><td>CVPR 2025</td><td>Method: learn from weights inside a tree</td></tr>
+<tr><th>Model Atlas</th><td>NeurIPS 2025 (Position)</td><td>Vision: chart the global population</td></tr>
+<tr><th>PoDD</th><td>TMLR 2025</td><td>Adjacent: compressing data, not models</td></tr>
+</tbody>
+</table>
+</section>
 
-<h3>Key Themes Across the Work</h3>
-<ul class="findings">
-  <li><strong>Models as a data modality.</strong> Just as images, text, and audio are studied as data types, Horwitz argues that trained model weights deserve the same systematic treatment. This is a paradigm shift from "models as tools" to "models as objects of study."</li>
-  <li><strong>The Model Tree structure.</strong> A recurring observation: most public models aren't trained from scratch but are fine-tuned from a small number of foundation models, creating tree structures. This structure dramatically reduces the complexity of weight-space learning.</li>
-  <li><strong>Unsupervised and data-free methods.</strong> A methodological commitment: the best methods for analyzing model populations should work without requiring training data or manual annotations, because most real-world models lack both.</li>
-  <li><strong>Practical scale.</strong> These aren't toy demonstrations. MoTHer recovers trees with 500+ nodes from real Hugging Face models. The Model Atlas analyzes 63,000+ documented relationships. This work operates at the scale of the actual model ecosystem.</li>
+<section>
+<div class="section-mark"><span class="section-num">II</span><h2 class="section-title">MoTHer &mdash; reading family trees from weights</h2></div>
+<p><span class="meta-label">Horwitz, Shul &amp; Hoshen &mdash; ICLR 2025</span>When a model is uploaded to Hugging Face, nothing forces the uploader to say where it came from. Was it fine-tuned from Llama? Which version? With what adapter? Most don't say. The result, Horwitz and co-authors argue, is a <strong>provenance crisis</strong>: millions of models with almost no reliable genealogical information.<a href="#ref-3" class="cite" data-tip="MoTHer paper, arXiv 2405.18432">[3]</a></p>
+<p>The stakes go beyond curiosity. If a foundation model is later found to have been trained on copyrighted data, which of its thousands of descendants inherit the liability? If a safety flaw is discovered upstream, which downstream models propagate it? Without provenance, those questions have no answer.</p>
+
+<h3 class="ed-h3">Two observations about weights</h3>
+<p>MoTHer &mdash; Model Tree Heritage Recovery &mdash; builds on two empirical regularities in how weights change during training.</p>
+
+<h4 class="ed-h4">01 / Weight distance tracks tree distance</h4>
+<p>Pairwise distances between models' weights, under suitable metrics, correlate almost perfectly with the number of edges separating them in the true model tree. Close relatives look similar; distant relatives don't. That structure is enough to cluster models into families.</p>
+
+<h4 class="ed-h4">02 / Outliers reveal training direction</h4>
+<p>During generalization &mdash; pre-training on broad data &mdash; the number of weight outliers grows. During specialization &mdash; fine-tuning on narrower data &mdash; outliers decrease. That monotonic shift, captured by <em>kurtosis</em>, makes it possible to tell which of two related models is the parent and which is the child.</p>
+
+<p>Put together, MoTHer computes pairwise distances to cluster, uses kurtosis to assign direction, runs a minimum directed spanning tree to stitch clusters together, and recovers the full genealogy from weights alone.</p>
+
+<h3 class="ed-h3">What it recovers</h3>
+<p>On a 105-node Vision Transformer graph, MoTHer reaches <strong>89% accuracy</strong> in recovering the true tree structure. On Llama 2's known genealogy, it achieves perfect recovery. The method scales to graphs with more than 500 nodes and has been demonstrated on real, undocumented Stable Diffusion families on Hugging Face.<a href="#ref-3" class="cite" data-tip="MoTHer paper, arXiv 2405.18432">[3]</a> The practical applications Horwitz lists are concrete: licensing compliance, safety auditing, research archaeology on models uploaded without documentation, and feeding the structural spine of the Model Atlas described later.</p>
+</section>
+
+<section>
+<div class="section-mark"><span class="section-num">III</span><h2 class="section-title">ProbeX &mdash; experts, one tree at a time</h2></div>
+<p><span class="meta-label">Horwitz, Cavia, Kahana &amp; Hoshen &mdash; CVPR 2025</span>The tree structure MoTHer exposes is not only a bookkeeping win; it also changes what it means to <em>learn</em> from weights. Earlier weight-space learning methods tried to generalize across all models at once. ProbeX's central claim is that this is counterproductive: mixing weights from different trees introduces <strong>negative transfer</strong>, because the differences between, say, a Llama variant and a Stable Diffusion variant are dominated by architectural and initialization nuisance rather than meaningful training signal.<a href="#ref-4" class="cite" data-tip="ProbeX paper, arXiv 2410.13569">[4]</a></p>
+<p>Within a single tree, by contrast, every model shares the same architecture and ancestor. Weight differences reflect actual choices &mdash; which data, which task, which hyperparameters &mdash; and those differences are learnable.</p>
+
+<h3 class="ed-h3">The probing-experts architecture</h3>
+<p>ProbeX (Probing Experts) is the first probing method designed to read from the weights of a <strong>single hidden layer</strong>. The architecture is deliberately lightweight:</p>
+<ol class="findings-ed">
+  <li><strong>Learned probes</strong> are passed through the weight matrices of a target layer.</li>
+  <li>A <strong>shared projection</strong> reduces the resulting representations' dimensionality across all probes.</li>
+  <li><strong>Per-probe encoders</strong> produce specialized representations, which are aggregated into a single model embedding.</li>
+</ol>
+<p>A separate expert network is trained for each model tree. At inference time, a new model's tree is identified first; then its weights are routed to the matching expert. Negative transfer is avoided by construction rather than hoped away.<a href="#ref-4" class="cite" data-tip="ProbeX paper, arXiv 2410.13569">[4]</a></p>
+
+<h3 class="ed-h3">Results worth pausing on</h3>
+<p>ProbeX reaches state-of-the-art accuracy at predicting the training categories of a model from its weights. More striking: it aligns Stable Diffusion weights with <em>text</em> embeddings, so that a model fine-tuned on anime or photorealism lands, in a shared space, near the description of that domain. The consequence is <strong>zero-shot model search</strong> &mdash; type a query like "a model trained on dogs," retrieve the matching models, no metadata required.</p>
+
+<div class="pull"><p>ProbeX turns a model repository from an unstructured heap into a searchable database: you describe what you want in natural language; the system inspects weights, not model cards.</p></div>
+</section>
+
+<section>
+<div class="section-mark"><span class="section-num">IV</span><h2 class="section-title">Model Atlas &mdash; charting the population</h2></div>
+<p><span class="meta-label">Horwitz, Kurer, Kahana, Amar &amp; Hoshen &mdash; NeurIPS 2025 (Position)</span>Public model repositories have crossed a million uploads, and the ML field's success has created an oddly familiar paradox: the more models exist, the harder it is to find, understand, or trust any one of them. Most uploads carry no documentation of their lineage, training data, or relationship to other models. In the authors' phrasing, they are <em>effectively lost</em> &mdash; available but undiscoverable.<a href="#ref-5" class="cite" data-tip="Model Atlas paper, arXiv 2503.10633">[5]</a></p>
+
+<h3 class="ed-h3">A directed graph, not a catalogue</h3>
+<p>The proposal is to formalize the global population of neural networks as a <strong>directed graph</strong> &mdash; the Model Atlas. Nodes are models, annotated with task, metrics, license, popularity, and architecture. Edges are weight transformations: fine-tuning, quantization, merging, pruning, distillation. The edge direction carries the flow of information from parent to child.</p>
+<p>Accepted as a position paper at NeurIPS 2025 &mdash; a track with under 6% acceptance<a href="#ref-7" class="cite" data-tip="Horwitz, X thread announcing NeurIPS 2025 acceptance">[7]</a> &mdash; the piece is less a technical contribution than an argument for what the field should prioritize: the ecosystem has outgrown ad-hoc management, and needs something like a search engine for models.</p>
+
+<h3 class="ed-h3">What 63,000 relationships reveal</h3>
+<p>The paper analyses more than 63,000 documented relationships on Hugging Face and surfaces cross-domain patterns that are hard to see from any single release:</p>
+<ul class="findings-ed">
+  <li><strong>Quantization is a community habit.</strong> LLM repositories are dominated by quantized variants; vision repositories almost never use quantization &mdash; even though current image models like Flux (12B) exceed Llama (8B) in size. The driver is norm, not necessity.</li>
+  <li><strong>Adapters split discriminative from generative.</strong> Vision classifiers and detectors still favour full fine-tuning; generative models, especially Stable Diffusion variants, rapidly adopted parameter-efficient adapters like LoRA. Audio is still adapter-sparse.</li>
+  <li><strong>LLMs merge; vision does not.</strong> Merged LLMs often exceed their parents in popularity. Vision repositories show almost no merging at all &mdash; a knowledge-transfer gap between communities.</li>
 </ul>
 
-<h3>Publication Venues</h3>
-<table class="result-table">
-<tr><th>Paper</th><th>Venue</th><th>Year</th><th>Type</th></tr>
-<tr><td>Model Atlas</td><td>NeurIPS 2025</td><td>2025</td><td>Position Paper (&lt;6% accept)</td></tr>
-<tr><td>ProbeX</td><td>CVPR 2025</td><td>2025</td><td>Full Paper</td></tr>
-<tr><td>MoTHer</td><td>ICLR 2025</td><td>2025</td><td>Full Paper</td></tr>
-<tr><td>PoDD</td><td>TMLR</td><td>2025</td><td>Journal Paper</td></tr>
+<p>Structural motifs surface too: <em>snake</em> patterns (sequential training checkpoints) and <em>fan</em> patterns (hyperparameter sweeps radiating from a single parent). Over 60% of the atlas remains unknown by direct documentation, which is exactly the gap that methods like MoTHer and ProbeX are built to fill.</p>
+</section>
+
+<section>
+<div class="section-mark"><span class="section-num">V</span><h2 class="section-title">PoDD &mdash; distilling a dataset below one image per class</h2></div>
+<p><span class="meta-label">Shul, Horwitz &amp; Hoshen &mdash; TMLR 2025</span>Dataset distillation compresses a large training dataset into a much smaller synthetic one that can still train a competent model. The canonical framing is <strong>images per class</strong> (IPC): one synthetic image per class, ten per class, and so on. The floor is 1 &mdash; a hundred-class problem needs a hundred images.<a href="#ref-6" class="cite" data-tip="PoDD paper, arXiv 2403.12040">[6]</a></p>
+<p>PoDD &mdash; Poster Dataset Distillation &mdash; asks whether that floor is real. Can a dataset be distilled into <em>less</em> than one image per class?</p>
+
+<h3 class="ed-h3">The poster move</h3>
+<p>The reframing is small but consequential: stop thinking in images-per-class and start thinking in <strong>pixels-per-dataset</strong>. If patches from different classes are allowed to overlap inside a single larger image, multiple classes can share pixel real estate without one-to-one allocation. The method optimizes a single poster image end-to-end so that patches drawn from it, paired with soft labels, train models that match what the full dataset would produce.</p>
+<p>The soft labels do the heavy lifting. Instead of one-hot tags, each patch carries a continuous distribution &mdash; "0.6 cat, 0.3 dog, 0.1 bird" &mdash; that reflects the overlapping information in that region. That continuous label is what makes sub-1-IPC compression coherent.</p>
+
+<h3 class="ed-h3">Results</h3>
+<table class="comp-table">
+<thead><tr><th>Dataset</th><th>IPC</th><th>Result</th></tr></thead>
+<tbody>
+<tr><th>CIFAR-10</th><td>0.3</td><td>Competitive with 1-IPC methods (3 images for 10 classes)</td></tr>
+<tr><th>CIFAR-100</th><td>0.3</td><td>State-of-the-art at this budget (30 images for 100 classes)</td></tr>
+<tr><th>CUB-200</th><td>0.3</td><td>State-of-the-art at this budget (60 images for 200 classes)</td></tr>
+</tbody>
 </table>
+<p>A nice side observation: the optimized posters develop <em>semantically meaningful spatial structure</em>. In CIFAR-10, sky-like textures appear where airplane and bird patches cluster and ground-like textures appear where cars and trucks cluster. The poster learns not only per-class features but the spatial relations between classes.</p>
+<p>PoDD sits thematically adjacent to the weight-space program rather than inside it, but it shares the same instinct: the conventional way the field organizes its artifacts &mdash; one model per upload, one image per class &mdash; may be more a convention than a constraint, and rethinking the representation can unlock surprising efficiency.</p>
+</section>
+
+<div class="divider">&sect; &sect; &sect;</div>
+
+<section>
+<div class="section-mark"><span class="section-num">VI</span><h2 class="section-title">What ties these together</h2></div>
+<p>The four papers form a progression from foundational observation (MoTHer: weights encode lineage) to practical method (ProbeX: learn from weights inside a tree) to ecosystem-scale argument (Model Atlas: chart the whole population), with PoDD as a parallel exercise in rethinking what a minimal representation of an ML artifact looks like. The through-line is a steady refusal to treat trained networks as finished products. A model, in this program, is an object of study &mdash; something you can locate in a tree, query by description, and analyse at population scale, even when its uploader left no notes behind.</p>
+<ol class="findings-ed">
+  <li><strong>Start from structure, not scale.</strong> The tree structure of public models is load-bearing; ignoring it makes weight-space learning harder, not easier.</li>
+  <li><strong>Prefer data-free methods.</strong> Real models ship without documentation or training data. Methods that need either don't meet the ecosystem where it is.</li>
+  <li><strong>Treat weights as a queryable signal.</strong> Provenance, training categories, and even language-aligned descriptions can be read from the weights themselves.</li>
+  <li><strong>Question the units.</strong> Images per class, models per upload &mdash; these are conventions. Rethinking them (pixels per dataset, trees per repository) reshapes what is tractable.</li>
+</ol>
+</section>
+
+<details class="expandable">
+<summary>References</summary>
+<ol class="reflist">
+  <li id="ref-1"><span class="ref-authors">Horwitz, E.</span> <span class="ref-title">Personal site &mdash; PhD Student in Weight Space Learning.</span> <span class="ref-venue">Hebrew University of Jerusalem.</span> <a href="https://horwitz.ai/" target="_blank" rel="noopener">horwitz.ai</a></li>
+  <li id="ref-2"><span class="ref-authors">Horwitz, E.</span> <span class="ref-title">Publications index.</span> <span class="ref-venue">horwitz.ai/publications.html.</span> <a href="https://horwitz.ai/publications.html" target="_blank" rel="noopener">horwitz.ai/publications.html</a></li>
+  <li id="ref-3"><span class="ref-authors">Horwitz, E., Shul, A., &amp; Hoshen, Y.</span> <span class="ref-title">Unsupervised Model Tree Heritage Recovery.</span> <span class="ref-venue">International Conference on Learning Representations (ICLR), 2025.</span> <a href="https://arxiv.org/abs/2405.18432" target="_blank" rel="noopener">arXiv:2405.18432</a> &middot; <a href="https://horwitz.ai/mother" target="_blank" rel="noopener">horwitz.ai/mother</a> &middot; <a href="https://github.com/eliahuhorwitz/MoTHer" target="_blank" rel="noopener">github.com/eliahuhorwitz/MoTHer</a></li>
+  <li id="ref-4"><span class="ref-authors">Horwitz, E., Cavia, B., Kahana, J., &amp; Hoshen, Y.</span> <span class="ref-title">Learning on Model Weights using Tree Experts.</span> <span class="ref-venue">IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2025.</span> <a href="https://arxiv.org/abs/2410.13569" target="_blank" rel="noopener">arXiv:2410.13569</a> &middot; <a href="https://horwitz.ai/probex" target="_blank" rel="noopener">horwitz.ai/probex</a> &middot; <a href="https://openaccess.thecvf.com/content/CVPR2025/papers/Horwitz_Learning_on_Model_Weights_using_Tree_Experts_CVPR_2025_paper.pdf" target="_blank" rel="noopener">CVPR open access PDF</a> &middot; <a href="https://github.com/eliahuhorwitz/ProbeX" target="_blank" rel="noopener">github.com/eliahuhorwitz/ProbeX</a></li>
+  <li id="ref-5"><span class="ref-authors">Horwitz, E., Kurer, N., Kahana, J., Amar, L., &amp; Hoshen, Y.</span> <span class="ref-title">Charting and Navigating Hugging Face's Model Atlas (We Should Chart an Atlas of All the World's Models).</span> <span class="ref-venue">Neural Information Processing Systems (NeurIPS), 2025 &mdash; Position Paper track.</span> <a href="https://arxiv.org/abs/2503.10633" target="_blank" rel="noopener">arXiv:2503.10633</a> &middot; <a href="https://horwitz.ai/model-atlas" target="_blank" rel="noopener">horwitz.ai/model-atlas</a> &middot; <a href="https://neurips.cc/virtual/2025/loc/san-diego/poster/121950" target="_blank" rel="noopener">NeurIPS poster page</a> &middot; <a href="https://openreview.net/forum?id=BzFMBNqg7R" target="_blank" rel="noopener">OpenReview</a></li>
+  <li id="ref-6"><span class="ref-authors">Shul, A., Horwitz, E., &amp; Hoshen, Y.</span> <span class="ref-title">Distilling Datasets Into Less Than One Image.</span> <span class="ref-venue">Transactions on Machine Learning Research (TMLR), 2025.</span> <a href="https://arxiv.org/abs/2403.12040" target="_blank" rel="noopener">arXiv:2403.12040</a> &middot; <a href="https://vision.huji.ac.il/podd/" target="_blank" rel="noopener">vision.huji.ac.il/podd</a> &middot; <a href="https://github.com/AsafShul/PoDD" target="_blank" rel="noopener">github.com/AsafShul/PoDD</a></li>
+  <li id="ref-7"><span class="ref-authors">Horwitz, E.</span> <span class="ref-title">Announcement of NeurIPS 2025 position-paper acceptance for Model Atlas (&lt;6% accept).</span> <span class="ref-venue">X (Twitter), 26 September 2025.</span> <a href="https://x.com/EliahuHorwitz/status/1971543359820005606" target="_blank" rel="noopener">x.com/EliahuHorwitz/status/1971543359820005606</a></li>
+</ol>
+</details>
+
 </div>
-
-<!-- ===== MODEL ATLAS ===== -->
-<div class="section" id="sec-atlas">
-<h2>Model Atlas <span class="venue-badge">NeurIPS 2025</span></h2>
-<p><em>Horwitz, Kurer, Kahana, Amar & Hoshen (2025). "We Should Chart an Atlas of All the World's Models."</em></p>
-
-<div class="toc"><h4>Sections</h4><ul>
-  <li><a href="#atlas-problem">The Problem</a></li>
-  <li><a href="#atlas-proposal">The Model Atlas Proposal</a></li>
-  <li><a href="#atlas-findings">Findings from 63K Models</a></li>
-  <li><a href="#atlas-significance">Why This Matters</a></li>
-</ul></div>
-
-<h3 id="atlas-problem">The Problem</h3>
-<p>Public model repositories have crossed a million models, yet this explosion of availability has created a paradox: <strong>the more models exist, the harder it is to find, understand, or trust any individual one.</strong> Most models on Hugging Face are uploaded without documentation of their lineage (what they were fine-tuned from), their training data, their failure modes, or their relationship to other models. They are, in Horwitz's framing, "effectively lost" &mdash; technically available but practically undiscoverable.</p>
-<p>The consequences are significant: researchers waste compute training models that already exist elsewhere. Companies deploy models without understanding their provenance. Safety auditors can't trace a model's lineage to assess risks. And the field as a whole lacks the infrastructure to study its own model ecosystem at a population level.</p>
-
-<h3 id="atlas-proposal">The Model Atlas Proposal</h3>
-<p>Horwitz proposes formalizing the global population of neural networks as a <strong>directed graph</strong> &mdash; the "Model Atlas" &mdash; where:</p>
-<ul class="findings">
-  <li><strong>Nodes</strong> represent individual models, annotated with attributes: task type, performance metrics, license, popularity (downloads), architecture.</li>
-  <li><strong>Directed edges</strong> represent weight transformations: fine-tuning, quantization, merging, pruning, distillation. The direction indicates the flow of information (parent to child).</li>
-  <li><strong>Node size</strong> encodes popularity (downloads). <strong>Edge color</strong> encodes transformation type.</li>
-</ul>
-<p>This is a <strong>position paper</strong> (accepted at NeurIPS with less than 6% acceptance rate for the position track), meaning Horwitz is not just presenting a technical solution but making an argument about what the field should prioritize. The core claim: <strong>the model ecosystem has grown too large for ad-hoc management, and we need the equivalent of a search engine for models.</strong></p>
-
-<h3 id="atlas-findings">Findings from 63K Models</h3>
-<p>The paper analyzes 63,000+ documented model relationships on Hugging Face, revealing striking cross-domain differences:</p>
-
-<div class="callout"><div class="label">Quantization Practices</div><p>Quantization (reducing model precision for efficiency) varies dramatically across domains. LLM repositories are dominated by quantized variants, but vision models rarely use quantization &mdash; even though Flux (12B parameters) exceeds Llama (8B). This suggests <strong>community norms, not technical necessity</strong>, drive quantization adoption.</p></div>
-
-<div class="callout"><div class="label">Adapter vs. Full Fine-Tuning</div><p>Discriminative vision models (classifiers, detectors) still predominantly use full fine-tuning, while generative models rapidly adopted parameter-efficient adapters like LoRA. This divergence accelerated with each generation of Stable Diffusion but has not yet spread to audio models, which remain adapter-sparse.</p></div>
-
-<div class="callout"><div class="label">Model Merging</div><p>LLMs have embraced model merging (combining weights from multiple fine-tuned variants) to the point where merged models often <strong>exceed their parent models in popularity</strong>. Vision model repositories show almost no merging. Horwitz interprets this as a knowledge-transfer gap between the NLP and vision communities.</p></div>
-
-<p>The paper also identifies structural patterns in model graphs: <strong>"snake" patterns</strong> (sequential training checkpoints with strong temporal correlation) and <strong>"fan" patterns</strong> (hyperparameter sweeps radiating from a single parent). These patterns can be used to infer undocumented model relationships.</p>
-
-<h3 id="atlas-significance">Why This Matters</h3>
-<p>The Model Atlas is not just a technical contribution &mdash; it's a <strong>reframing of the field's relationship with its own outputs.</strong> Currently, ML research treats models as isolated artifacts: train it, evaluate it, publish it, move on. Horwitz argues we should treat the model ecosystem the way biologists treat species populations or librarians treat book collections: as a structured, analyzable system with its own patterns, dynamics, and knowledge gaps. Over 60% of the atlas remains unknown, requiring ML methods that can infer model properties directly from weights &mdash; which is exactly what MoTHer and ProbeX provide.</p>
-</div>
-
-<!-- ===== PROBEX ===== -->
-<div class="section" id="sec-probex">
-<h2>ProbeX <span class="venue-badge">CVPR 2025</span></h2>
-<p><em>Horwitz, Cavia, Kahana & Hoshen (2025). "Learning on Model Weights using Tree Experts."</em></p>
-
-<div class="toc"><h4>Sections</h4><ul>
-  <li><a href="#px-insight">The Model Trees Insight</a></li>
-  <li><a href="#px-method">The ProbeX Method</a></li>
-  <li><a href="#px-results">Key Results</a></li>
-  <li><a href="#px-significance">Why This Matters</a></li>
-</ul></div>
-
-<h3 id="px-insight">The Model Trees Insight</h3>
-<p>ProbeX is built on a structural observation about the model ecosystem that, once seen, seems obvious but had not been formalized: <strong>most public models are fine-tuned from a small number of foundation models, forming tree structures.</strong> On Hugging Face, the ten largest "model trees" &mdash; Llama, Stable Diffusion, BERT, etc. &mdash; account for a dominant fraction of all uploaded models.</p>
-<p>Why does this matter for weight-space learning? Because within a tree, the variation in model weights is <strong>structured and predictable</strong>. All models in a tree share the same architecture and were initialized from the same ancestor, so the differences between them reflect meaningful training choices (different data, different tasks, different hyperparameters) rather than arbitrary initialization noise. Cross-tree weight comparison, by contrast, is dominated by nuisance variation &mdash; different architectures, random seeds, unrelated training histories.</p>
-
-<div class="callout"><div class="label">The Core Problem</div><p>Previous weight-space learning methods tried to learn from weights across all models simultaneously. ProbeX shows this is counterproductive: <strong>mixing weights from different trees introduces negative transfer.</strong> Models from different trees confuse the learner rather than helping it. The solution is specialization: learn separate "experts" for each tree.</p></div>
-
-<h3 id="px-method">The ProbeX Method</h3>
-<p>ProbeX (Probing Experts) is the first probing method specifically designed to learn from the weights of a <strong>single hidden layer</strong> of a model. The architecture is lightweight and theoretically motivated:</p>
-<ul class="findings">
-  <li><strong>Learned probes</strong> (u<sub>1</sub>, u<sub>2</sub>, ..., u<sub>r</sub>) are passed through the weight matrices of the target layer.</li>
-  <li>A <strong>shared projection matrix</strong> reduces dimensionality across all probes.</li>
-  <li><strong>Per-probe encoders</strong> generate specialized representations.</li>
-  <li>Representations are aggregated into a final model embedding that can be mapped to any downstream task.</li>
-</ul>
-<p>Crucially, ProbeX trains separate expert networks for each model tree. At inference time, the tree membership of a new model is first identified, then the appropriate expert processes its weights. This avoids the negative transfer problem entirely.</p>
-
-<h3 id="px-results">Key Results</h3>
-<table class="result-table">
-<tr><th>Task</th><th>Result</th></tr>
-<tr><td>Training category prediction</td><td>State-of-the-art accuracy at identifying what classes a model was trained on</td></tr>
-<tr><td>Weight-language alignment</td><td>Stable Diffusion model weights aligned with text descriptions in a shared embedding space</td></tr>
-<tr><td>Zero-shot model classification</td><td>Given a text query ("a model trained on dogs"), retrieve matching models without any labeled data</td></tr>
-<tr><td>Model retrieval</td><td>Find the most relevant model for a given task description by matching in the embedding space</td></tr>
-</table>
-<p>The weight-language alignment result is particularly striking: ProbeX can take the weights of a Stable Diffusion model fine-tuned on a particular domain (e.g., anime, photorealism, architecture) and map them to a point in the same embedding space as the text description of that domain. This enables <strong>searching for models using natural language</strong> rather than metadata tags.</p>
-
-<h3 id="px-significance">Why This Matters</h3>
-<p>ProbeX turns model repositories from unstructured collections into <strong>searchable, queryable databases</strong>. Instead of relying on (often missing or inaccurate) model cards, users could describe what they need in natural language and retrieve models whose weights match. For model auditing, ProbeX enables inspecting a model's training data properties without access to the actual training data &mdash; critical for privacy-sensitive applications where the training data can't be shared.</p>
-</div>
-
-<!-- ===== MOTHER ===== -->
-<div class="section" id="sec-mother">
-<h2>MoTHer <span class="venue-badge">ICLR 2025</span></h2>
-<p><em>Horwitz, Shul & Hoshen (2025). "Unsupervised Model Tree Heritage Recovery."</em></p>
-
-<div class="toc"><h4>Sections</h4><ul>
-  <li><a href="#mo-problem">The Provenance Problem</a></li>
-  <li><a href="#mo-method">How MoTHer Works</a></li>
-  <li><a href="#mo-results">Key Results</a></li>
-  <li><a href="#mo-significance">Why This Matters</a></li>
-</ul></div>
-
-<h3 id="mo-problem">The Provenance Problem</h3>
-<p>When a model is uploaded to Hugging Face, there's no requirement to document where it came from. Was it fine-tuned from Llama? From which version? Using what adapter? Most uploaders don't say. This creates a provenance crisis: <strong>we have millions of models and almost no reliable genealogical information about them.</strong></p>
-<p>The stakes extend beyond academic curiosity. If a foundation model is found to have been trained on copyrighted data, which of its thousands of descendants are affected? If a model is discovered to have a safety flaw, which downstream models inherited it? Without provenance tracking, these questions are unanswerable. MoTHer proposes to solve this by recovering genealogical structure directly from model weights, without requiring any metadata, annotations, or training data.</p>
-
-<h3 id="mo-method">How MoTHer Works</h3>
-<p>MoTHer (Model Tree Heritage Recovery) is built on two key observations about how weights change during training:</p>
-
-<div class="callout"><div class="label">Observation 1: Weight Distance Correlates with Tree Distance</div><p>The distance between two models' weights (measured by specialized metrics) almost perfectly correlates with the number of edges separating them in the model tree. Models that are close relatives have similar weights; distant relatives have dissimilar weights. This enables clustering models into families.</p></div>
-
-<div class="callout"><div class="label">Observation 2: Outliers Reveal Training Direction</div><p>During generalization (pre-training on broad data), the number of weight outliers <em>grows</em>. During specialization (fine-tuning on narrow data), outliers <em>decrease</em>. This monotonic property enables inferring the <em>direction</em> of fine-tuning &mdash; which model is the parent and which is the child &mdash; by comparing outlier statistics (specifically, kurtosis).</p></div>
-
-<p>The full pipeline: (1) compute pairwise weight distances to cluster models, (2) generate a distance matrix and directional matrix using kurtosis, (3) apply a minimum directed spanning tree algorithm, (4) merge results to reconstruct the complete model graph.</p>
-
-<h3 id="mo-results">Key Results</h3>
-<table class="result-table">
-<tr><th>Experiment</th><th>Result</th></tr>
-<tr><td>ViT Model Graph (105 nodes)</td><td>89% accuracy in recovering the true tree structure</td></tr>
-<tr><td>Llama 2 Model Tree</td><td><strong>Perfect accuracy</strong> &mdash; exact recovery of the known genealogy</td></tr>
-<tr><td>Stable Diffusion families</td><td>Successfully recovered real-world "in-the-wild" model trees from Hugging Face</td></tr>
-<tr><td>Scale</td><td>Demonstrated on model graphs with 500+ nodes</td></tr>
-</table>
-
-<h3 id="mo-significance">Why This Matters</h3>
-<p>MoTHer enables <strong>automated model provenance tracking at scale</strong>. The analogy Horwitz draws is to search engines indexing the web: just as Google made the unstructured internet navigable, tools like MoTHer can make the unstructured model ecosystem navigable. Specific applications include:</p>
-<ul class="findings">
-  <li><strong>IP and licensing compliance:</strong> Trace a model back to its foundation model to determine what licenses and data usage restrictions apply.</li>
-  <li><strong>Safety auditing:</strong> If a vulnerability is found in a parent model, automatically identify all affected descendants.</li>
-  <li><strong>Research archaeology:</strong> Recover the training history of models uploaded without documentation.</li>
-  <li><strong>Ecosystem analysis:</strong> Understand the structure and dynamics of model populations at scale, feeding into the Model Atlas vision.</li>
-</ul>
-</div>
-
-<!-- ===== PODD ===== -->
-<div class="section" id="sec-podd">
-<h2>PoDD <span class="venue-badge">TMLR 2025</span></h2>
-<p><em>Shul, Horwitz & Hoshen (2025). "Distilling Datasets Into Less Than One Image."</em></p>
-
-<div class="toc"><h4>Sections</h4><ul>
-  <li><a href="#po-problem">The Distillation Challenge</a></li>
-  <li><a href="#po-method">The Poster Approach</a></li>
-  <li><a href="#po-results">Key Results</a></li>
-  <li><a href="#po-significance">Why This Matters</a></li>
-</ul></div>
-
-<h3 id="po-problem">The Distillation Challenge</h3>
-<p>Dataset distillation compresses a large training dataset into a much smaller synthetic dataset that, when used for training, produces models with comparable performance. The standard formulation creates a fixed number of <strong>images per class (IPC)</strong> &mdash; for example, 1 or 10 synthetic images per class that capture the essential training signal of the full dataset.</p>
-<p>The problem: previous methods can't go below 1 IPC. If you have 100 classes, you need at least 100 synthetic images. PoDD asks: <strong>can we go below this floor?</strong> Can we distill a dataset into less than one image per class?</p>
-
-<h3 id="po-method">The Poster Approach</h3>
-<p>PoDD (Poster Dataset Distillation) reconceptualizes the problem. Instead of thinking about images-per-class, it thinks about <strong>pixels-per-dataset</strong>. The key insight: if patches from different classes can <em>overlap</em> in a single larger image, you can represent multiple classes' information in less total pixel area than allocating one image to each class.</p>
-
-<div class="callout"><div class="label">The Poster Metaphor</div><p>Imagine compressing an entire dataset onto a single poster. Different regions of the poster encode information about different classes, but the regions can overlap. During training, patches are extracted from the poster at various positions, and the soft labels associated with each patch location tell the model which class information is present. The poster is optimized end-to-end so that models trained on its patches match models trained on the full dataset.</p></div>
-
-<p>The method: (1) initialize a random poster image, (2) optimize the poster pixels and associated soft labels via backpropagation through the training process, (3) at inference time, extract patches from the poster with their soft labels and use them to train a new model from scratch.</p>
-<p>The soft labels are critical: unlike traditional one-hot labels ("this is a cat"), PoDD's labels are continuous distributions ("this patch is 0.6 cat, 0.3 dog, 0.1 bird") that reflect the overlapping information in each region. This is what enables sub-1-IPC compression.</p>
-
-<h3 id="po-results">Key Results</h3>
-<table class="result-table">
-<tr><th>Dataset</th><th>IPC</th><th>Accuracy</th><th>Notes</th></tr>
-<tr><td>CIFAR-10</td><td>0.3</td><td>Competitive with 1 IPC methods</td><td>3 images total for 10 classes</td></tr>
-<tr><td>CIFAR-100</td><td>0.3</td><td>35.7% (vs 35.5% for larger budgets)</td><td>30 images total for 100 classes</td></tr>
-<tr><td>CUB-200</td><td>0.3</td><td>State-of-the-art at this budget</td><td>60 images for 200 classes</td></tr>
-</table>
-<p>An additional observation: the optimized posters develop <strong>semantically meaningful spatial structure.</strong> In CIFAR-10 posters, for example, sky-like textures appear in the upper regions (where airplane and bird patches cluster) and ground-like textures appear below (where car and truck patches cluster). The poster learns not just class-specific features but their spatial relationships.</p>
-
-<h3 id="po-significance">Why This Matters</h3>
-<p>PoDD pushes the theoretical and practical limits of dataset distillation by <strong>reframing the problem from counting images to counting pixels</strong>. Practically, this enables extreme compression for scenarios where storage, transmission, or privacy constraints demand the smallest possible training sets. Theoretically, it reveals that the information content of a dataset is more fluid than the rigid class-by-class decomposition suggests &mdash; classes can share representational space without losing distinguishability.</p>
-<p>While thematically adjacent rather than directly connected to the Model Trees/Atlas work, PoDD shares the same intellectual instinct: <strong>the conventional way we organize and represent ML artifacts (datasets, models) may be artificially limiting, and rethinking the representation can unlock surprising efficiency.</strong></p>
-</div>
-
 </div>
 `});
 }
