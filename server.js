@@ -280,290 +280,344 @@ return pageWrapper({ title: 'Research Hub', icon: '\uD83D\uDD2C', body: `
 // ═══════════════════════════════════════════════════
 function buildMcComb() {
 return pageWrapper({ title: 'McComb: AI & the Soul of Design', icon: '\uD83E\uDDE0', body: `
-<div class="hero">
-  <h1>AI & the Battle for the Soul of Design</h1>
-  <p class="subtitle">A synthesis of two talks by Chris McComb, Carnegie Mellon University</p>
-  <div class="meta"><span>Design Research Collective</span><span>Human-AI Design Initiative</span><span>2024&ndash;2025</span></div>
+<div class="editorial">
+<style>
+.editorial{--paper:#FBF8F1;--ink:#1C1712;--ink-soft:#4a3f33;--rule:#d8cfbd;--accent-ed:#A62B1F;--accent-ed-soft:#c6584e;background:var(--paper);color:var(--ink);font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;line-height:1.7;position:relative;min-height:100vh;}
+[data-theme="dark"] .editorial{--paper:#1a1510;--ink:#f1ead8;--ink-soft:#b8ac93;--rule:#3a3126;--accent-ed:#d96e60;--accent-ed-soft:#e08a7e;}
+.editorial *{color:inherit;}
+.editorial .grain{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0.35;mix-blend-mode:multiply;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.07 0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");}
+[data-theme="dark"] .editorial .grain{mix-blend-mode:screen;opacity:0.15;}
+.editorial .ed-wrap{position:relative;z-index:2;max-width:720px;margin:0 auto;padding:3.5rem 1.75rem 5rem;}
+.editorial .ed-back{display:inline-block;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;margin-bottom:2.5rem;border-bottom:1px solid transparent;transition:border-color 0.2s,color 0.2s;}
+.editorial .ed-back:hover{color:var(--accent-ed);border-bottom-color:var(--accent-ed);}
+.editorial .masthead{border-top:3px double var(--ink);border-bottom:1px solid var(--rule);padding:1.75rem 0 2.25rem;margin-bottom:3rem;}
+.editorial .folio{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+.editorial .folio .folio-dot{color:var(--accent-ed);margin:0 0.6em;}
+.editorial .ed-title{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(2.2rem,5.8vw,3.6rem);line-height:1.08;letter-spacing:-0.015em;margin:0 0 1.25rem;color:var(--ink);}
+.editorial .ed-dek{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-size:1.15rem;line-height:1.55;color:var(--ink-soft);font-weight:400;margin:0 0 1.5rem;max-width:58ch;}
+.editorial .ed-byline{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-soft);}
+.editorial .ed-byline .byline-sep{margin:0 0.55em;color:var(--accent-ed);}
+.editorial .section-mark{display:flex;align-items:baseline;gap:1rem;margin:4rem 0 1.25rem;padding-top:2rem;border-top:1px solid var(--rule);}
+.editorial .section-num{display:inline-block;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent-ed);border:1px solid var(--accent-ed);padding:0.2rem 0.55rem;border-radius:2px;flex-shrink:0;font-weight:600;}
+.editorial .section-title{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-style:italic;font-weight:400;font-size:clamp(1.6rem,3.5vw,2.15rem);line-height:1.2;margin:0;letter-spacing:-0.01em;color:var(--ink);}
+.editorial h3.ed-h3{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-style:italic;font-weight:400;font-size:1.35rem;margin:2.5rem 0 0.75rem;letter-spacing:-0.005em;color:var(--ink);}
+.editorial h4.ed-h4{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent-ed);margin:2rem 0 0.5rem;font-weight:600;}
+.editorial p{font-size:1.08rem;line-height:1.75;margin:0 0 1.2rem;color:var(--ink);font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;}
+.editorial p.lede{font-size:1.12rem;}
+.editorial p.lede::first-letter{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-weight:700;font-size:4.4rem;line-height:0.9;float:left;padding:0.35rem 0.6rem 0 0;margin:0.15rem 0.1rem 0 0;color:var(--accent-ed);font-style:normal;}
+.editorial strong{font-weight:600;color:var(--ink);}
+.editorial em{font-style:italic;}
+.editorial a.ed-link{color:var(--accent-ed);text-decoration:none;border-bottom:1px solid var(--accent-ed-soft);transition:border-color 0.15s,color 0.15s;}
+.editorial a.ed-link:hover{color:var(--ink);border-bottom-color:var(--ink);}
+.editorial a.cite{display:inline-block;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72em;vertical-align:super;line-height:1;color:var(--accent-ed);text-decoration:none;padding:0 0.1em;font-weight:600;position:relative;}
+.editorial a.cite:hover{color:var(--ink);}
+.editorial a.cite[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;line-height:1.35;padding:0.5rem 0.65rem;border-radius:3px;white-space:normal;width:max-content;max-width:260px;z-index:10;letter-spacing:0.02em;text-transform:none;font-weight:400;pointer-events:none;box-shadow:0 3px 8px rgba(0,0,0,0.18);}
+.editorial .pull{border-left:3px solid var(--accent-ed);padding:0.5rem 0 0.5rem 1.5rem;margin:2.5rem 0;}
+.editorial .pull p{font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-style:italic;font-size:1.35rem;line-height:1.45;color:var(--ink);margin:0;}
+.editorial .meta-label{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-ed);font-weight:600;display:block;margin-bottom:0.35rem;}
+.editorial .ed-fig{margin:2rem 0;}
+.editorial .ed-fig img{width:100%;height:auto;display:block;border:1px solid var(--rule);cursor:zoom-in;background:var(--paper);}
+.editorial .ed-fig figcaption{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;line-height:1.55;color:var(--ink-soft);margin-top:0.6rem;letter-spacing:0.02em;padding-left:0.1rem;}
+.editorial .ed-fig figcaption strong{font-weight:700;color:var(--accent-ed);letter-spacing:0.08em;text-transform:uppercase;font-size:0.7rem;display:inline-block;margin-right:0.4em;}
+.editorial .ed-pair{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:2rem 0;}
+@media(max-width:640px){.editorial .ed-pair{grid-template-columns:1fr;}}
+.editorial ol.findings-ed{list-style:none;counter-reset:findings;padding:0;margin:1.5rem 0 2rem;}
+.editorial ol.findings-ed li{counter-increment:findings;position:relative;padding:0.85rem 0 0.85rem 3rem;border-bottom:1px solid var(--rule);font-size:1.05rem;line-height:1.65;}
+.editorial ol.findings-ed li::before{content:counter(findings,decimal-leading-zero);position:absolute;left:0;top:0.95rem;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.72rem;letter-spacing:0.1em;color:var(--accent-ed);font-weight:600;}
+.editorial ol.findings-ed li:last-child{border-bottom:none;}
+.editorial details.expandable{margin:3.5rem 0 1.5rem;border-top:2px solid var(--ink);padding-top:1.25rem;}
+.editorial details.expandable summary{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.8rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink);cursor:pointer;list-style:none;display:flex;align-items:center;gap:0.6rem;font-weight:600;}
+.editorial details.expandable summary::before{content:'+';font-family:'Source Serif 4',Georgia,serif;font-size:1.4rem;font-weight:400;color:var(--accent-ed);line-height:1;transition:transform 0.2s;}
+.editorial details.expandable[open] summary::before{content:'\u2013';}
+.editorial ol.reflist{list-style:none;counter-reset:refs;padding:0;margin:1.5rem 0 0;}
+.editorial ol.reflist li{counter-increment:refs;position:relative;padding:0.75rem 0 0.75rem 2.5rem;font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;font-size:0.95rem;line-height:1.55;color:var(--ink);border-bottom:1px solid var(--rule);scroll-margin-top:4rem;}
+.editorial ol.reflist li::before{content:'[' counter(refs) ']';position:absolute;left:0;top:0.78rem;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;letter-spacing:0.04em;color:var(--accent-ed);font-weight:600;}
+.editorial ol.reflist li:last-child{border-bottom:none;}
+.editorial ol.reflist li:target{background:rgba(166,43,31,0.07);padding-left:2.75rem;}
+.editorial ol.reflist .ref-authors{color:var(--ink-soft);}
+.editorial ol.reflist .ref-title{font-style:italic;}
+.editorial ol.reflist .ref-venue{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.78rem;color:var(--ink-soft);letter-spacing:0.02em;display:block;margin-top:0.2rem;}
+.editorial ol.reflist a{color:var(--accent-ed);text-decoration:none;border-bottom:1px solid var(--accent-ed-soft);}
+.editorial ol.reflist a:hover{color:var(--ink);border-bottom-color:var(--ink);}
+.editorial .divider{text-align:center;font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.85rem;color:var(--rule);letter-spacing:0.6em;margin:3rem 0 2.5rem;padding-right:0;}
+.editorial hr.rule{border:none;border-top:1px solid var(--rule);margin:2.5rem 0;}
+.editorial table.comp-table{width:100%;border-collapse:collapse;font-size:0.92rem;margin:1.25rem 0 2rem;font-family:'Source Serif 4','Source Serif Pro',Georgia,serif;}
+.editorial table.comp-table th,.editorial table.comp-table td{text-align:left;padding:0.65rem 0.75rem;border-bottom:1px solid var(--rule);vertical-align:top;}
+.editorial table.comp-table thead th{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-ed);font-weight:600;border-bottom:2px solid var(--ink);}
+.editorial table.comp-table tbody th{font-family:'JetBrains Mono','IBM Plex Mono',ui-monospace,monospace;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;width:34%;}
+</style>
+<div class="grain"></div>
+<div class="ed-wrap">
+<a href="/" class="ed-back">&larr; Research Hub</a>
+
+<header class="masthead">
+  <div class="folio"><span>McComb<span class="folio-dot">&bull;</span>Research Note<span class="folio-dot">&bull;</span>Vol.&nbsp;I</span><span>April&nbsp;2026</span></div>
+  <h1 class="ed-title">AI and the Battle for the Soul of Design</h1>
+  <p class="ed-dek">A synthesis of two talks by Chris McComb on how human cognition, not capability curves, will shape the next generation of engineering design.</p>
+  <div class="ed-byline">Douglas McGowan<span class="byline-sep">&#x2022;</span>UC Berkeley<span class="byline-sep">&#x2022;</span>Reading notes on CDFAM NYC 2025 and companion lecture</div>
+</header>
+
+<section>
+<div class="section-mark"><span class="section-num">I</span><h2 class="section-title">The two talks</h2></div>
+<p class="lede">This page synthesizes two versions of Chris McComb's talk <em>"AI and the Battle for the Soul of Design"</em> &mdash; a compact 19-minute keynote at CDFAM NYC 2025<a href="#ref-1" class="cite" data-tip="CDFAM NYC 2025 keynote, YouTube">[1]</a> and a comprehensive 50-minute lecture covering his lab's full research portfolio. Both explore how AI is transforming engineering design and what role humans will play in a world where machines can optimize, generate, and even coach.</p>
+<p>McComb directs the <a href="https://cmudrc.github.io/" target="_blank" rel="noopener" class="ed-link">Design Research Collective</a><a href="#ref-2" class="cite" data-tip="Design Research Collective lab site">[2]</a> and the <a href="https://engineering.cmu.edu/human-ai-design/index.html" target="_blank" rel="noopener" class="ed-link">Human+AI Design Initiative</a><a href="#ref-3" class="cite" data-tip="Human+AI Design Initiative, CMU">[3]</a> at Carnegie Mellon<a href="#ref-4" class="cite" data-tip="Faculty page, CMU College of Engineering">[4]</a>. His work sits at an unusual intersection: he combines rigorous psychological science (empathy studies, cognitive style theory, collective intelligence) with AI methods (variational autoencoders, reinforcement learning, LLM-based coaching). The result is a research program that treats human-AI teaming not as a technology problem but as a <strong>sociotechnical design challenge</strong> &mdash; one where understanding human cognition is just as important as building better algorithms.</p>
+
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v1/v1_0005s.png" alt="Talk 1 title" onclick="openLightbox(this)"><figcaption><strong>Fig. 1</strong>CDFAM NYC 2025 (19 min). Conceptual overview: human biases, economic stakes, potential futures.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v2/v2_0005s.png" alt="Talk 2 title" onclick="openLightbox(this)"><figcaption><strong>Fig. 2</strong>Full lecture (~50 min). Research deep dive: empathy, cognitive style, lattice optimization, teaming experiments, LLMs.</figcaption></figure>
 </div>
-<nav class="nav"><div class="nav-inner">
-  <button class="nav-tab active" onclick="showSection('overview',this)">Overview</button>
-  <button class="nav-tab" onclick="showSection('talk1',this)">Talk 1: CDFAM</button>
-  <button class="nav-tab" onclick="showSection('talk2',this)">Talk 2: Full</button>
-  <button class="nav-tab" onclick="showSection('comparison',this)">Comparison</button>
-  <button class="nav-tab" onclick="showSection('futures',this)">Futures</button>
-</div></nav>
-<div class="container">
-<a href="/" class="back-link">&larr; Research Hub</a>
 
-<!-- ===== OVERVIEW ===== -->
-<div class="section active" id="sec-overview">
-<h2>What This Is</h2>
-<p>This page synthesizes two versions of Chris McComb's talk <strong>"AI and the Battle for the Soul of Design"</strong> &mdash; a compact 19-minute keynote at CDFAM NYC 2025 and a comprehensive 50-minute lecture covering his lab's full research portfolio. Both explore how AI is transforming engineering design and what role humans will play in a world where machines can optimize, generate, and even coach.</p>
-<p>McComb directs the <strong>Design Research Collective</strong> and the <strong>Human-AI Design Initiative</strong> at Carnegie Mellon. His work sits at an unusual intersection: he combines rigorous psychological science (empathy studies, cognitive style theory, collective intelligence) with cutting-edge AI methods (variational autoencoders, reinforcement learning, LLM-based coaching). The result is a research program that treats human-AI teaming not as a technology problem but as a <strong>sociotechnical design challenge</strong> &mdash; one where understanding human cognition is just as important as building better algorithms.</p>
+<p><span class="meta-label">Central thesis</span>The argument threading both talks is deceptively simple but has deep implications: <strong>AI is changing exponentially, but humans are not.</strong> Our cognitive architecture &mdash; how we satisfice, how we copy neighbors, how we freeze under too many options &mdash; has been stable for millennia. McComb argues that this stability is not a limitation but a <em>predictive asset</em>. If we understand human nature well enough, we can anticipate how designers will actually use (and misuse) AI, and we can design human-AI workflows that play to human strengths rather than against them.</p>
 
-<div class="tags">
-  <span class="tag">Human-AI Teaming</span><span class="tag">Engineering Design</span><span class="tag">Cognitive Science</span><span class="tag">Generative AI</span><span class="tag">Lattice Structures</span><span class="tag">Collective Intelligence</span><span class="tag">Carnegie Mellon</span>
-</div>
+<div class="pull"><p>The dominant tech narrative asks "how capable is the AI?" McComb asks instead: given what we know about human psychology, what will people actually do with these capabilities?</p></div>
 
-<h3>The Two Talks at a Glance</h3>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v1/v1_0005s.png" alt="Talk 1 title" onclick="openLightbox(this)"><div class="caption"><strong>Talk 1</strong> &mdash; CDFAM NYC 2025 (19 min). Conceptual overview: human biases, economic stakes, potential futures.</div></div>
-  <div class="slide-fig"><img src="/slides/v2/v2_0005s.png" alt="Talk 2 title" onclick="openLightbox(this)"><div class="caption"><strong>Talk 2</strong> &mdash; Full lecture (~50 min). Research deep dive: empathy, cognitive style, lattice optimization, teaming experiments, LLMs.</div></div>
-</div>
-
-<h3>McComb's Central Thesis</h3>
-<p>The argument threading both talks is deceptively simple but has deep implications: <strong>AI is changing exponentially, but humans are not.</strong> Our cognitive architecture &mdash; how we satisfice, how we copy neighbors, how we freeze under too many options &mdash; has been stable for millennia. McComb argues that this stability is not a limitation but a <em>predictive asset</em>. If we understand human nature well enough, we can anticipate how designers will actually use (and misuse) AI, and we can design human-AI workflows that play to human strengths rather than against them.</p>
-<p>This is a fundamentally different framing from the dominant tech narrative, which asks "how capable is the AI?" McComb asks instead: <strong>"Given what we know about human psychology, what will people actually do with these capabilities?"</strong> The answer, his research suggests, is both more nuanced and more predictable than most assume.</p>
-
-<h3>Key Takeaways</h3>
-<ul class="findings">
-  <li><strong>The Human-AI Teaming Matrix</strong> organizes AI's role along two axes: Reactive vs. Proactive, and Problem-Focused vs. Process-Focused. This yields four distinct modes (Tool, Partner, Analytics, Coach) with different implications for human agency.</li>
-  <li><strong>Technology changes exponentially; humans do not.</strong> Our stable psychology gives us predictive power over how AI adoption will unfold &mdash; and it means cognitive biases will persist no matter how good the tools get.</li>
-  <li><strong>Five cognitive biases</strong> will shape human-AI design interaction: satisficing, automation bias, additive bias, herding behavior, and choice overload. These aren't bugs to fix &mdash; they're stable features of human cognition that AI system designers must account for.</li>
-  <li><strong>Individual traits don't predict team outcomes</strong> &mdash; but team-level composition does. Empathy diversity and cognitive style matching matter more than individual talent, and computational simulation can reveal optimal compositions that human-subjects studies alone cannot.</li>
-  <li><strong>Hybrid teams perform as well as all-human teams</strong> in controlled experiments, and AI coaches intervene with similar patterns to human coaches. AI integration doesn't degrade team performance &mdash; but it doesn't automatically improve it either.</li>
+<h3 class="ed-h3">Six takeaways</h3>
+<ol class="findings-ed">
+  <li><strong>The Human-AI Teaming Matrix</strong> organizes AI's role along two axes: Reactive vs. Proactive, and Problem-Focused vs. Process-Focused, yielding four modes &mdash; Tool, Partner, Analytics, Coach &mdash; with different implications for human agency.<a href="#ref-5" class="cite" data-tip="McComb, Boatwright &amp; Cagan, Proc. Design Society 2023">[5]</a></li>
+  <li><strong>Technology changes exponentially; humans do not.</strong> Our stable psychology gives us predictive power over how AI adoption will unfold &mdash; and cognitive biases will persist no matter how good the tools get.</li>
+  <li><strong>Five cognitive biases</strong> will shape human-AI design interaction: satisficing, automation bias, additive bias, herding, and choice overload. These aren't bugs to fix &mdash; they are stable features of human cognition AI designers must account for.</li>
+  <li><strong>Individual traits don't predict team outcomes</strong> &mdash; but team-level composition does. Empathy diversity and cognitive style matching matter more than individual talent, and computational simulation can reveal optimal compositions human-subjects studies alone cannot.<a href="#ref-6" class="cite" data-tip="Alzayed et al., AI EDAM 2023">[6]</a></li>
+  <li><strong>Hybrid teams perform as well as all-human teams</strong> in controlled experiments, and AI coaches intervene with similar patterns to human coaches.<a href="#ref-7" class="cite" data-tip="Xu et al., J. Mech. Design 2024">[7]</a> AI integration doesn't degrade team performance &mdash; but it doesn't automatically improve it either.</li>
   <li><strong>The "soul of design"</strong> is the parts that are most distinctly human: empathetic judgment, collaborative sense-making, meaning-creation, and the intrinsic satisfaction of creative work.</li>
-</ul>
-</div>
+</ol>
+</section>
 
-<!-- ===== TALK 1 ===== -->
-<div class="section" id="sec-talk1">
-<h2>Talk 1: CDFAM NYC 2025 (19 min)</h2>
-<p>The shorter talk is a keynote for an industry audience at the CDFAM (Computational Design for AI-Driven Materials) symposium. It's structured as a conceptual argument rather than a research presentation &mdash; McComb is making a case for <em>how to think about</em> AI in design, not presenting specific experiments. The talk builds in three acts: the economic stakes, the human constants, and the possible futures.</p>
+<section>
+<div class="section-mark"><span class="section-num">II</span><h2 class="section-title">The keynote: an argument in three acts</h2></div>
+<p>The shorter talk is a keynote for an industry audience at the CDFAM (Computational Design for AI-Driven Materials) symposium. It is structured as a conceptual argument rather than a research presentation &mdash; McComb is making a case for <em>how to think about</em> AI in design, not presenting experiments. The talk builds in three acts: the economic stakes, the human constants, and the possible futures.</p>
 
-<div class="toc"><h4>Sections</h4><ul>
-  <li><a href="#t1-framework">The Human-AI Teaming Framework</a></li>
-  <li><a href="#t1-stack">The AI Infrastructure Stack</a></li>
-  <li><a href="#t1-stakes">Economic Stakes</a></li>
-  <li><a href="#t1-human">The Human Constant</a></li>
-  <li><a href="#t1-biases">Five Cognitive Biases</a></li>
-  <li><a href="#t1-futures">Seven Potential Futures</a></li>
-</ul></div>
-
-<h3 id="t1-framework">The Human-AI Teaming Framework</h3>
-<p>McComb opens with his core conceptual tool: a 2&times;2 matrix that classifies AI's role in design teams (published as McComb, Boatwright & Cagan, <em>Proceedings of the Design Society</em>, 2023). The axes are <strong>Reactive vs. Proactive</strong> (does the AI wait to be asked, or does it initiate?) and <strong>Problem-Focused vs. Process-Focused</strong> (does the AI work on the design artifact, or on the design process itself?).</p>
-<div class="slide-fig"><img src="/slides/v1/v1_0105s.png" alt="Teaming Matrix" onclick="openLightbox(this)"><div class="caption">The Human-AI Teaming Matrix. Four quadrants: AI-as-Tool (reactive/problem), AI-as-Partner (proactive/problem), AI-as-Analytics (reactive/process), AI-as-Coach (proactive/process).</div></div>
+<h3 class="ed-h3">The teaming matrix</h3>
+<p>McComb opens with his core conceptual tool: a 2&times;2 matrix that classifies AI's role in design teams, published as McComb, Boatwright and Cagan in <em>Proceedings of the Design Society</em>.<a href="#ref-5" class="cite" data-tip="Focus and Modality, Proc. Design Society 2023">[5]</a> The axes are <strong>Reactive vs. Proactive</strong> (does the AI wait to be asked, or does it initiate?) and <strong>Problem-Focused vs. Process-Focused</strong> (does the AI work on the design artifact, or on the design process itself?).</p>
+<figure class="ed-fig"><img src="/slides/v1/v1_0105s.png" alt="Teaming Matrix" onclick="openLightbox(this)"><figcaption><strong>Fig. 3</strong>The Human-AI Teaming Matrix. Four quadrants: AI-as-Tool (reactive/problem), AI-as-Partner (proactive/problem), AI-as-Analytics (reactive/process), AI-as-Coach (proactive/process).</figcaption></figure>
 <p>The matrix's value is diagnostic: it forces you to ask <em>which</em> kind of AI integration you're pursuing. Most current tools operate in the <strong>AI-as-Tool</strong> quadrant (reactive, problem-focused) &mdash; think CAD solvers or simulation software. The most transformative and least explored quadrant is <strong>AI-as-Coach</strong> (proactive, process-focused), where AI monitors how a team is working and intervenes to improve the process itself. McComb's later research explicitly targets this quadrant.</p>
 
-<h3 id="t1-stack">The AI Infrastructure Stack</h3>
+<h3 class="ed-h3">The infrastructure stack</h3>
 <p>McComb uses a McKinsey-sourced pyramid diagram to make an organizational readiness argument: AI value sits at the top of a stack that starts with data infrastructure. Organizations that jump to AI without the lower layers in place will fail.</p>
-<div class="slide-fig"><img src="/slides/v1/v1_0295s.png" alt="AI Stack" onclick="openLightbox(this)"><div class="caption">The AI infrastructure pyramid. Bottom to top: data generation and logging, infrastructure and storage, cleaning and preparation, analytics, machine learning, AI. Each layer requires the one below it.</div></div>
-<p>The accompanying questions &mdash; "What are our initial conditions?", "What do we know about the dynamics?", "What outcomes are we likely to achieve?" &mdash; frame AI adoption as a systems problem. This is a subtly important point: McComb is arguing that the AI capability frontier is less binding than the <em>organizational</em> readiness to use AI. The bottleneck isn't the algorithm; it's whether your data infrastructure can support it.</p>
+<figure class="ed-fig"><img src="/slides/v1/v1_0295s.png" alt="AI Stack" onclick="openLightbox(this)"><figcaption><strong>Fig. 4</strong>The AI infrastructure pyramid. Bottom to top: data generation and logging, infrastructure and storage, cleaning and preparation, analytics, machine learning, AI. Each layer requires the one below it.</figcaption></figure>
+<p>The accompanying questions &mdash; "What are our initial conditions?", "What do we know about the dynamics?", "What outcomes are we likely to achieve?" &mdash; frame AI adoption as a systems problem. McComb is arguing that the AI capability frontier is less binding than the <em>organizational</em> readiness to use AI. The bottleneck isn't the algorithm; it's whether your data infrastructure can support it.</p>
 
-<h3 id="t1-stakes">Economic Stakes of AI</h3>
-<p>McComb grounds the conceptual argument in hard numbers. The economic framing serves two purposes: it establishes urgency (this isn't hypothetical) and it reveals geographic inequality (the benefits are concentrated).</p>
-<div class="slide-fig"><img src="/slides/v1/v1_0345s.png" alt="GDP Impact" onclick="openLightbox(this)"><div class="caption">PwC projection: AI could contribute ~$15 trillion to global GDP by 2030. The dominant driver is labor productivity, followed by personalization, time savings, and quality improvements.</div></div>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v1/v1_0365s.png" alt="Geographic impact" onclick="openLightbox(this)"><div class="caption">GDP impact concentrated in North America and China &mdash; raising questions about who benefits from AI-driven design.</div></div>
-  <div class="slide-fig"><img src="/slides/v1/v1_0405s.png" alt="Education impact" onclick="openLightbox(this)"><div class="caption">McKinsey: AI could free 20-30% of teacher time from administration and routine tasks, reallocating it toward coaching and skill development.</div></div>
+<h3 class="ed-h3">Economic stakes</h3>
+<p>McComb grounds the conceptual argument in hard numbers. The economic framing serves two purposes: it establishes urgency (this isn't hypothetical) and it reveals geographic inequality (the benefits are concentrated). The projection he cites is PwC's estimate that AI could contribute roughly $15.7 trillion to global GDP by 2030.<a href="#ref-8" class="cite" data-tip="PwC, Sizing the Prize, 2017">[8]</a></p>
+<figure class="ed-fig"><img src="/slides/v1/v1_0345s.png" alt="GDP Impact" onclick="openLightbox(this)"><figcaption><strong>Fig. 5</strong>PwC projection: AI could contribute ~$15 trillion to global GDP by 2030. The dominant driver is labor productivity, followed by personalization, time savings, and quality improvements.</figcaption></figure>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v1/v1_0365s.png" alt="Geographic impact" onclick="openLightbox(this)"><figcaption><strong>Fig. 6</strong>GDP impact concentrated in North America and China &mdash; raising questions about who benefits from AI-driven design.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v1/v1_0405s.png" alt="Education impact" onclick="openLightbox(this)"><figcaption><strong>Fig. 7</strong>McKinsey: AI could free 20-30% of teacher time from administration and routine tasks, reallocating it toward coaching and skill development.<a href="#ref-9" class="cite" data-tip="McKinsey, 2020">[9]</a></figcaption></figure>
 </div>
-<p>The education slide is particularly telling: it shows AI not just changing <em>what</em> we design but <em>how we learn to design</em>. If AI handles routine feedback and evaluation, educators can focus on the higher-order skills &mdash; coaching, mentorship, emotional development &mdash; that machines can't easily replicate. This theme returns later in Talk 2's "LLMs as tutees" finding.</p>
+<p>The education slide is telling: it shows AI not just changing <em>what</em> we design but <em>how we learn to design</em>. If AI handles routine feedback and evaluation, educators can focus on the higher-order skills &mdash; coaching, mentorship, emotional development &mdash; that machines can't easily replicate. This theme returns later in the "LLMs as tutees" finding.</p>
 
-<h3 id="t1-human">The Human Constant</h3>
+<h3 class="ed-h3">The human constant</h3>
 <p>This is the philosophical pivot of the talk, and McComb's most distinctive intellectual move. He juxtaposes two timelines: the exponential curve of technological change and the near-flat line of human biological change.</p>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v1/v1_0565s.png" alt="Tech timeline" onclick="openLightbox(this)"><div class="caption">"Technology changes really, really fast." Exponential curve from 1800 to the present, with "Now" marked at the steep upswing.</div></div>
-  <div class="slide-fig"><img src="/slides/v1/v1_0605s.png" alt="Human height" onclick="openLightbox(this)"><div class="caption">"People change relatively slowly." Average male height by decade of birth, 1800-1990, across six countries. Modest changes over 190 years.</div></div>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v1/v1_0565s.png" alt="Tech timeline" onclick="openLightbox(this)"><figcaption><strong>Fig. 8</strong>"Technology changes really, really fast." Exponential curve from 1800 to the present, with "Now" marked at the steep upswing.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v1/v1_0605s.png" alt="Human height" onclick="openLightbox(this)"><figcaption><strong>Fig. 9</strong>"People change relatively slowly." Average male height by decade of birth, 1800-1990, across six countries. Modest changes over 190 years.</figcaption></figure>
 </div>
-<div class="callout"><div class="label">Key Insight</div><p>The juxtaposition is the argument: even as AI capabilities explode on an exponential curve, the humans using those tools are essentially the same creatures they were centuries ago. Our cognitive biases, social tendencies, and psychological limitations are stable over timescales that make technology curves look vertical. McComb argues this stability is a <em>feature</em>, not a bug &mdash; it gives us predictive power. If we understand human nature, we can anticipate how people will actually interact with AI in design.</p></div>
+<div class="pull"><p>Even as AI capabilities explode on an exponential curve, the humans using those tools are essentially the same creatures they were centuries ago.</p></div>
+<p>Our cognitive biases, social tendencies, and psychological limitations are stable over timescales that make technology curves look vertical. McComb argues this stability is a <em>feature</em>, not a bug &mdash; it gives us predictive power. If we understand human nature, we can anticipate how people will actually interact with AI in design.</p>
+</section>
 
-<h3 id="t1-biases">Five Cognitive Biases Shaping AI Adoption</h3>
-<p>McComb's most original contribution in this talk. He enumerates five ways human nature will constrain and color how designers use AI, drawing on established behavioral science. Each bias is not just described but given an <em>implication for AI-assisted design</em>.</p>
+<section>
+<div class="section-mark"><span class="section-num">III</span><h2 class="section-title">Five biases that will not go away</h2></div>
+<p>McComb's most original contribution in this talk. He enumerates five ways human nature will constrain and color how designers use AI, drawing on established behavioral science. Each bias is given an <em>implication for AI-assisted design</em>.</p>
 
-<h4>1. We satisfice readily (Herbert Simon, 1956)</h4>
-<div class="slide-fig"><img src="/slides/v1/v1_0665s.png" alt="Satisficing" onclick="openLightbox(this)"><div class="caption">Value vs. Effort curve: humans stop at "Good Enough" rather than pursuing the theoretical optimum. The gap between good-enough and perfect is where effort explodes.</div></div>
-<p>The implication for AI: designers will accept AI outputs that clear the "good enough" bar, even when the AI could produce substantially better results with more iteration. This means the <strong>default quality of AI suggestions matters enormously</strong> &mdash; because most users won't push past the first acceptable output. AI tools that front-load quality will outperform those that require user refinement, regardless of their theoretical ceiling.</p>
+<h4 class="ed-h4">01 / Satisficing &mdash; Simon, 1956</h4>
+<figure class="ed-fig"><img src="/slides/v1/v1_0665s.png" alt="Satisficing" onclick="openLightbox(this)"><figcaption><strong>Fig. 10</strong>Value vs. Effort curve: humans stop at "Good Enough" rather than pursuing the theoretical optimum. The gap between good-enough and perfect is where effort explodes.</figcaption></figure>
+<p>Herbert Simon<a href="#ref-10" class="cite" data-tip="Simon, Psychological Review, 1956">[10]</a> argued that organisms adapt well enough to satisfice; they do not, in general, optimize. The implication for AI: designers will accept outputs that clear the "good enough" bar, even when the AI could produce substantially better results with more iteration. This means the <strong>default quality of AI suggestions matters enormously</strong>, because most users won't push past the first acceptable output. AI tools that front-load quality will outperform those that require user refinement, regardless of their theoretical ceiling.</p>
 
-<h4>2. We favor automation (automation bias)</h4>
-<div class="slide-fig"><img src="/slides/v1/v1_0695s.png" alt="Automation bias" onclick="openLightbox(this)"><div class="caption">When AI is available, people default to using it &mdash; even when their own judgment would produce better results.</div></div>
-<p>This is well-documented in aviation and healthcare: when automated systems are present, humans defer to them even in situations where the automation is wrong or inappropriate. In design, this means teams with AI access may <strong>underuse their own expertise</strong>, defaulting to AI suggestions for problems where human intuition, context, or aesthetic judgment would be superior. The risk isn't that AI is bad &mdash; it's that humans stop exercising the judgment muscles that AI can't replace.</p>
+<h4 class="ed-h4">02 / Automation bias</h4>
+<figure class="ed-fig"><img src="/slides/v1/v1_0695s.png" alt="Automation bias" onclick="openLightbox(this)"><figcaption><strong>Fig. 11</strong>When AI is available, people default to using it &mdash; even when their own judgment would produce better results.</figcaption></figure>
+<p>Well-documented in aviation and healthcare: when automated systems are present, humans defer to them even in situations where the automation is wrong or inappropriate. In design, this means teams with AI access may <strong>underuse their own expertise</strong>, defaulting to AI suggestions for problems where human intuition, context, or aesthetic judgment would be superior. The risk isn't that AI is bad &mdash; it's that humans stop exercising the judgment muscles that AI can't replace.</p>
 
-<h4>3. We neglect subtractive changes (additive bias)</h4>
-<div class="slide-fig"><img src="/slides/v1/v1_0745s.png" alt="Additive bias" onclick="openLightbox(this)"><div class="caption">Both humans and AI tend to add features rather than remove them. Shown: a Lego construction and architectural blueprint illustrating additive complexity.</div></div>
-<p>Research by Adams et al. (2021, <em>Nature</em>) showed that when people improve objects, ideas, or situations, they systematically default to adding new elements rather than removing existing ones &mdash; even when subtraction is objectively better. McComb argues AI will <strong>amplify this bias</strong>: generative AI is inherently additive (it generates <em>more</em> options, <em>more</em> features, <em>more</em> complexity). Designers already struggle to simplify; AI-assisted design may produce ever-more-complex artifacts unless subtractive thinking is explicitly built into the workflow.</p>
+<h4 class="ed-h4">03 / Additive bias &mdash; Adams et al., 2021</h4>
+<figure class="ed-fig"><img src="/slides/v1/v1_0745s.png" alt="Additive bias" onclick="openLightbox(this)"><figcaption><strong>Fig. 12</strong>Both humans and AI tend to add features rather than remove them. Shown: a Lego construction and architectural blueprint illustrating additive complexity.</figcaption></figure>
+<p>Adams, Converse, Hales and Klotz, writing in <em>Nature</em>,<a href="#ref-11" class="cite" data-tip="Adams et al., Nature, 2021">[11]</a> showed that when people improve objects, ideas, or situations, they systematically default to adding new elements rather than removing existing ones &mdash; even when subtraction is objectively better. McComb argues AI will <strong>amplify this bias</strong>: generative AI is inherently additive (it generates <em>more</em> options, <em>more</em> features, <em>more</em> complexity). Designers already struggle to simplify; AI-assisted design may produce ever-more-complex artifacts unless subtractive thinking is explicitly built into the workflow.</p>
 
-<h4>4. We copy early movers irrationally (herding)</h4>
-<div class="slide-fig"><img src="/slides/v1/v1_0875s.png" alt="Herding" onclick="openLightbox(this)"><div class="caption">Penguins following each other off an ice shelf. Early adopters of AI in design will be copied regardless of whether their approach is optimal.</div></div>
-<p>This is an information-cascade argument: once a few prominent firms or designers adopt a particular AI workflow, others will follow not because they've independently evaluated it but because they assume the early movers know something they don't. The result is <strong>path dependency</strong> &mdash; the field could lock into suboptimal AI integration patterns simply because they were adopted first. McComb is implicitly arguing that the current moment is critical: the design community's AI adoption patterns are being set <em>right now</em>, and herding effects mean those early patterns will be very hard to change later.</p>
+<h4 class="ed-h4">04 / Herding</h4>
+<figure class="ed-fig"><img src="/slides/v1/v1_0875s.png" alt="Herding" onclick="openLightbox(this)"><figcaption><strong>Fig. 13</strong>Penguins following each other off an ice shelf. Early adopters of AI in design will be copied regardless of whether their approach is optimal.</figcaption></figure>
+<p>An information-cascade argument: once a few prominent firms or designers adopt a particular AI workflow, others will follow not because they've independently evaluated it but because they assume the early movers know something they don't. The result is <strong>path dependency</strong> &mdash; the field could lock into suboptimal AI integration patterns simply because they were adopted first. McComb is implicitly arguing that the current moment is critical: the design community's AI adoption patterns are being set <em>right now</em>, and herding effects mean those early patterns will be very hard to change later.</p>
 
-<h4>5. We suffer from choice overload (Hick's Law)</h4>
-<div class="slide-fig"><img src="/slides/v1/v1_0895s.png" alt="Choice overload" onclick="openLightbox(this)"><div class="caption">A dense grid of drone/aerial vehicle configurations from the AeroSet dataset. AI dramatically expands the design space, but more options can mean worse decisions.</div></div>
-<p>Generative AI can produce thousands of design candidates in minutes. But Hick's Law tells us that decision time increases logarithmically with the number of options, and psychological research on choice overload (Iyengar & Lepper, 2000) shows that too many options can lead to decision paralysis, lower satisfaction, and worse outcomes. McComb's point: <strong>the ability to generate more options is only valuable if designers can effectively navigate and evaluate them.</strong> Without better curation, filtering, and evaluation tools, AI-generated abundance becomes a liability, not an asset.</p>
+<h4 class="ed-h4">05 / Choice overload &mdash; Hick (1952); Iyengar &amp; Lepper (2000)</h4>
+<figure class="ed-fig"><img src="/slides/v1/v1_0895s.png" alt="Choice overload" onclick="openLightbox(this)"><figcaption><strong>Fig. 14</strong>A dense grid of drone/aerial vehicle configurations from the AeroSet dataset. AI dramatically expands the design space, but more options can mean worse decisions.</figcaption></figure>
+<p>Generative AI can produce thousands of design candidates in minutes. But Hick's Law<a href="#ref-12" class="cite" data-tip="Hick, QJEP, 1952">[12]</a> tells us decision time increases logarithmically with the number of options, and Iyengar and Lepper's choice-overload studies<a href="#ref-13" class="cite" data-tip="Iyengar &amp; Lepper, JPSP, 2000">[13]</a> show that too many options can lead to decision paralysis, lower satisfaction, and worse outcomes. McComb's point: <strong>the ability to generate more options is only valuable if designers can effectively navigate and evaluate them.</strong> Without better curation and filtering tools, AI-generated abundance becomes a liability, not an asset.</p>
+</section>
 
-<h3 id="t1-futures">Seven Potential Futures</h3>
-<p>McComb closes with a spectrum of possible futures, ordered from catastrophic to humanistic. The structure is deliberate &mdash; he's guiding the audience from the scenarios they fear to the ones he believes are worth pursuing.</p>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v1/v1_0935s.png" alt="Future 1" onclick="openLightbox(this)"><div class="caption"><strong>Future 1:</strong> p(doom) &rarr; 1. Humankind goes extinct. The existential risk boundary condition.</div></div>
-  <div class="slide-fig"><img src="/slides/v1/v1_0965s.png" alt="Future 2" onclick="openLightbox(this)"><div class="caption"><strong>Future 2:</strong> p(doom) &rarr; 0. We shut off the machines. Neo-Luddite rejection.</div></div>
+<section>
+<div class="section-mark"><span class="section-num">IV</span><h2 class="section-title">Seven futures, ordered by preference</h2></div>
+<p>McComb closes the keynote with a spectrum of possible futures, ordered from catastrophic to humanistic. The structure is deliberate &mdash; he's guiding the audience from the scenarios they fear to the ones he believes are worth pursuing. He presents these not as predictions but as <strong>possible equilibria</strong>: stable states that human-AI design practice could settle into.</p>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v1/v1_0935s.png" alt="Future 1" onclick="openLightbox(this)"><figcaption><strong>Future 1</strong>p(doom) &rarr; 1. Humankind goes extinct. The existential-risk boundary condition.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v1/v1_0965s.png" alt="Future 2" onclick="openLightbox(this)"><figcaption><strong>Future 2</strong>p(doom) &rarr; 0. We shut off the machines. Neo-Luddite rejection.</figcaption></figure>
 </div>
-<div class="slide-fig"><img src="/slides/v1/v1_0985s.png" alt="Future 3" onclick="openLightbox(this)"><div class="caption"><strong>Future 3:</strong> Cyborgs. Human-machine integration &mdash; McComb notes we're already partway there with smartphones and the internet.</div></div>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v1/v1_1005s.png" alt="Future 4" onclick="openLightbox(this)"><div class="caption"><strong>Future 4:</strong> Humans do the physical parts of design. AI handles cognition; humans become fabricators.</div></div>
-  <div class="slide-fig"><img src="/slides/v1/v1_1035s.png" alt="Future 5" onclick="openLightbox(this)"><div class="caption"><strong>Future 5:</strong> Humans do the early stages. Problem framing and concept generation remain human; AI handles execution.</div></div>
+<figure class="ed-fig"><img src="/slides/v1/v1_0985s.png" alt="Future 3" onclick="openLightbox(this)"><figcaption><strong>Future 3</strong>Cyborgs. Human-machine integration &mdash; McComb notes we're already partway there with smartphones and the internet.</figcaption></figure>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v1/v1_1005s.png" alt="Future 4" onclick="openLightbox(this)"><figcaption><strong>Future 4</strong>Humans do the physical parts of design. AI handles cognition; humans become fabricators.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v1/v1_1035s.png" alt="Future 5" onclick="openLightbox(this)"><figcaption><strong>Future 5</strong>Humans do the early stages. Problem framing and concept generation remain human; AI handles execution.</figcaption></figure>
 </div>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v1/v1_1065s.png" alt="Future 6" onclick="openLightbox(this)"><div class="caption"><strong>Future 6:</strong> Humans do the parts of design we enjoy most. Value-aligned labor division.</div></div>
-  <div class="slide-fig"><img src="/slides/v1/v1_1095s.png" alt="Future 7" onclick="openLightbox(this)"><div class="caption"><strong>Future 7:</strong> Humans do the most human parts of design. Empathy, meaning-making, collaborative judgment.</div></div>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v1/v1_1065s.png" alt="Future 6" onclick="openLightbox(this)"><figcaption><strong>Future 6</strong>Humans do the parts of design we enjoy most. Value-aligned labor division.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v1/v1_1095s.png" alt="Future 7" onclick="openLightbox(this)"><figcaption><strong>Future 7</strong>Humans do the most human parts of design. Empathy, meaning-making, collaborative judgment.</figcaption></figure>
 </div>
-<div class="callout"><div class="label">McComb's Implied Preference</div><p>The progression is deliberate. Futures 6 and 7 represent McComb's research vision: a world where AI handles the computationally intensive parts of design while humans retain what is most intrinsically meaningful &mdash; creative ideation, empathetic judgment, and the satisfaction of making things that matter. His entire research program (empathy studies, cognitive style, AI coaching) is oriented toward enabling these futures.</p></div>
-</div>
+<p>Futures 6 and 7 represent McComb's research vision: a world where AI handles the computationally intensive parts of design while humans retain what is most intrinsically meaningful &mdash; creative ideation, empathetic judgment, and the satisfaction of making things that matter. His entire research program (empathy studies, cognitive style, AI coaching) is oriented toward enabling these futures.</p>
+</section>
 
-<!-- ===== TALK 2 ===== -->
-<div class="section" id="sec-talk2">
-<h2>Talk 2: Full Lecture (~50 min)</h2>
-<p>The longer talk shares the same title and opening but diverges into deep research content. Where Talk 1 argues from psychology and economics, Talk 2 presents <strong>empirical evidence</strong> spanning five distinct research threads. McComb structures the talk around a three-stage progression: understanding human designers, building AI-assisted tools, and achieving genuine human-AI collaboration.</p>
+<div class="divider">&sect; &sect; &sect;</div>
 
-<div class="toc"><h4>Sections</h4><ul>
-  <li><a href="#t2-progression">The Research Progression</a></li>
-  <li><a href="#t2-empathy">Empathy in Design Teams</a></li>
-  <li><a href="#t2-cognitive">Cognitive Style & Team Composition</a></li>
-  <li><a href="#t2-lattice">AI-Assisted Design: Lattices & Optimization</a></li>
-  <li><a href="#t2-teaming">Human-AI Teaming Experiments</a></li>
-  <li><a href="#t2-collective">Collective Intelligence & LLMs</a></li>
-</ul></div>
-
-<h3 id="t2-progression">The Research Progression</h3>
-<div class="slide-fig"><img src="/slides/v2/v2_0365s.png" alt="Progression" onclick="openLightbox(this)"><div class="caption">McComb's three-stage research arc: Human Designers &rarr; AI-Assisted Engineering Design &rarr; Human-AI Collaboration. Each stage builds on the insights of the previous one.</div></div>
+<section>
+<div class="section-mark"><span class="section-num">V</span><h2 class="section-title">The lecture: evidence behind the argument</h2></div>
+<p>The longer talk shares the same title and opening but diverges into deep research content. Where the keynote argues from psychology and economics, the lecture presents <strong>empirical evidence</strong> spanning five research threads. McComb structures it around a three-stage progression: understanding human designers, building AI-assisted tools, and achieving genuine human-AI collaboration.</p>
+<figure class="ed-fig"><img src="/slides/v2/v2_0365s.png" alt="Progression" onclick="openLightbox(this)"><figcaption><strong>Fig. 15</strong>McComb's three-stage research arc: Human Designers &rarr; AI-Assisted Engineering Design &rarr; Human-AI Collaboration. Each stage builds on the insights of the previous one.</figcaption></figure>
 <p>This structure is important epistemically: McComb is arguing that you can't build effective human-AI design tools without first understanding human designers on their own terms. The psychology comes <em>before</em> the engineering, not after. This is unusual in an engineering lab &mdash; most AI-for-design research starts with the algorithm and bolts on user studies later.</p>
+</section>
 
-<h3 id="t2-empathy">Empathy in Design Teams</h3>
-<p>McComb presents a longitudinal study using Davis's (1980) multidimensional model of empathy, which distinguishes four components: Personal Distress and Empathic Concern (affective), Fantasy and Perspective-Taking (cognitive), each oriented toward self or others.</p>
-<div class="slide-fig"><img src="/slides/v2/v2_0545s.png" alt="Empathy model" onclick="openLightbox(this)"><div class="caption">Davis (1980): Four components of empathy on two axes. Affective vs. Cognitive, Self-Oriented vs. Other-Oriented.</div></div>
+<section>
+<div class="section-mark"><span class="section-num">VI</span><h2 class="section-title">Empathy, inverted</h2></div>
+<p>McComb presents a longitudinal study using Davis's multidimensional model of empathy,<a href="#ref-14" class="cite" data-tip="Davis, JSAS Catalog, 1980">[14]</a> which distinguishes four components: Personal Distress and Empathic Concern (affective), Fantasy and Perspective-Taking (cognitive), each oriented toward self or others.</p>
+<figure class="ed-fig"><img src="/slides/v2/v2_0545s.png" alt="Empathy model" onclick="openLightbox(this)"><figcaption><strong>Fig. 16</strong>Davis (1980): Four components of empathy on two axes. Affective vs. Cognitive, Self-Oriented vs. Other-Oriented.</figcaption></figure>
 
-<h4>The Reversal: Individual vs. Team</h4>
-<p>The first finding is a null result &mdash; and in science, null results that challenge assumptions are often the most important:</p>
-<div class="slide-fig"><img src="/slides/v2/v2_0705s.png" alt="Individual null" onclick="openLightbox(this)"><div class="caption">Individual-level trait empathy does NOT predict concept generation outcomes. No significant relationship to creativity, usefulness, uniqueness, or elegance. (Alzyeed et al., JMD 2021)</div></div>
-<p>This is counterintuitive &mdash; design education often emphasizes empathy as a core skill. But McComb's group found that an individual's empathy score tells you nothing about the quality of their design concepts. The story changes dramatically, however, when you look at teams.</p>
-<p>Using computational recombination &mdash; agent-based modeling that simulates how individuals would perform in different team compositions &mdash; they discovered the reversal:</p>
-<div class="slide-fig"><img src="/slides/v2/v2_0775s.png" alt="Team empathy" onclick="openLightbox(this)"><div class="caption">At the team level, empathy diversity and elevation DO significantly predict creative outcomes. The effect is invisible at the individual level. (Alzyeed et al., AI EDAMI 2023)</div></div>
-<div class="callout"><div class="label">Why This Matters</div><p>The reversal has two implications. First, <strong>design is fundamentally a team activity</strong> &mdash; psychological constructs must be studied at the level they actually operate. Individual empathy doesn't help; team empathy composition does. Second, <strong>computational simulation can reveal effects that purely human-subjects studies miss</strong>. You can't randomly assign 200 teams of 5 people to different empathy compositions, but you can simulate it. This is a methodological argument for multi-method research that combines human data with agent-based modeling.</p></div>
+<h4 class="ed-h4">The reversal</h4>
+<p>The first finding is a null result &mdash; and in science, null results that challenge assumptions are often the most important.</p>
+<figure class="ed-fig"><img src="/slides/v2/v2_0705s.png" alt="Individual null" onclick="openLightbox(this)"><figcaption><strong>Fig. 17</strong>Individual-level trait empathy does not predict concept generation outcomes. No significant relationship to creativity, usefulness, uniqueness, or elegance.<a href="#ref-15" class="cite" data-tip="Alzayed et al., J. Mech. Design, 2021">[15]</a></figcaption></figure>
+<p>This is counterintuitive &mdash; design education often emphasizes empathy as a core skill. But McComb's group found that an individual's empathy score tells you nothing about the quality of their design concepts. The story changes dramatically when you look at teams. Using computational recombination &mdash; agent-based modeling that simulates how individuals would perform in different team compositions &mdash; they discovered the reversal:</p>
+<figure class="ed-fig"><img src="/slides/v2/v2_0775s.png" alt="Team empathy" onclick="openLightbox(this)"><figcaption><strong>Fig. 18</strong>At the team level, empathy diversity and elevation do significantly predict creative outcomes. The effect is invisible at the individual level.<a href="#ref-6" class="cite" data-tip="Alzayed et al., AI EDAM, 2023">[6]</a></figcaption></figure>
+<div class="pull"><p>Individual empathy doesn't help; team empathy composition does. Computational simulation can reveal effects that purely human-subjects studies miss.</p></div>
+<p>The reversal has two implications. First, <strong>design is fundamentally a team activity</strong> &mdash; psychological constructs must be studied at the level they actually operate. Second, you can't randomly assign 200 teams of 5 people to different empathy compositions, but you can simulate it. This is a methodological argument for multi-method research that combines human data with agent-based modeling.</p>
+</section>
 
-<h3 id="t2-cognitive">Cognitive Style & Team Composition</h3>
-<p>The second human-focused thread uses Kirton's Adaption-Innovation (KAI) theory, which places individuals on a spectrum from "More Adaptive" (prefer structure, doing things better within existing paradigms) to "More Innovative" (prefer less structure, doing things differently).</p>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v2/v2_0945s.png" alt="KAI curve" onclick="openLightbox(this)"><div class="caption">KAI distribution: a bell curve from Adaptive to Innovative. Population mean ~95, range ~32-160. This is cognitive <em>style</em>, not ability.</div></div>
-  <div class="slide-fig"><img src="/slides/v2/v2_1175s.png" alt="Formula SAE" onclick="openLightbox(this)"><div class="caption">The Formula SAE system model &mdash; a complex engineered system with many interdependent subsystems used to test the KABOOM agent-based model.</div></div>
+<section>
+<div class="section-mark"><span class="section-num">VII</span><h2 class="section-title">Cognitive style and team composition</h2></div>
+<p>The second human-focused thread uses Kirton's Adaption-Innovation theory,<a href="#ref-16" class="cite" data-tip="Kirton, J. Applied Psychology, 1976">[16]</a> which places individuals on a spectrum from "More Adaptive" (prefer structure, doing things better within existing paradigms) to "More Innovative" (prefer less structure, doing things differently).</p>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v2/v2_0945s.png" alt="KAI curve" onclick="openLightbox(this)"><figcaption><strong>Fig. 19</strong>KAI distribution: a bell curve from Adaptive to Innovative. Population mean ~95, range ~32-160. This is cognitive <em>style</em>, not ability.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v2/v2_1175s.png" alt="Formula SAE" onclick="openLightbox(this)"><figcaption><strong>Fig. 20</strong>The Formula SAE system model &mdash; a complex engineered system with many interdependent subsystems used to test the KABOOM agent-based model.</figcaption></figure>
 </div>
-<div class="slide-fig"><img src="/slides/v2/v2_1255s.png" alt="KABOOM results" onclick="openLightbox(this)"><div class="caption">KABOOM results: the optimal cognitive style depends on the subsystem. Rear suspension, engine, and impact attenuator each perform best with different cognitive style profiles.</div></div>
+<figure class="ed-fig"><img src="/slides/v2/v2_1255s.png" alt="KABOOM results" onclick="openLightbox(this)"><figcaption><strong>Fig. 21</strong>KABOOM results: the optimal cognitive style depends on the subsystem. Rear suspension, engine, and impact attenuator each perform best with different cognitive style profiles.</figcaption></figure>
 <p>The finding is directly actionable for engineering organizations: <strong>there is no universally optimal cognitive style for design teams.</strong> The right composition depends on the specific subsystem and problem type. Adaptive thinkers excel at well-structured optimization problems; innovative thinkers excel at open-ended, ambiguous challenges. And AI simulation (KABOOM) can identify the optimal match before you assemble a real team.</p>
+<figure class="ed-fig"><img src="/slides/v2/v2_1385s.png" alt="FBS ontology" onclick="openLightbox(this)"><figcaption><strong>Fig. 22</strong>Function-Behaviour-Structure (FBS) ontology (Gero &amp; Kannengiesser):<a href="#ref-17" class="cite" data-tip="Gero &amp; Kannengiesser, 2014">[17]</a> a formal framework for analyzing design processes as transformations between Requirements, Function, expected Behaviour, actual Behaviour, and Structure.</figcaption></figure>
+</section>
 
-<div class="slide-fig"><img src="/slides/v2/v2_1385s.png" alt="FBS ontology" onclick="openLightbox(this)"><div class="caption">Function-Behavior-Structure (FBS) ontology (Gero & Kannengiesser, 2014): a formal framework for analyzing design processes as transformations between Requirements, Function, expected Behavior, actual Behavior, and Structure.</div></div>
-
-<h3 id="t2-lattice">AI-Assisted Design: Lattices & Optimization</h3>
-<p>The middle section of the talk shifts from human psychology to AI capabilities. McComb presents his lab's work on lattice structure design &mdash; an important problem in additive manufacturing where the geometry of internal lattice patterns determines the mechanical properties (stiffness, impact absorption, weight) of 3D-printed parts.</p>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v2/v2_1515s.png" alt="Lattice types" onclick="openLightbox(this)"><div class="caption">Three lattice structure types: Uniform, Graded, and Graded Stranded. Energy absorption characteristics vary dramatically with geometry.</div></div>
-  <div class="slide-fig"><img src="/slides/v2/v2_1535s.png" alt="Multi-lattice" onclick="openLightbox(this)"><div class="caption">Multi-lattice design freedom: more diverse mechanical properties, better stiffness, ability to withstand higher loads.</div></div>
+<section>
+<div class="section-mark"><span class="section-num">VIII</span><h2 class="section-title">Lattices in a learned latent space</h2></div>
+<p>The middle section of the lecture shifts from human psychology to AI capabilities. McComb presents his lab's work on lattice structure design &mdash; a problem in additive manufacturing where the geometry of internal lattice patterns determines the mechanical properties (stiffness, impact absorption, weight) of 3D-printed parts.</p>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v2/v2_1515s.png" alt="Lattice types" onclick="openLightbox(this)"><figcaption><strong>Fig. 23</strong>Three lattice structure types: Uniform, Graded, and Graded Stranded. Energy absorption characteristics vary dramatically with geometry.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v2/v2_1535s.png" alt="Multi-lattice" onclick="openLightbox(this)"><figcaption><strong>Fig. 24</strong>Multi-lattice design freedom: more diverse mechanical properties, better stiffness, ability to withstand higher loads.</figcaption></figure>
 </div>
 
-<h4>Variational Autoencoders for Lattice Design</h4>
-<div class="slide-fig"><img src="/slides/v2/v2_1585s.png" alt="VAE" onclick="openLightbox(this)"><div class="caption">Variational Autoencoder architecture: Input &rarr; Encoder &rarr; Compressed Latent Representation &rarr; Decoder &rarr; Output.</div></div>
-<p>McComb's group uses VAEs to learn a continuous latent space over lattice geometries. This is powerful because it transforms a discrete, combinatorial design space into a smooth, continuous one that can be navigated with gradient-based optimization.</p>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v2/v2_1645s.png" alt="Interpolation" onclick="openLightbox(this)"><div class="caption">Interpolating in latent space generates aesthetically smooth transitions between lattice structures &mdash; navigating the design space by moving through learned representations.</div></div>
-  <div class="slide-fig"><img src="/slides/v2/v2_1675s.png" alt="Property-augmented" onclick="openLightbox(this)"><div class="caption">"Smooth Like Butter": Appending stiffness tensors to the geometry embedding creates a property-aware latent space. (Baldwen et al., 3D Printing and AM, 2025)</div></div>
+<h4 class="ed-h4">Variational autoencoders for lattice design</h4>
+<figure class="ed-fig"><img src="/slides/v2/v2_1585s.png" alt="VAE" onclick="openLightbox(this)"><figcaption><strong>Fig. 25</strong>Variational Autoencoder architecture: Input &rarr; Encoder &rarr; Compressed Latent Representation &rarr; Decoder &rarr; Output.</figcaption></figure>
+<p>McComb's group uses VAEs to learn a continuous latent space over lattice geometries. This transforms a discrete, combinatorial design space into a smooth one that can be navigated with gradient-based optimization.</p>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v2/v2_1645s.png" alt="Interpolation" onclick="openLightbox(this)"><figcaption><strong>Fig. 26</strong>Interpolating in latent space generates aesthetically smooth transitions between lattice structures &mdash; navigating the design space by moving through learned representations.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v2/v2_1675s.png" alt="Property-augmented" onclick="openLightbox(this)"><figcaption><strong>Fig. 27</strong>"Smooth Like Butter": appending stiffness tensors to the geometry embedding creates a property-aware latent space.<a href="#ref-18" class="cite" data-tip="Baldwin, Meisel &amp; McComb, 3D Printing &amp; AM, 2024">[18]</a></figcaption></figure>
 </div>
-<div class="slide-fig"><img src="/slides/v2/v2_1715s.png" alt="Topology opt" onclick="openLightbox(this)"><div class="caption">Multi-lattice topology optimization using the learned embeddings. The workflow integrates compliance analysis, finite element methods, and lattice decoding.</div></div>
+<figure class="ed-fig"><img src="/slides/v2/v2_1715s.png" alt="Topology opt" onclick="openLightbox(this)"><figcaption><strong>Fig. 28</strong>Multi-lattice topology optimization using the learned embeddings. The workflow integrates compliance analysis, finite element methods, and lattice decoding.</figcaption></figure>
 
-<h4>Reinforcement Learning for Design</h4>
-<div class="slide-fig"><img src="/slides/v2/v2_1805s.png" alt="RL" onclick="openLightbox(this)"><div class="caption">RL agents find high-performance design solutions at dramatically reduced computational cost. R&sup2; = 0.911 for the performance-time trade-off curve. (Agrawal & McComb, JCISE 2023)</div></div>
+<h4 class="ed-h4">Reinforcement learning for design</h4>
+<figure class="ed-fig"><img src="/slides/v2/v2_1805s.png" alt="RL" onclick="openLightbox(this)"><figcaption><strong>Fig. 29</strong>RL agents find high-performance design solutions at dramatically reduced computational cost. R&sup2; = 0.911 for the performance-time trade-off curve.<a href="#ref-19" class="cite" data-tip="Agrawal &amp; McComb, JCISE, 2023">[19]</a></figcaption></figure>
 <p>The RL result is practically significant: it means AI can <strong>explore large design spaces cheaply enough to be useful in real engineering workflows</strong>, not just in academic benchmarks. The computational cost reduction makes AI-assisted lattice design viable for production settings.</p>
+</section>
 
-<h3 id="t2-teaming">Human-AI Teaming Experiments</h3>
+<section>
+<div class="section-mark"><span class="section-num">IX</span><h2 class="section-title">Teaming experiments</h2></div>
 <p>The final and most substantial section presents controlled experiments on human-AI collaboration using HyForm, an instrumented platform that captures every design action, chat message, and decision made by team members.</p>
-<div class="slide-fig"><img src="/slides/v2/v2_1825s.png" alt="Matrix revisited" onclick="openLightbox(this)"><div class="caption">The Human-AI Teaming Matrix revisited in the context of experimental results.</div></div>
+<figure class="ed-fig"><img src="/slides/v2/v2_1825s.png" alt="Matrix revisited" onclick="openLightbox(this)"><figcaption><strong>Fig. 30</strong>The Human-AI Teaming Matrix revisited in the context of experimental results.</figcaption></figure>
 
-<h4>Hybrid vs. Human Teams</h4>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v2/v2_2055s.png" alt="Team structure" onclick="openLightbox(this)"><div class="caption">Experimental team structure with Design Specialists, Operations Specialists, and Problem Manager, with controlled communication channels.</div></div>
-  <div class="slide-fig"><img src="/slides/v2/v2_2165s.png" alt="Results" onclick="openLightbox(this)"><div class="caption">Hybrid and human teams perform equally well. Box plots show no statistically significant difference in team profit (Wilcoxon p = 0.32, 0.88). (Xu, Zhang et al., JMD 2024)</div></div>
+<h4 class="ed-h4">Hybrid vs. human teams</h4>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v2/v2_2055s.png" alt="Team structure" onclick="openLightbox(this)"><figcaption><strong>Fig. 31</strong>Experimental team structure with Design Specialists, Operations Specialists, and Problem Manager, with controlled communication channels.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v2/v2_2165s.png" alt="Results" onclick="openLightbox(this)"><figcaption><strong>Fig. 32</strong>Hybrid and human teams perform equally well. Box plots show no statistically significant difference in team profit (Wilcoxon p = 0.32, 0.88).<a href="#ref-7" class="cite" data-tip="Xu et al., J. Mech. Design, 2024">[7]</a></figcaption></figure>
 </div>
-<p>The null result here is important: <strong>adding an AI team member neither improved nor degraded team performance.</strong> This is a more nuanced finding than the headlines suggest. It means AI integration in design teams is viable (it doesn't break things), but it also means the value of AI in teaming contexts depends on <em>how</em> it's integrated, not just <em>whether</em> it's present. The shocks (sudden rule changes mid-experiment) revealed that teams adapt similarly regardless of human or hybrid composition.</p>
+<p>The null result here is important: <strong>adding an AI team member neither improved nor degraded team performance.</strong> It means AI integration in design teams is viable (it doesn't break things), but the value of AI in teaming contexts depends on <em>how</em> it's integrated, not just <em>whether</em> it's present. The shocks (sudden rule changes mid-experiment) revealed that teams adapt similarly regardless of human or hybrid composition.</p>
 
-<h4>AI-as-Coach</h4>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v2/v2_2375s.png" alt="AI coach" onclick="openLightbox(this)"><div class="caption">AI coaching experiment: an AI process manager monitors team dynamics and intervenes to improve collaboration.</div></div>
-  <div class="slide-fig"><img src="/slides/v2/v2_2495s.png" alt="Intervention types" onclick="openLightbox(this)"><div class="caption">Human and AI coaches show similar distributions across intervention types: Advise, Inform, Coordinate, Communicate. (Gyory, Soria Zurita et al., JMD 2022)</div></div>
+<h4 class="ed-h4">AI-as-coach</h4>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v2/v2_2375s.png" alt="AI coach" onclick="openLightbox(this)"><figcaption><strong>Fig. 33</strong>AI coaching experiment: an AI process manager monitors team dynamics and intervenes to improve collaboration.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v2/v2_2495s.png" alt="Intervention types" onclick="openLightbox(this)"><figcaption><strong>Fig. 34</strong>Human and AI coaches show similar distributions across intervention types: Advise, Inform, Coordinate, Communicate.<a href="#ref-20" class="cite" data-tip="Gyory, Soria Zurita et al., J. Mech. Design, 2022">[20]</a></figcaption></figure>
 </div>
-<p>This is the AI-as-Coach quadrant of the teaming matrix in action. The finding that AI coaches <strong>naturally converge on similar intervention patterns</strong> to human coaches is striking &mdash; it suggests that effective process management in design may follow relatively universal patterns that AI can learn, regardless of whether it was explicitly programmed to mimic human coaching behavior.</p>
+<p>This is the AI-as-Coach quadrant of the teaming matrix in action. The finding that AI coaches <strong>naturally converge on similar intervention patterns</strong> to human coaches is striking &mdash; it suggests that effective process management in design may follow relatively universal patterns AI can learn, regardless of whether it was explicitly programmed to mimic human coaching behavior.</p>
+</section>
 
-<h3 id="t2-collective">Collective Intelligence & LLMs</h3>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v2/v2_2535s.png" alt="CI regression" onclick="openLightbox(this)"><div class="caption">Quantifying collective intelligence: regression coefficients for Process, Skill, Group Size, Social Perceptions, and Composition. (Riedl et al., PNAS 2021)</div></div>
-  <div class="slide-fig"><img src="/slides/v2/v2_2645s.png" alt="CI constructs" onclick="openLightbox(this)"><div class="caption">Three key constructs for collective intelligence: Social Sensitivity, Coordinated Attention, Equal Participation.</div></div>
+<section>
+<div class="section-mark"><span class="section-num">X</span><h2 class="section-title">Collective intelligence and LLMs</h2></div>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v2/v2_2535s.png" alt="CI regression" onclick="openLightbox(this)"><figcaption><strong>Fig. 35</strong>Quantifying collective intelligence: regression coefficients for Process, Skill, Group Size, Social Perceptions, and Composition.<a href="#ref-21" class="cite" data-tip="Riedl et al., PNAS, 2021">[21]</a></figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v2/v2_2645s.png" alt="CI constructs" onclick="openLightbox(this)"><figcaption><strong>Fig. 36</strong>Three key constructs for collective intelligence: Social Sensitivity, Coordinated Attention, Equal Participation.</figcaption></figure>
 </div>
-<p>McComb grounds his AI facilitation work in collective intelligence theory rather than task-specific training data. The three constructs &mdash; Social Sensitivity, Coordinated Attention, Equal Participation &mdash; provide a <strong>domain-general framework</strong> for AI coaching. This matters because it means the AI coach can generalize to novel design problems it has never seen, rather than being limited to problems similar to its training set.</p>
+<p>McComb grounds his AI facilitation work in collective intelligence theory rather than task-specific training data. The three constructs &mdash; Social Sensitivity, Coordinated Attention, Equal Participation &mdash; provide a <strong>domain-general framework</strong> for AI coaching. The AI coach can generalize to novel design problems it has never seen, rather than being limited to problems similar to its training set.</p>
 
-<h4>LLMs as Tutees, Not Tutors</h4>
-<div class="slide-fig"><img src="/slides/v2/v2_2745s.png" alt="LLMs tutees" onclick="openLightbox(this)"><div class="caption">LLMs as tutees boost student mastery. Students who taught the LLM scored significantly higher on concept inventories than the control group.</div></div>
-<div class="callout"><div class="label">Counterintuitive Result</div><p>The dominant framing for LLMs in education is "AI as tutor" &mdash; the AI teaches the student. McComb's group flipped this: they had students <strong>teach the LLM</strong>. The "learning by teaching" effect &mdash; well-documented in human education &mdash; transferred to AI interactions. Students who explained concepts to the LLM understood the material better than those in the control condition. This suggests the most valuable educational use of LLMs may be the opposite of what most people assume.</p></div>
-</div>
+<h4 class="ed-h4">LLMs as tutees, not tutors</h4>
+<figure class="ed-fig"><img src="/slides/v2/v2_2745s.png" alt="LLMs tutees" onclick="openLightbox(this)"><figcaption><strong>Fig. 37</strong>LLMs as tutees boost student mastery. Students who taught the LLM scored significantly higher on concept inventories than the control group.</figcaption></figure>
+<div class="pull"><p>The dominant framing is "AI as tutor." McComb's group flipped it: students <em>teach</em> the LLM, and the learning-by-teaching effect transfers.</p></div>
+<p>The "learning by teaching" effect &mdash; well-documented in human education &mdash; transferred to AI interactions. Students who explained concepts to the LLM understood the material better than those in the control condition. This suggests the most valuable educational use of LLMs may be the opposite of what most people assume.</p>
+</section>
 
-<!-- ===== COMPARISON ===== -->
-<div class="section" id="sec-comparison">
-<h2>Comparison: Two Versions, One Vision</h2>
+<div class="divider">&sect; &sect; &sect;</div>
+
+<section>
+<div class="section-mark"><span class="section-num">XI</span><h2 class="section-title">Two versions, one vision</h2></div>
 <p>The two talks share a title and core thesis but serve different purposes and audiences. Understanding their differences reveals how McComb adapts a complex research program for different contexts.</p>
 
-<div style="overflow-x:auto">
-<table class="result-table">
-<tr style="border-bottom:2px solid var(--border)"><th></th><th style="color:var(--accent)">Talk 1: CDFAM (19 min)</th><th style="color:var(--accent)">Talk 2: Full (50 min)</th></tr>
-<tr><td><strong>Audience</strong></td><td>Industry practitioners</td><td>Academic/research</td></tr>
-<tr><td><strong>Epistemic mode</strong></td><td>Argument from theory &amp; analogy</td><td>Argument from empirical evidence</td></tr>
-<tr><td><strong>Focus</strong></td><td>Cognitive biases, economic stakes, futures</td><td>Lab research: empathy, KAI, VAEs, teaming</td></tr>
-<tr><td><strong>Technical depth</strong></td><td>Low &mdash; conceptual framing</td><td>High &mdash; architectures, statistics, equations</td></tr>
-<tr><td><strong>Human biases</strong></td><td>5 biases (core section)</td><td>Not present</td></tr>
-<tr><td><strong>Empathy research</strong></td><td>Not covered</td><td>Deep dive: individual vs. team reversal</td></tr>
-<tr><td><strong>Lattice/VAE work</strong></td><td>Not covered</td><td>Full: VAEs, latent interpolation, topology opt.</td></tr>
-<tr><td><strong>Teaming experiments</strong></td><td>Matrix framework only</td><td>HyForm, hybrid teams, AI coaching</td></tr>
-<tr><td><strong>Potential futures</strong></td><td>7 futures (incl. cyborgs)</td><td>6 futures (slightly compressed)</td></tr>
+<table class="comp-table">
+<thead><tr><th></th><th>Keynote (19&nbsp;min)</th><th>Lecture (50&nbsp;min)</th></tr></thead>
+<tbody>
+<tr><th>Audience</th><td>Industry practitioners</td><td>Academic / research</td></tr>
+<tr><th>Epistemic mode</th><td>Argument from theory &amp; analogy</td><td>Argument from empirical evidence</td></tr>
+<tr><th>Focus</th><td>Cognitive biases, economic stakes, futures</td><td>Lab research: empathy, KAI, VAEs, teaming</td></tr>
+<tr><th>Technical depth</th><td>Low &mdash; conceptual framing</td><td>High &mdash; architectures, statistics, equations</td></tr>
+<tr><th>Human biases</th><td>Five biases (core section)</td><td>Not present</td></tr>
+<tr><th>Empathy research</th><td>Not covered</td><td>Deep dive: individual vs. team reversal</td></tr>
+<tr><th>Lattice / VAE work</th><td>Not covered</td><td>Full: VAEs, latent interpolation, topology opt.</td></tr>
+<tr><th>Teaming experiments</th><td>Matrix framework only</td><td>HyForm, hybrid teams, AI coaching</td></tr>
+<tr><th>Potential futures</th><td>Seven (incl. cyborgs)</td><td>Six (slightly compressed)</td></tr>
+</tbody>
 </table>
+<p>The keynote provides the <strong>philosophical argument</strong> and psychological grounding for <em>why</em> human-AI teaming matters. The lecture provides the <strong>empirical evidence</strong> and technical methods for <em>how</em> McComb's lab is investigating it. Together they form a complete picture: the conceptual framework and the research that fills it in. The split reveals something about McComb's intellectual strategy: he doesn't present the same talk at different lengths. He genuinely adapts the <em>type</em> of argument to the audience.</p>
+</section>
+
+<section>
+<div class="section-mark"><span class="section-num">XII</span><h2 class="section-title">What this means for practitioners</h2></div>
+<figure class="ed-fig"><img src="/slides/v2/v2_2755s.png" alt="Provocation" onclick="openLightbox(this)"><figcaption><strong>Fig. 38</strong>"In a future where computers will be able to do all this and even more, what will be left for human designers?"</figcaption></figure>
+<div class="ed-pair">
+  <figure class="ed-fig"><img src="/slides/v2/v2_2925s.png" alt="Enjoy" onclick="openLightbox(this)"><figcaption><strong>Future 6</strong>Value-aligned labor division &mdash; humans keep the parts of design that bring satisfaction and meaning.</figcaption></figure>
+  <figure class="ed-fig"><img src="/slides/v2/v2_2955s.png" alt="Most human" onclick="openLightbox(this)"><figcaption><strong>Future 7</strong>Design as an expression of empathy, judgment, and collaborative sense-making.</figcaption></figure>
 </div>
-
-<h3>What Talk 1 Has That Talk 2 Doesn't</h3>
-<div class="callout"><div class="label">Unique to Talk 1</div><p>The <strong>five cognitive biases</strong> section is the intellectual core of Talk 1 and does not appear in Talk 2. McComb also includes the <strong>"technology vs. humans" speed juxtaposition</strong> with Our World in Data charts, and the <strong>AI infrastructure pyramid</strong> (McKinsey data stack). These are all conceptual/rhetorical tools designed for a practitioner audience that needs frameworks, not data.</p></div>
-<div class="slide-fig"><img src="/slides/v1/v1_0295s.png" alt="AI stack" onclick="openLightbox(this)"><div class="caption">The AI infrastructure pyramid &mdash; unique to Talk 1. A diagnostic tool for organizational readiness.</div></div>
-
-<h3>What Talk 2 Has That Talk 1 Doesn't</h3>
-<div class="callout"><div class="label">Unique to Talk 2</div><p>Talk 2 adds the <strong>empathy reversal study</strong>, <strong>KABOOM cognitive style simulations</strong>, <strong>variational autoencoder lattice design</strong>, <strong>HyForm teaming experiments</strong>, <strong>collective intelligence constructs</strong>, and the <strong>"LLMs as tutees"</strong> finding. These are all empirical research results with statistical backing, designed for an audience that evaluates evidence.</p></div>
-
-<h3>Reading Them Together</h3>
-<p>The two talks are complementary. Talk 1 provides the <strong>philosophical argument</strong> and psychological grounding for <em>why</em> human-AI teaming matters. Talk 2 provides the <strong>empirical evidence</strong> and technical methods for <em>how</em> McComb's lab is investigating it. Together they form a complete picture: the conceptual framework and the research that fills it in.</p>
-<p>The split also reveals something about McComb's intellectual strategy: he doesn't present the same talk at different lengths. He genuinely adapts the <em>type</em> of argument to the audience. Industry practitioners get frameworks and biases they can apply immediately; academic audiences get methodology and results they can build on.</p>
-</div>
-
-<!-- ===== FUTURES ===== -->
-<div class="section" id="sec-futures">
-<h2>The Futures of Human-AI Design</h2>
-<div class="slide-fig"><img src="/slides/v2/v2_2755s.png" alt="Provocation" onclick="openLightbox(this)"><div class="caption">"In a future where computers will be able to do all this and even more, what will be left for human designers?"</div></div>
-
-<p>McComb presents these not as predictions but as <strong>possible equilibria</strong>. Each represents a stable state that human-AI design practice could settle into, given different assumptions about AI capabilities, human adaptation, and societal choices.</p>
-
-<h4>1. Extinction &amp; 2. Neo-Luddism</h4>
-<p>The extreme cases: AI either destroys humanity (p(doom) &rarr; 1) or we reject it entirely (p(doom) &rarr; 0). McComb treats these as boundary conditions, not serious predictions &mdash; they frame the space of possibilities but are unlikely equilibria. The interesting question is what lies between them.</p>
-
-<h4>3. Cyborgs</h4>
-<p>Human-machine integration. McComb's point is that this isn't as sci-fi as it sounds: we already extend our cognition through smartphones, internet search, and cloud computing. The question is whether integration deepens from cognitive to physical (Neuralink, BCI) and how that changes what "designing" means.</p>
-
-<h4>4-5. Humans Keep the Physical / Early Stages</h4>
-<p>These futures divide design by <em>phase</em>: humans handle either fabrication (physical) or problem framing (early stages), while AI handles the rest. Both assume a clean division of labor is possible. McComb's research on empathy and cognitive style implicitly questions this &mdash; design isn't easily decomposable into phases.</p>
-
-<h4>6-7. Humans Keep What We Enjoy / What's Most Human</h4>
-<div class="slide-pair">
-  <div class="slide-fig"><img src="/slides/v2/v2_2925s.png" alt="Enjoy" onclick="openLightbox(this)"><div class="caption"><strong>Future 6:</strong> Value-aligned labor division &mdash; humans keep the parts of design that bring satisfaction and meaning.</div></div>
-  <div class="slide-fig"><img src="/slides/v2/v2_2955s.png" alt="Most human" onclick="openLightbox(this)"><div class="caption"><strong>Future 7:</strong> Design as an expression of empathy, judgment, and collaborative sense-making.</div></div>
-</div>
-<div class="callout"><div class="label">McComb's Position</div><p>Futures 6 and 7 represent McComb's preferred vision, and his research is explicitly building toward them. The empathy studies, cognitive style work, collective intelligence constructs, and AI coaching experiments are all aimed at understanding which parts of design are most distinctly human &mdash; and ensuring those parts remain in human hands not by default, but <strong>by design</strong>.</p></div>
-
-<h3>What This Means for Practitioners</h3>
-<ul class="findings">
+<p>Futures 6 and 7 represent McComb's preferred vision, and his research is explicitly building toward them. The empathy studies, cognitive style work, collective intelligence constructs, and AI coaching experiments are all aimed at understanding which parts of design are most distinctly human &mdash; and ensuring those parts remain in human hands not by default, but <strong>by design</strong>.</p>
+<ol class="findings-ed">
   <li><strong>Don't assume AI replaces designers.</strong> The evidence shows hybrid teams perform comparably to all-human teams. The challenge isn't displacement but integration.</li>
   <li><strong>Invest in team composition, not just tools.</strong> Empathy diversity and cognitive style matching matter more than individual skill or tool sophistication.</li>
-  <li><strong>Watch for biases.</strong> Satisficing, automation bias, herding, and choice overload will shape your organization's AI adoption &mdash; designing against these tendencies is as important as choosing the right AI tools.</li>
+  <li><strong>Watch for biases.</strong> Satisficing, automation bias, herding, and choice overload will shape your organization's AI adoption &mdash; designing against these tendencies is as important as choosing the right tools.</li>
   <li><strong>Ground AI in theory, not just data.</strong> AI systems built on psychological constructs generalize better than those trained on task-specific data alone.</li>
-  <li><strong>The "soul" is relational.</strong> What makes design human isn't any single capability &mdash; it's empathy, collaboration, judgment under ambiguity, and meaning-making. These are the skills to cultivate alongside AI.</li>
-</ul>
-</div>
+  <li><strong>The "soul" is relational.</strong> What makes design human isn't any single capability &mdash; it's empathy, collaboration, judgment under ambiguity, and meaning-making.</li>
+</ol>
+</section>
 
+<details class="expandable">
+<summary>References</summary>
+<ol class="reflist">
+  <li id="ref-1"><span class="ref-authors">McComb, C.</span> <span class="ref-title">AI and the Battle for the Soul of Design.</span> <span class="ref-venue">CDFAM NYC 2025 keynote (video).</span> <a href="https://www.youtube.com/watch?v=hyu1AuSeIDA" target="_blank" rel="noopener">youtube.com/watch?v=hyu1AuSeIDA</a></li>
+  <li id="ref-2"><span class="ref-authors">Design Research Collective.</span> <span class="ref-title">Lab website, Carnegie Mellon University.</span> <a href="https://cmudrc.github.io/" target="_blank" rel="noopener">cmudrc.github.io</a></li>
+  <li id="ref-3"><span class="ref-authors">Human+AI Design Initiative.</span> <span class="ref-title">Initiative website, Carnegie Mellon University.</span> <a href="https://engineering.cmu.edu/human-ai-design/index.html" target="_blank" rel="noopener">engineering.cmu.edu/human-ai-design</a></li>
+  <li id="ref-4"><span class="ref-authors">McComb, C.</span> <span class="ref-title">Faculty profile.</span> <span class="ref-venue">CMU College of Engineering.</span> <a href="https://engineering.cmu.edu/directory/bios/mccomb-christopher.html" target="_blank" rel="noopener">engineering.cmu.edu/&hellip;/mccomb-christopher</a></li>
+  <li id="ref-5"><span class="ref-authors">McComb, C., Boatwright, P., &amp; Cagan, J.</span> <span class="ref-title">Focus and Modality: Defining a Roadmap to Future AI-Human Teaming in Design.</span> <span class="ref-venue">Proceedings of the Design Society 3, 1905-1914 (2023).</span> <a href="https://doi.org/10.1017/pds.2023.191" target="_blank" rel="noopener">doi.org/10.1017/pds.2023.191</a></li>
+  <li id="ref-6"><span class="ref-authors">Alzayed, M. A., Miller, S. R., Menold, J., Huff, J., &amp; McComb, C.</span> <span class="ref-title">Does empathy lead to creativity? A simulation-based investigation on the role of team trait empathy on nominal group concept generation and early concept screening.</span> <span class="ref-venue">AI EDAM 37 (2023).</span> <a href="https://doi.org/10.1017/S089006042300001X" target="_blank" rel="noopener">doi.org/10.1017/S089006042300001X</a></li>
+  <li id="ref-7"><span class="ref-authors">Xu, Z., Hong, C. S., Soria Zurita, N. F., Gyory, J. T., Stump, G., Nolte, H., Cagan, J., &amp; McComb, C.</span> <span class="ref-title">Adaptation Through Communication: Assessing Human-Artificial Intelligence Partnership for the Design of Complex Engineering Systems.</span> <span class="ref-venue">Journal of Mechanical Design 146(8), 081401 (2024).</span> <a href="https://doi.org/10.1115/1.4064490" target="_blank" rel="noopener">asmedigitalcollection.asme.org</a></li>
+  <li id="ref-8"><span class="ref-authors">PwC.</span> <span class="ref-title">Sizing the Prize: What's the real value of AI for your business and how can you capitalise?</span> <span class="ref-venue">PwC Global AI Study (2017).</span> <a href="https://www.pwc.com/gx/en/issues/artificial-intelligence/publications/artificial-intelligence-study.html" target="_blank" rel="noopener">pwc.com/&hellip;/artificial-intelligence-study</a></li>
+  <li id="ref-9"><span class="ref-authors">Bryant, J., Heitz, C., Sanghvi, S., &amp; Wagle, D.</span> <span class="ref-title">How artificial intelligence will impact K-12 teachers.</span> <span class="ref-venue">McKinsey &amp; Company (14 January 2020).</span> <a href="https://www.mckinsey.com/industries/education/our-insights/how-artificial-intelligence-will-impact-k-12-teachers" target="_blank" rel="noopener">mckinsey.com/&hellip;/k-12-teachers</a></li>
+  <li id="ref-10"><span class="ref-authors">Simon, H. A.</span> <span class="ref-title">Rational choice and the structure of the environment.</span> <span class="ref-venue">Psychological Review 63(2), 129-138 (1956).</span> <a href="https://doi.org/10.1037/h0042769" target="_blank" rel="noopener">doi.org/10.1037/h0042769</a></li>
+  <li id="ref-11"><span class="ref-authors">Adams, G. S., Converse, B. A., Hales, A. H., &amp; Klotz, L. E.</span> <span class="ref-title">People systematically overlook subtractive changes.</span> <span class="ref-venue">Nature 592, 258-261 (2021).</span> <a href="https://doi.org/10.1038/s41586-021-03380-y" target="_blank" rel="noopener">doi.org/10.1038/s41586-021-03380-y</a></li>
+  <li id="ref-12"><span class="ref-authors">Hick, W. E.</span> <span class="ref-title">On the rate of gain of information.</span> <span class="ref-venue">Quarterly Journal of Experimental Psychology 4(1), 11-26 (1952).</span> <a href="https://doi.org/10.1080/17470215208416600" target="_blank" rel="noopener">doi.org/10.1080/17470215208416600</a></li>
+  <li id="ref-13"><span class="ref-authors">Iyengar, S. S., &amp; Lepper, M. R.</span> <span class="ref-title">When choice is demotivating: Can one desire too much of a good thing?</span> <span class="ref-venue">Journal of Personality and Social Psychology 79(6), 995-1006 (2000).</span> <a href="https://doi.org/10.1037/0022-3514.79.6.995" target="_blank" rel="noopener">doi.org/10.1037/0022-3514.79.6.995</a></li>
+  <li id="ref-14"><span class="ref-authors">Davis, M. H.</span> <span class="ref-title">A multidimensional approach to individual differences in empathy.</span> <span class="ref-venue">JSAS Catalog of Selected Documents in Psychology 10, 85 (1980).</span> <a href="https://www.uv.es/friasnav/Davis_1980.pdf" target="_blank" rel="noopener">uv.es/friasnav/Davis_1980.pdf</a></li>
+  <li id="ref-15"><span class="ref-authors">Alzayed, M. A., McComb, C., Menold, J., Huff, J., &amp; Miller, S. R.</span> <span class="ref-title">Are You Feeling Me? An Exploration of Empathy Development in Engineering Design Education.</span> <span class="ref-venue">Journal of Mechanical Design 143(11), 112301 (2021).</span> <a href="https://doi.org/10.1115/1.4048624" target="_blank" rel="noopener">doi.org/10.1115/1.4048624</a></li>
+  <li id="ref-16"><span class="ref-authors">Kirton, M. J.</span> <span class="ref-title">Adaptors and innovators: A description and a measure.</span> <span class="ref-venue">Journal of Applied Psychology 61(5), 622-629 (1976).</span> <a href="https://doi.org/10.1037/0021-9010.61.5.622" target="_blank" rel="noopener">doi.org/10.1037/0021-9010.61.5.622</a></li>
+  <li id="ref-17"><span class="ref-authors">Gero, J. S., &amp; Kannengiesser, U.</span> <span class="ref-title">The Function-Behaviour-Structure Ontology of Design.</span> <span class="ref-venue">In An Anthology of Theories and Models of Design 263-283 (Springer, 2014).</span> <a href="https://doi.org/10.1007/978-1-4471-6338-1_13" target="_blank" rel="noopener">doi.org/10.1007/978-1-4471-6338-1_13</a></li>
+  <li id="ref-18"><span class="ref-authors">Baldwin, M., Meisel, N. A., &amp; McComb, C.</span> <span class="ref-title">Smooth Like Butter: Evaluating Multi-Lattice Transitions in Property-Augmented Latent Spaces.</span> <span class="ref-venue">3D Printing and Additive Manufacturing (2024).</span> <a href="https://doi.org/10.1089/3dp.2023.0316" target="_blank" rel="noopener">doi.org/10.1089/3dp.2023.0316</a> &middot; <a href="https://arxiv.org/abs/2407.08074" target="_blank" rel="noopener">arXiv:2407.08074</a></li>
+  <li id="ref-19"><span class="ref-authors">Agrawal, A., &amp; McComb, C.</span> <span class="ref-title">Reinforcement Learning for Efficient Design Space Exploration With Variable Fidelity Analysis Models.</span> <span class="ref-venue">Journal of Computing and Information Science in Engineering 23(4), 041004 (2023).</span> <a href="https://doi.org/10.1115/1.4056297" target="_blank" rel="noopener">doi.org/10.1115/1.4056297</a></li>
+  <li id="ref-20"><span class="ref-authors">Gyory, J. T., Kotovsky, K., McComb, C., &amp; Cagan, J.</span> <span class="ref-title">Comparing the Impacts on Team Behaviors Between Artificial Intelligence and Human Process Management in Interdisciplinary Design Teams.</span> <span class="ref-venue">Journal of Mechanical Design 144(10), 104501 (2022).</span> <a href="https://doi.org/10.1115/1.4054723" target="_blank" rel="noopener">doi.org/10.1115/1.4054723</a></li>
+  <li id="ref-21"><span class="ref-authors">Riedl, C., Kim, Y. J., Gupta, P., Malone, T. W., &amp; Woolley, A. W.</span> <span class="ref-title">Quantifying collective intelligence in human groups.</span> <span class="ref-venue">Proceedings of the National Academy of Sciences 118(21), e2005737118 (2021).</span> <a href="https://doi.org/10.1073/pnas.2005737118" target="_blank" rel="noopener">doi.org/10.1073/pnas.2005737118</a></li>
+</ol>
+</details>
+
+</div>
 </div>
 `});
 }
