@@ -1836,7 +1836,7 @@ def update_score_D(E_obs, t, chronotype, features):
 <h4>Stable phase (day 14+)</h4>
 <ul class="findings">
   <li>Periodic (weekly) reweighting of Model&nbsp;B coefficients, once the user occasionally taps a "was this about right?" button.</li>
-  <li>Kalman upgrade (see <code>docs/models-f-and-g.md</code>) becomes viable: per-user observation noise and process noise are estimable from the accumulated data.</li>
+  <li>Kalman upgrade (see <a href="#alg-f">Model&nbsp;F</a> below) becomes viable: per-user observation noise and process noise are estimable from the accumulated data.</li>
   <li>Optional: chronotype can be refined from observed typing/activity rhythm rather than self-report.</li>
 </ul>
 </div></details>
@@ -1861,7 +1861,44 @@ def update_score_D(E_obs, t, chronotype, features):
 </div></details>
 
 <h3 id="alg-future">Future models (F and G)</h3>
-<p>The v0 design also explored five other candidates (linear sum, allostatic EMA, multi-axis vector, Kalman, contextual bandit). For v1 we're shipping only B and D to keep the moving parts small. The Kalman filter (F) and contextual bandit (G) are the two upgrades most likely to earn their complexity once we have ~6&nbsp;weeks of per-user data. Full pedagogical write-ups &mdash; what they are, when they help, how they'd plug into the existing code &mdash; live at <code>docs/models-f-and-g.md</code>, ready for a future tab.</p>
+<p>The v0 design also explored five other candidates (linear sum, allostatic EMA, multi-axis vector, Kalman, contextual bandit). For v1 we're shipping only B and D to keep the moving parts small. The Kalman filter (F) and contextual bandit (G) are the two upgrades most likely to earn their complexity once we have ~6&nbsp;weeks of per-user data. Both are written out in full below &mdash; what they are, when they help, and how they'd plug into the existing Model&nbsp;B/D pipeline.</p>
+
+<h4 id="alg-f">Model F: Bayesian Kalman filter</h4>
+<details class="section-fold"><summary>Treat E and S as latent states; signals are noisy observations</summary>
+<div class="section-body">
+<div class="slide-fig"><img src="/figures/battery/model_f_kalman.svg" alt="Model F: Kalman filter showing noisy observations, a latent true-E curve, and the posterior mean with a shaded uncertainty band" onclick="openLightbox(this)"><div class="caption">Model F: a latent state with an explicit uncertainty band. The band widens when signals are sparse (no wearable, logged-off) and tightens when many sources agree.</div></div>
+<p>Treat E, S as latent states evolving per Model&nbsp;B's linear dynamics. Each signal (HRV, focus-minutes, meeting-density, etc.) is a noisy observation of a linear combination of E and S. A standard Kalman update gives a posterior mean <em>plus</em> an uncertainty covariance.</p>
+
+<details class="code-fold"><summary>Numpy sketch</summary>
+<pre class="code-block"><code>import numpy as np
+# state x = [E, S]
+def kalman_update_F(x, P, z, A, H, Q, R):
+    # predict
+    x = A @ x
+    P = A @ P @ A.T + Q
+    # update with observation z
+    y = z - H @ x
+    S = H @ P @ H.T + R
+    K = P @ H.T @ np.linalg.inv(S)
+    x = x + K @ y
+    P = (np.eye(2) - K @ H) @ P
+    return x, P</code></pre></details>
+
+<p><strong>Pros:</strong> explicit uncertainty &mdash; the battery could visually dim its certainty (crisp fill when confident, fuzzy when signals are sparse). Gracefully handles missing signals (e.g. wearable not worn today) without hand-coded fallbacks.</p>
+<p><strong>Cons:</strong> needs per-user variance estimates to work well, which is weeks of passive data. Less legible than Model&nbsp;B to explain in a single sentence.</p>
+<p><strong>When to turn it on:</strong> after ~6 weeks of data per user, when the normalizer has stable estimates of each signal's observation noise. Slots in as a drop-in replacement for <code>tick_B()</code> &mdash; same inputs, same output shape, just with an added <code>P</code> covariance field that the display layer can choose to render or ignore.</p>
+</div></details>
+
+<h4 id="alg-g">Model G: RL / contextual bandit (speculative)</h4>
+<details class="section-fold"><summary>Let the device learn which interventions actually restore <em>this user's</em> energy</summary>
+<div class="section-body">
+<div class="slide-fig"><img src="/figures/battery/model_g_rl.svg" alt="Model G: contextual-bandit loop with state, policy, action, environment, reward, and a regret curve flattening over twelve weeks" onclick="openLightbox(this)"><div class="caption">Model G: the classic RL loop adapted to this domain. Actions are nudges; reward is downstream energy change. Regret falls slowly as the policy learns which interventions actually work for this particular user.</div></div>
+<p>Concept: after N weeks of data, train a contextual-bandit policy that suggests interventions (&ldquo;take a walk now&rdquo;? &ldquo;close Slack for 30&nbsp;min&rdquo;?) and observes downstream E-axis change as reward. Interventions are arms; context is the current state vector (E, S, time-of-day, chronotype phase, recent meeting load).</p>
+
+<p><strong>Pros:</strong> per-user personalization without ever asking the user anything. In principle, the device gets smarter the longer you own it &mdash; the interventions that work for larks at 3pm differ from the ones that work for owls at midnight, and the policy figures this out from observed reward.</p>
+<p><strong>Cons:</strong> only honest if we have a closed intervention loop on the device (nudge &rarr; observed behavior &rarr; measured change). Without that loop, it's open-loop advice with no feedback signal. Also ethically loaded &mdash; nudging is a design decision, not a pure data-science decision, and needs an explicit opt-in.</p>
+<p><strong>Verdict:</strong> v3 or later. Not a day-one priority. Worth mentioning so the architecture doesn't foreclose it &mdash; the Model&nbsp;B/D output is already the &ldquo;state&rdquo; vector a bandit would condition on.</p>
+</div></details>
 
 </div>
 
